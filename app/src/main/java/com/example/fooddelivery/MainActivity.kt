@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+//git hub first commit
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
