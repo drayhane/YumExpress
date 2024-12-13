@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.fooddelivery.ui.screen.CountriesListScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
@@ -28,55 +29,21 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
-
-
-val supabase = createSupabaseClient(
-    supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
-    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmaGN2bGVnenVlbXJ4d2ZrZ2FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5NTQxOTMsImV4cCI6MjA0OTUzMDE5M30.oizzttRgeJEtvcozA5fkCbmO8fynjmd4EgGNBCzYGMA"
-) {
-    install(Postgrest)
-}
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Set up the theme and UI content of the app
         setContent {
-            FoodDeliveryTheme {
+            FoodDeliveryTheme{
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CountriesList()
+                    // Set the Main Screen content (e.g., a list of countries)
+                    CountriesListScreen()
                 }
             }
-        }
-    }
-}
-
-@Serializable
-data class Country(
-    val id: Int,
-    val name: String,
-)
-
-@Composable
-fun CountriesList() {
-    var countries by remember{ mutableStateOf<List<Country>>(listOf()) }
-    LaunchedEffect(Unit) {
-        countries = supabase.from("countries")
-            .select()
-            .decodeList<Country>()
-    }
-    LazyColumn{
-        items(
-            countries,
-            key = { country -> country.id },
-        ) { country ->
-            Text(
-                country.name,
-                modifier = Modifier.padding(8.dp),
-            )
         }
     }
 }

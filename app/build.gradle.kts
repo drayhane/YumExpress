@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.0"
+    id("org.jetbrains.kotlin.kapt")
+
 }
 
 android {
@@ -55,6 +57,9 @@ dependencies {
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.coroutines)
+    implementation (libs.room.runtime)
+    implementation (libs.room.ktx)
+    kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
