@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.fooddelivery.ui.screen.CountriesListScreen
+import com.example.fooddelivery.ui.screens.RestaurantDetailsScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // Set the Main Screen content (e.g., a list of countries)
-                    CountriesListScreen()
+                    RestaurantDetailsScreen()
                 }
             }
         }
