@@ -31,10 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fooddelivery.R
+import com.example.fooddelivery.components.BackArrowButton
 import com.example.fooddelivery.components.ButtonComponent
-import com.example.fooddelivery.components.ControllerText
 import com.example.fooddelivery.components.GoogleLoginIn
 import com.example.fooddelivery.components.DontHaveAccount
+import com.example.fooddelivery.components.HaveAccount
 import com.example.fooddelivery.components.MyTextField
 import com.example.fooddelivery.components.NormaleTexte
 import com.example.fooddelivery.components.OrSeparator
@@ -42,7 +43,7 @@ import com.example.fooddelivery.components.TitleTexte
 import com.example.fooddelivery.components.passwordTextField
 
 @Composable
-fun SignUp1 (navController: NavController){
+fun SignUp4Photo (navController: NavController){
     Surface(
         color = Color.White,
         modifier = Modifier.fillMaxSize()// to vocer the whole screen
@@ -54,39 +55,28 @@ fun SignUp1 (navController: NavController){
                 .fillMaxSize() // Makes the Column fill the entire screen
                 .padding(16.dp),
 
-        horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
+            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
             //verticalArrangement = Arrangement.Center // Center vertically
         ){
-            Spacer(modifier = Modifier.height(32.dp))
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo background", // A description for accessibility
-                modifier = Modifier
-                    .width(290.dp)  // Set width
-                    .height(100.dp) // Set height
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-            TitleTexte("Log in")
+            BackArrowButton(navController)
             Spacer(modifier = Modifier.height(20.dp))
-            MyTextField("Email address")
-            passwordTextField("Password")
-            Spacer(modifier = Modifier.height(4.dp))
-            ControllerText("Forgot Password ?",navController,"ForgotPassword1")
 
 
-            Spacer(modifier = Modifier.height(90.dp))
+            TitleTexte("Sign Up")
+            Spacer(modifier = Modifier.height(40.dp))
+
+            MyTextField("Address")
+            MyTextField("Phone number")
+
             Spacer(modifier = Modifier.weight(1f))
+            ButtonComponent("Sign up",navController,"SignUpSuccess")
 
-            ButtonComponent("Log in",navController,"")
-            Spacer(modifier = Modifier.weight(1f))
-            OrSeparator()
 
-            GoogleLoginIn{(println("Google login clicked!"))}
+
 
 
             Spacer(modifier = Modifier.height(15.dp))
-            DontHaveAccount(navController)
+            HaveAccount(navController)
 
 
         }

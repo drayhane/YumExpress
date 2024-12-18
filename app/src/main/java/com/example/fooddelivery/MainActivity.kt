@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.fooddelivery.navigationview.NavigationView
 import com.example.fooddelivery.screens.SignUp1
 import com.example.fooddelivery.ui.screen.CountriesListScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     // Set the Main Screen content (e.g., a list of countries)
                     //CountriesListScreen()
-                    SignUp1()
+                   // SignUp1()
+                    NavigationView()
                 }
             }
         }
