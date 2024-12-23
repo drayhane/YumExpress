@@ -18,15 +18,18 @@ import com.example.fooddelivery.screens.WelcomePages.Welcome1
 fun NavigationView() {
     val navController = rememberNavController()
 
-    NavHost(navController= navController, startDestination = "SignUp4Photo"){// normalement Welcome1   SignUp3OTP
+    NavHost(navController= navController, startDestination = "LogoPage"){// normalement Welcome1   SignUp3OTP
         composable("LogIn"){ SignUp1(navController) }
         composable("SignUp2"){ SignUp2(navController) }
         composable("SignUp3OTP"){ SignUp3OTP(navController) }
         composable("SignUp4Photo"){ SignUp4Photo(navController) }
         composable("SignUpSuccess"){ SignUpSuccess(navController) }
         composable("ForgotPassword1"){ ForgotPassword1(navController) }
+        composable("ForgotPassword2"){ ForgotPassword2(navController) }
         composable("ForgotPasswordOTP"){ ForgotPasswordOTP(navController) }
         composable("Welcome1"){ Welcome1(navController) }
+        composable("LogoPage"){ LogoPage(navController) }
+
 
 
     }

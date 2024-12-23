@@ -95,6 +95,20 @@ fun NormaleTexteGrey (value:String){
 }
 
 @Composable
+fun NormaleTexteGreyCenter (value:String){
+    Text(
+        text = value,
+        style = TextStyle(
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+            color = Color.Gray,
+            textAlign = TextAlign.Center
+        )
+    )
+}
+
+@Composable
 fun LinkText(value: String, onClick: () -> Unit) {
     Text(
         text = value,
@@ -140,6 +154,19 @@ fun TitleTexte (value:String){
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Normal
+        )
+    )
+}
+
+@Composable
+fun TitleTexteCenter (value:String){
+    Text(
+        text = value,
+        style = TextStyle(
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+            textAlign = TextAlign.Center
         )
     )
 }
