@@ -18,7 +18,7 @@ import com.example.fooddelivery.screens.WelcomePages.Welcome1
 fun NavigationView() {
     val navController = rememberNavController()
 
-    NavHost(navController= navController, startDestination = "Welcome1"){// normalement login   SignUp3OTP
+    NavHost(navController= navController, startDestination = "SignUp4Photo"){// normalement Welcome1   SignUp3OTP
         composable("LogIn"){ SignUp1(navController) }
         composable("SignUp2"){ SignUp2(navController) }
         composable("SignUp3OTP"){ SignUp3OTP(navController) }
