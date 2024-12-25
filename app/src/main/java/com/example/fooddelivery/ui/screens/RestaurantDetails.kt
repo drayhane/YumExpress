@@ -1,6 +1,7 @@
 package com.example.fooddelivery.ui.screens
 
 import android.widget.Space
+import com.example.fooddelivery.ui.components.BottomNavigationBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -301,21 +302,62 @@ fun RestaurantDetailsScreen() {
                 }
             }
             item {
-                Column(
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp) // Set a fixed height for the independent scrollable list
+                ){
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(start = 16.dp, end = 16.dp)
                 ) {
-                    repeat(5) { index -> // Generate 5 cards
+                    item {
+                        CardItem(
+                            name = "Derbal Rayhane",
+                            date = "08/11/2024",
+                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                            rating = 3
+                        )
                         CardItem(
                             name = "Derbal Rayhane",
                             date = "08/11/2024",
                             comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
                             rating = 4
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        CardItem(
+                            name = "Derbal Rayhane",
+                            date = "08/11/2024",
+                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                            rating = 2
+                        )
+                        CardItem(
+                            name = "Derbal Rayhane",
+                            date = "08/11/2024",
+                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                            rating = 5
+                        )
+                        CardItem(
+                            name = "Derbal Rayhane",
+                            date = "08/11/2024",
+                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                            rating = 1
+                        )
+                        CardItem(
+                            name = "Derbal Rayhane",
+                            date = "08/11/2024",
+                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                            rating = 4
+                        )
                     }
+
                 }
+            }
+            }
+            item {
+
+                BottomNavigationBar()
+
             }
         }
     }
