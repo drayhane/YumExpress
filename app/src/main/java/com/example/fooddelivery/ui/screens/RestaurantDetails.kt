@@ -1,8 +1,8 @@
 package com.example.fooddelivery.ui.screens
 
 import android.widget.Space
-import com.example.fooddelivery.ui.components.BottomNavigationBar
 import androidx.compose.foundation.Image
+import com.example.fooddelivery.ui.components.CompletionDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,11 +51,14 @@ import com.example.fooddelivery.ui.components.TabItem
 import com.example.fooddelivery.ui.components.MenuItemWithDivider
 
 import com.example.fooddelivery.ui.components.CardItem
+import com.example.fooddelivery.ui.components.FeedbackDialog
 
 @Composable
 fun RestaurantDetailsScreen() {
     // State to toggle between restaurant details and reviews
     val showReviews = remember{ mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
+    val showCompletionDialog = remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -300,6 +305,7 @@ fun RestaurantDetailsScreen() {
                         )
                     }
                 }
+
             }
             item {
                 Box(
@@ -307,65 +313,92 @@ fun RestaurantDetailsScreen() {
                         .fillMaxWidth()
                         .height(400.dp) // Set a fixed height for the independent scrollable list
                 ){
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 16.dp, end = 16.dp)
-                ) {
-                    item {
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 3
-                        )
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 4
-                        )
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 2
-                        )
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 5
-                        )
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 1
-                        )
-                        CardItem(
-                            name = "Derbal Rayhane",
-                            date = "08/11/2024",
-                            comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
-                            rating = 4
-                        )
-                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 16.dp, end = 16.dp)
+                    ) {
+                        item {
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 3
+                            )
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 4
+                            )
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 2
+                            )
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 5
+                            )
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 1
+                            )
+                            CardItem(
+                                name = "Derbal Rayhane",
+                                date = "08/11/2024",
+                                comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                rating = 4
+                            )
+                        }
 
+                    }
                 }
             }
-            }
             item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(94.dp)
+                        .padding(14.dp)
+                        .background(Color.White)
+                ){
+                Button(
+                    onClick = { showDialog.value = true },
+                    modifier = Modifier
+                        .width(358.dp)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Share your feedback",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+                }
 
-                BottomNavigationBar()
+                if (showDialog.value) {
+                    FeedbackDialog(onDismiss = { showDialog.value = false },
+                        onSubmit = {
+                            showDialog.value = false
+                            showCompletionDialog.value = true
+                        }
+                    )
+                }
+
+                // Completion Dialog
+                if (showCompletionDialog.value) {
+                    CompletionDialog(onDismiss = { showCompletionDialog.value = false })
+                }
 
             }
         }
     }
 }
-
-
-
-
-
-
-
