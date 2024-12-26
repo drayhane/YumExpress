@@ -45,9 +45,9 @@ fun ForgotPassword2 (navController: NavController){
             NormaleTexte("Please type something you’ll remember.")
             Spacer(modifier = Modifier.height(40.dp))
 
-            passwordTextField("Password")
+           // passwordTextField("Password")
             Spacer(modifier = Modifier.height(12.dp))
-            passwordTextField("Confirm password")
+            //passwordTextField("Confirm password")
             Spacer(modifier = Modifier.weight(1f))
             ButtonComponent("Continue",navController,"") // should go to the acceuil
         }}

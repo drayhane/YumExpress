@@ -44,7 +44,7 @@ fun ForgotPassword1 (navController: NavController){
             NormaleTexte("Don’t worry! It happens. Please enter the email associated with your account.")
             Spacer(modifier = Modifier.height(30.dp))
 
-            MyTextField("Email address")
+           // MyTextField("Email address")
             Spacer(modifier = Modifier.weight(1f))
             ButtonComponent("Next",navController,"ForgotPasswordOTP") // should go to the acceuil
         }}

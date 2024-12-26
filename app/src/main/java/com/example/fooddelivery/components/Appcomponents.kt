@@ -172,25 +172,23 @@ fun TitleTexteCenter (value:String){
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
 // text fields
-fun MyTextField (labelValue:String){
-    val textValue = remember{
-        mutableStateOf("") // the last value entered by the user will be remembered
-    }
-
+@Composable
+fun MyTextField(
+    labelValue: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
-        label = {Text(text = labelValue,color = Color.Gray)},
+        label = { Text(text = labelValue, color = Color.Gray) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedLabelColor = Color.LightGray,
             focusedBorderColor = Color.LightGray,
             unfocusedBorderColor = Color.LightGray,
-            cursorColor = Color.Black, // Black cursor
+            cursorColor = Color.Black // Black cursor
         ),
-        value = textValue.value,
-        onValueChange = {
-            textValue.value = it
-        },
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -200,55 +198,48 @@ fun MyTextField (labelValue:String){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun passwordTextField (labelValue:String){
-    val password = remember{
-        mutableStateOf("") // the last value entered by the user will be remembered
+fun passwordTextField(
+    labelValue: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    val passwordVisible = remember {
+        mutableStateOf(false) // Password not visible initially
     }
 
-    val passwordVisible = remember {
-        mutableStateOf(false) // password not visivle initially
-    }
     OutlinedTextField(
-        label = {Text(text = labelValue,color = Color.Gray)},
+        label = { Text(text = labelValue, color = Color.Gray) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedLabelColor = Color.LightGray,
             focusedBorderColor = Color.LightGray,
             unfocusedBorderColor = Color.LightGray,
-            cursorColor = Color.Black, // Black cursor
+            cursorColor = Color.Black // Black cursor
         ),
-        value = password.value,
-        onValueChange = {
-            password.value = it
-        },
+        value = value, // External value
+        onValueChange = onValueChange, // External state updater
         modifier = Modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-
-        // to toggle the password
-        trailingIcon={
-            val iconImage = if (passwordVisible.value){
+        trailingIcon = {
+            val iconImage = if (passwordVisible.value) {
                 Icons.Outlined.Visibility
-            }else{
+            } else {
                 Icons.Outlined.VisibilityOff
-
             }
-            val description = if(passwordVisible.value){
+            val description = if (passwordVisible.value) {
                 "Hide password"
-            }else{
+            } else {
                 "Show password"
             }
 
-            IconButton(onClick = {passwordVisible.value = !passwordVisible.value }){
-                Icon(imageVector = iconImage , contentDescription = description)
-
+            IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                Icon(imageVector = iconImage, contentDescription = description)
             }
         },
-        visualTransformation = if(passwordVisible.value) VisualTransformation.None else
-        PasswordVisualTransformation(),
+        visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation()
     )
-
-
 }
+
 
 // Black button with white text
 @Composable
@@ -486,9 +477,8 @@ fun OtpTextField(
                 },
                 label = {},
                 modifier = Modifier
-                    .width(80.dp)
-                    .height(90.dp)
-                    .padding(4.dp)
+                    .width(50.dp)
+                    .height(80.dp)
                     .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
                     .background(Color.Transparent)
                     .align(Alignment.CenterVertically), // Ensure it's centered vertically

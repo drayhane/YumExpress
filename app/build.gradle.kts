@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -11,6 +12,10 @@ android {
     namespace = "com.example.fooddelivery"
     compileSdk = 34
 
+
+
+
+
     defaultConfig {
         applicationId = "com.example.fooddelivery"
         minSdk = 24
@@ -19,7 +24,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
+
 
     buildTypes {
         release {
@@ -30,6 +37,16 @@ android {
             )
         }
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/NOTICE"
+        }
+    }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -40,6 +57,7 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
@@ -48,10 +66,9 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.25.1")
 
 
-
     implementation (libs.androidx.foundation)
     implementation(libs.coil.compose)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -62,12 +79,15 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
+
+
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.storage)
     kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -76,5 +96,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    implementation("io.github.jan-tennert.supabase:auth-kt:3.0.3")
+
+
 
 }

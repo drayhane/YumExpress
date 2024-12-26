@@ -31,6 +31,9 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +46,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // Set the Main Screen content (e.g., a list of countries)
-                    //CountriesListScreen()
+                    //
+              //  CountriesListScreen()
                    // SignUp1()
-                    NavigationView()
+                 NavigationView()
                 }
             }
         }
