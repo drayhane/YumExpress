@@ -65,6 +65,7 @@ import com.example.fooddelivery.components.NormaleTexte
 import com.example.fooddelivery.components.OrSeparator
 import com.example.fooddelivery.components.TitleTexte
 import com.example.fooddelivery.components.passwordTextField
+import com.example.fooddelivery.data.local.Cart
 import com.example.fooddelivery.data.local.User1
 import com.example.fooddelivery.ui.theme.MainBlack
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -259,6 +260,13 @@ fun GoogleButton(navController: NavController) {
                 val currentUser = supabaseClient.auth.currentUserOrNull()
 
                 if (currentUser != null) {
+
+
+                    val uniqueCardId = "Cart_${UUID.randomUUID().toString()}"
+
+                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0")
+                    supabaseClient.from("cart").insert(cart)
+
                     // Prepare data for insertion
                     val dataToInsert = mapOf(
                         "id_user" to currentUser.id,
@@ -269,7 +277,7 @@ fun GoogleButton(navController: NavController) {
                         "adress" to "", // Assuming no address is available here
                         "location" to "null",
                         "name" to googleIdTokenCredential.displayName,
-                        "id_card" to "1"
+                        "id_card" to uniqueCardId
                     )
                     // Insert into user1 table
                     val user = supabaseClient.from("user1").insert(dataToInsert) {

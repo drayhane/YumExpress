@@ -76,6 +76,7 @@ import com.example.fooddelivery.components.NormaleTexte
 import com.example.fooddelivery.components.OrSeparator
 import com.example.fooddelivery.components.TitleTexte
 import com.example.fooddelivery.components.passwordTextField
+import com.example.fooddelivery.data.local.Cart
 import com.example.fooddelivery.data.local.User1
 import com.example.fooddelivery.data.model.UserViewModel
 import com.example.fooddelivery.ui.theme.MainBlack
@@ -89,6 +90,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import org.slf4j.MDC.put
 import supabaseClient
+import java.util.UUID
 
 
 fun showPictureOptions(
@@ -267,6 +269,14 @@ fun SignUp4Photo(navController: NavController) {
                     val userId = currentUser?.id ?: throw Exception("User not authenticated")
                     val email = currentUser.email
                     val password = "no need"
+
+
+                    // to add the cart
+                    val uniqueCardId = "Cart_${UUID.randomUUID().toString()}"
+
+                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0")
+                    supabaseClient.from("cart").insert(cart)
+
                     // Prepare data for insertion
                     val dataToInsert = mapOf(
                         "id_user" to userId,
@@ -277,7 +287,7 @@ fun SignUp4Photo(navController: NavController) {
                         "adress" to userAddress.value,
                         "location" to "null",
                         "name" to name.value,
-                        "id_card" to "1"
+                        "id_card" to uniqueCardId
                     )
 
                     // Insert into user1 table

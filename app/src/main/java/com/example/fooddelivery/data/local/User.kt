@@ -16,3 +16,10 @@ data class User1(
     val name: String,
     val id_card: String?
 )
+
+@Serializable
+data class Cart(
+    val id_card: String,
+    val total_price: Double,
+    val food_note: String
+)

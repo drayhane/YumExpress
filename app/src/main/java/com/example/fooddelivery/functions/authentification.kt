@@ -1,3 +1,5 @@
+package com.example.fooddelivery.functions
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +25,9 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 
-
+/*
 @Serializable
-data class Cart(
+data class Carti(
     val id_card: String,
     val total_price: Double,
     val food_note: String
@@ -112,7 +114,7 @@ fun authentification(navController: NavController) {
 
     }
 }
-
+*/
 
 /*
 @Composable

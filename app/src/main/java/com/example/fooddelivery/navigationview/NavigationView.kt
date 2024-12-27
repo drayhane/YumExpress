@@ -33,7 +33,7 @@ fun NavigationView() {
         composable("ForgotPasswordOTP"){ ForgotPasswordOTP(navController) }
         composable("Welcome1"){ Welcome1(navController) }
         composable("LogoPage"){ LogoPage(navController) }
-        composable("authentification"){ authentification(navController) } // the one i used to test supabase with cart
+       // composable("authentification"){ authentification(navController) } // the one i used to test supabase with cart
 
         composable("SignUp3OTP?email={email}",
             arguments = listOf(navArgument("email") { type = NavType.StringType })
