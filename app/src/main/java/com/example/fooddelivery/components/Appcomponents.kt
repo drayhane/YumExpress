@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -339,7 +340,8 @@ fun OrSeparator() {
 
 @Composable
 fun GoogleLoginIn(onLoginClick: () -> Unit)
-{    // The parent Row for the Google login button
+{
+    // The parent Row for the Google login button
     Spacer(modifier = Modifier.height(12.dp))
 
     Row(
