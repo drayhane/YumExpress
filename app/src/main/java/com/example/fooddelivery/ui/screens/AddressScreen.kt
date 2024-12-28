@@ -1,10 +1,12 @@
 package com.example.fooddelivery.ui.screens
 
-
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +74,6 @@ object OpenStreetMapService {
 }
 
 // Function to get the current location
-
 suspend fun getCurrentLocation(context: Context): Pair<Double, Double>? {
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
@@ -93,15 +95,19 @@ suspend fun getCurrentLocation(context: Context): Pair<Double, Double>? {
     return suspendCancellableCoroutine { continuation ->
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
+                Log.d("Location", "Latitude: ${location.latitude}, Longitude: ${location.longitude}")
                 continuation.resume(Pair(location.latitude, location.longitude))
             } else {
+                Log.d("Location", "Location not found")
                 continuation.resume(null)
             }
         }.addOnFailureListener {
+            Log.d("Location", "Failed to get location: ${it.message}")
             continuation.resume(null)
         }
     }
 }
+
 // Address Screen Composable
 @SuppressLint("MissingPermission")
 @Composable
@@ -111,6 +117,8 @@ fun AddressScreen(context: Context, navController: NavController) {
     var suggestions by remember { mutableStateOf<List<OpenStreetMapSuggestion>>(emptyList()) }
     var selectedSuggestion by remember { mutableStateOf<OpenStreetMapSuggestion?>(null) }
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
+    var showLocationDialog by remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -122,35 +130,31 @@ fun AddressScreen(context: Context, navController: NavController) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding( 0.dp)
+            modifier = Modifier.padding(0.dp)
         ) {
-
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF8F8F8)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Sharp.KeyboardArrowLeft,
-                        contentDescription = "Call",
-                        tint = Black1F,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF8F8F8)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Sharp.KeyboardArrowLeft,
+                    contentDescription = "Call",
+                    tint = Black1F,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(6.dp))
-
             Text(
-                text = "Adress",
+                text = "Address",
                 color = Black1F,
                 fontSize = 16.sp,
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
+
         // Input field
         Text("Enter your address", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(4.dp))
@@ -165,7 +169,7 @@ fun AddressScreen(context: Context, navController: NavController) {
             Spacer(modifier = Modifier.width(8.dp))
             Image(
                 painter = painterResource(R.drawable.location),
-                contentDescription ="location",
+                contentDescription = "location",
                 modifier = Modifier
                     .size(28.dp)
                     .padding(4.dp)
@@ -217,17 +221,19 @@ fun AddressScreen(context: Context, navController: NavController) {
             ) {
                 Image(
                     painter = painterResource(R.drawable.location),
-                    contentDescription ="location",
-                    colorFilter =  ColorFilter.tint(Color(0xFFFF640D)),
+                    contentDescription = "location",
+                    colorFilter = ColorFilter.tint(Color(0xFFFF640D)),
                     modifier = Modifier
                         .size(28.dp)
                         .padding(4.dp)
                 )
                 Text(
                     text = suggestion.display_name,
-                    color = Color.Black                )
+                    color = Color.Black
+                )
             }
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         Divider(color = Color.Gray, thickness = 0.5.dp)
         Spacer(modifier = Modifier.height(8.dp))
@@ -239,7 +245,15 @@ fun AddressScreen(context: Context, navController: NavController) {
                 .padding(16.dp)
                 .clickable {
                     coroutineScope.launch {
-                        currentLocation = getCurrentLocation(context)
+                        if (!isLocationEnabled(context)) {
+                            showLocationDialog = true
+                        } else {
+                            currentLocation = getCurrentLocation(context)
+                            // After getting the location, navigate to tracking screen
+                            currentLocation?.let {
+                                navController.navigate("tracking_screen?lat=${it.first}&lon=${it.second}")
+                            }
+                        }
                     }
                 },
             verticalAlignment = Alignment.CenterVertically
@@ -255,64 +269,113 @@ fun AddressScreen(context: Context, navController: NavController) {
 
             // Text
             Text(
-                text = "Use my local adress",
+                text = "Use my local address",
                 fontSize = 14.sp,
                 color = Color.Black
             )
         }
+
+        // Display current location for testing
         currentLocation?.let {
             Text("Current location: ${it.first}, ${it.second}", fontSize = 14.sp, color = Color.Gray)
         }
 
-
-
-
         Spacer(modifier = Modifier.weight(1f))
+
+        // If selectedSuggestion is not null, show the Add and Cancel buttons
         if (selectedSuggestion != null) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-               ,
-            verticalArrangement = Arrangement.Center
-        ) {
-
-
-            Button(onClick = {
-
-                navController.navigate("tracking_screen?lat=${selectedSuggestion!!.lat}&lon=${selectedSuggestion!!.lon}")
-            },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Black1F),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 8.dp)
+            Column(
+                Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text="Add",
-                    color = Color.White,
-                    fontSize = 16.sp,)
+                Button(onClick = {
+                    navController.navigate("tracking_screen?lat=${selectedSuggestion!!.lat}&lon=${selectedSuggestion!!.lon}")
+                },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Black1F),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = "Add",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                    )
+                }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(onClick = {
+                    selectedSuggestion = null
+                    query = ""
+                },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(Color.White),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 8.dp)
+                        .border(1.dp, Black1F, RoundedCornerShape(12.dp))
+                ) {
+                    Text(
+                        text = "Cancel",
+                        color = Black1F,
+                        fontSize = 16.sp,
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = {
-                selectedSuggestion = null
-                query = ""
+        }
+    }
+
+    // Location Services Dialog
+    if (showLocationDialog) {
+        AlertDialog(
+            onDismissRequest = { showLocationDialog = false },
+            title = { Text("Location Services") },
+            containerColor = Color(0xFFFCF4EE),
+
+            text = { Text("Please enable location services in your device settings.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLocationDialog = false
+                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        context.startActivity(intent)
+                    } ,
+                    colors = ButtonDefaults.buttonColors(containerColor = Black1F),
+
+                ) {
+                    Text(
+                        text="Enable",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(Color.White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 8.dp)
-                    .border(1.dp, Black1F, RoundedCornerShape(12.dp))
-            ) {
-                Text(text="Cancel",
-                    color = Black1F,
-                    fontSize = 16.sp,)
+            dismissButton = {
+                Button(onClick = { showLocationDialog = false },
+                        colors = ButtonDefaults.buttonColors(Color.White),
+
+
+                ){
+                    Text(
+                        text = "Cancel",
+                        color = Black1F,
+                        fontSize = 16.sp,
+                    )
+                }
             }
-        }}
+        )
     }
 }
 
-
+// Function to check if location services are enabled
+fun isLocationEnabled(context: Context): Boolean {
+    val locationMode = Settings.Secure.getInt(
+        context.contentResolver, Settings.Secure.LOCATION_MODE
+    )
+    return locationMode != Settings.Secure.LOCATION_MODE_OFF
+}

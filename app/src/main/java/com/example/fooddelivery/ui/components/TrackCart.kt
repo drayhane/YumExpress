@@ -1,5 +1,12 @@
 package com.example.fooddelivery.ui.components
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +31,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.example.fooddelivery.R
 import com.example.fooddelivery.ui.theme.Black1F
 import kotlinx.coroutines.delay
@@ -35,16 +46,27 @@ fun TrackCard(
     deliveryManPhone: String,
     deliveryManImageUrl: String,
     deliveryPlace: String,
+    context: Context,
     modifier: Modifier = Modifier
 
 ) {
     var activeIconIndex by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
-        activeIconIndex=-1;
         while (activeIconIndex < 7) {
-            delay(10_000)
+            delay(150_000)  // Delay for 2.5 minutes before incrementing
             activeIconIndex++
+
+            // Send notification based on the active index
+            if (activeIconIndex == 1) {
+                sendNotification(context, "Your order is taken!")
+            } else if (activeIconIndex == 3) {
+                sendNotification(context, "We are preparing the order.")
+            } else if (activeIconIndex == 5) {
+                sendNotification(context, "Order is on the route.")
+            } else if (activeIconIndex == 7) {
+                sendNotification(context, "Order delivered, please evaluate!")
+            }
         }
     }
 
@@ -189,4 +211,51 @@ fun TrackCard(
             )
         }
     }
+}
+
+fun sendNotification(context: Context, message: String) {
+    // For Android 13 and higher, check if we have permission to post notifications
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ContextCompat.checkSelfPermission(
+                context, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+            // If permission is not granted, request it
+            Toast.makeText(context, "Notification permission is required", Toast.LENGTH_SHORT).show()
+            return
+        }
+    }
+
+    val channelId = "food_delivery_channel"
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(channelId, "Food Delivery Notifications", NotificationManager.IMPORTANCE_DEFAULT).apply {
+            description = "Notifications for food delivery status"
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    val notification = NotificationCompat.Builder(context, channelId)
+        .setContentTitle("Food Delivery Update")
+        .setContentText(message)
+        .setSmallIcon(android.R.drawable.ic_menu_info_details)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .build()
+
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        return
+    }
+    NotificationManagerCompat.from(context).notify(0, notification)
 }

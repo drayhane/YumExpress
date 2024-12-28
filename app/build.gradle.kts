@@ -60,6 +60,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation ("androidx.navigation:navigation-compose:2.6.0" )
     implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.firebase:firebase-messaging:23.1.1")
+    implementation ("androidx.core:core-ktx:1.10.0")
 
 
     implementation(libs.androidx.core.ktx)
