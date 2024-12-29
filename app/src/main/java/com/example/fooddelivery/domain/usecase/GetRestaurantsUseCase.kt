@@ -18,7 +18,8 @@ class GetRestaurantUseCase(
 class GetMenuItemsUseCase(
     private val menuRepository: MenuRepository
 ) {
-    suspend operator fun invoke(restaurantId: String, Type: String): List<Item> {
-        return menuRepository.getMenuItemsByRestaurantId(restaurantId, Type)
+
+    suspend operator fun invoke(restaurantId: String, itemType: String): List<Item> {
+        return menuRepository.getMenuItemsByRestaurantId(restaurantId)
     }
 }

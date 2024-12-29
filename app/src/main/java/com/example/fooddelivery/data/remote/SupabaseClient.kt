@@ -34,21 +34,23 @@ suspend fun fetchRestaurantById(restaurantId: String): Restaurant? {
     return response.decodeSingleOrNull<Restaurant>()
 }
 
-suspend fun fetchMenuItems(restaurantId: String, Type: String): List<Item> {
+suspend fun fetchMenuItems(restaurantId: String): List<Item> {
     val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
         filter {
             eq("id_restaurant", restaurantId)
-            eq("Type", Type)
         }
     }
     // Decode the data into a Restaurant object
     return response.decodeList<Item>()
 }
-suspend fun fetchcatego(restaurantId: String): List<String> {
-    val response = supabaseClient.from("item").select(columns = Columns.list("Type")) {
+
+suspend fun fetchReviews(restaurantId: String): List<Item> {
+    val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
         filter {
             eq("id_restaurant", restaurantId)
         }
     }
-    return response.decodeList<String>()
+    // Decode the data into a Restaurant object
+    return response.decodeList<Item>()
 }
+

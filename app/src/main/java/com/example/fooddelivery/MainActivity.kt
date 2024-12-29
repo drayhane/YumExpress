@@ -1,6 +1,7 @@
 package com.example.fooddelivery
 
 import GetRestoUsecase
+import MenuRepositoryImpl
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +17,8 @@ import restoRepositoryImpl
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val repository = restoRepositoryImpl()
-        val getCountriesUseCase = GetRestoUsecase(repository)
+        val repository = MenuRepositoryImpl()
+        val restoid ="1"
 
         // Set up the theme and UI content of the app
         setContent {
@@ -26,7 +27,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Set the Main Screen content (e.g., a list of countries)
                     RestaurantScreen()
                 }
             }

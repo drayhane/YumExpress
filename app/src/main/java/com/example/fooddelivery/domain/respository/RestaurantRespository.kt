@@ -30,16 +30,11 @@ class RestaurantRepositoryImpl : RestaurantRepository {
 }
 
 interface MenuRepository {
-    suspend fun getCategories(restaurantId: String): List<String>
-    suspend fun getMenuItemsByRestaurantId(restaurantId: String, Type: String): List<Item>
+    suspend fun getMenuItemsByRestaurantId(restaurantId: String): List<Item>
 }
 
 class MenuRepositoryImpl : MenuRepository {
-    override suspend fun getMenuItemsByRestaurantId(restaurantId: String, Type: String): List<Item> {
-        return fetchMenuItems(restaurantId, Type)
-    }
-
-    override suspend fun getCategories(restaurantId: String): List<String> {
-        return fetchcatego(restaurantId)
+    override suspend fun getMenuItemsByRestaurantId(restaurantId: String): List<Item> {
+        return fetchMenuItems(restaurantId)
     }
 }

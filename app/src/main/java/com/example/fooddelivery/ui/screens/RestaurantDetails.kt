@@ -70,9 +70,6 @@ fun RestaurantScreen(
     repository: RestaurantRepository = remember { RestaurantRepositoryImpl() },
     menuRepository: MenuRepository = remember { MenuRepositoryImpl() }
 ) {
-
-    var categories by remember { mutableStateOf<List<String>>(emptyList()) }
-    var selectedTabIndex by remember { mutableStateOf(0) }
     var restaurant by remember { mutableStateOf<Restaurant?>(null) }
     var menuItems by remember { mutableStateOf<List<Item>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -85,12 +82,9 @@ fun RestaurantScreen(
     LaunchedEffect(Unit) {
         try {
             val fetchedRestaurant = repository.getRestaurantById(restaurantId)
+            val fetchedMenuItems = menuRepository.getMenuItemsByRestaurantId(restaurantId)
             restaurant = fetchedRestaurant
-            categories = menuRepository.getCategories(restaurantId)
-            if (categories.isNotEmpty()) {
-                // Initially load the menu items of the first category
-                menuItems = menuRepository.getMenuItemsByRestaurantId(restaurantId, categories[selectedTabIndex])
-            }
+            menuItems = fetchedMenuItems
             isLoading = false
         } catch (e: Exception) {
             isLoading = false
@@ -111,9 +105,16 @@ fun RestaurantScreen(
 @Composable
 fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
 
-    val categories = menuItems.groupBy { it.Type }
-    val tabTitles = categories.keys.toList()
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    val types = menuItems.map { it.Type }.distinct().sorted()
+    val tabTitles = listOf("All") + types // Add "All" at the beginning
+
+    var selectedTab by remember { mutableStateOf(0) }
+
+    // Filtered menu items based on selected tab
+    val filteredMenuItems = when (selectedTab) {
+        0 -> menuItems // "All" case
+        else -> menuItems.filter { it.Type == tabTitles[selectedTab] }
+    }
 
     // State to toggle between restaurant details and reviews
     val showReviews = remember{ mutableStateOf(false) }
@@ -280,24 +281,27 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
 
             }
             item {
-                // Tabs
+                    // Tabs
 
-                ScrollableTabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .background(Color.Transparent)
-                        .padding(16.dp),
-                    edgePadding = 8.dp,
-                    indicator = {},
-                    divider = {}
-                ) {
-                    TabItem("Burgers", selectedTabIndex == 0, true)
-                    TabItem("Pizza", selectedTabIndex == 1, false)
-                    TabItem("Sandwiches", selectedTabIndex == 2, false)
-                    TabItem("Tacos", selectedTabIndex == 3, false)
-                }
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTab,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .background(Color.Transparent)
+                            .padding(16.dp),
+                        edgePadding = 8.dp,
+                        indicator = {},
+                        divider = {}
+                    ) {
+                        tabTitles.forEachIndexed { index, title ->
+                            TabItem(
+                                title = title,
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index }
+                            )
+                        }
+                    }
             }
 
             item {
@@ -308,30 +312,12 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
                         .height(400.dp) // Set a fixed height for the independent scrollable list
                 ){
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        item {
+                        items(filteredMenuItems) { menuItem ->
                             MenuItemWithDivider(
-                                imageRes = R.drawable.new_york,
-                                name = "New York",
-                                description = "100gr de steak haché, salade, tomate, fromage, sauce BBQ",
-                                price = "450 DA"
-                            )
-                            MenuItemWithDivider(
-                                imageRes = R.drawable.albama,
-                                name = "Dallas",
-                                description = "Steak, cheddar, bacon croustillant, sauce BBQ",
-                                price = "500 DA"
-                            )
-                            MenuItem(
-                                imageRes = R.drawable.miami,
-                                name = "Miami",
-                                description = "Poulet croustillant, avocat, salade, sauce épicée",
-                                price = "500 DA"
-                            )
-                            MenuItem(
-                                imageRes = R.drawable.miami,
-                                name = "Miami",
-                                description = "Poulet croustillant, avocat, salade, sauce épicée",
-                                price = "500 DA"
+                                imageRes = R.drawable.new_york, // Replace with actual image logic
+                                name = menuItem.name,
+                                description = menuItem.ingredient,
+                                price = "${menuItem.price} DA"
                             )
                         }
                     }
@@ -348,7 +334,7 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "House of Burgers",
+                        text = "${restaurant.name}",
                         color = Color(0xFF1F1F1F),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -360,7 +346,7 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
                             contentDescription = "Star Icon"
                         )
                         Text(
-                            text = "  4.8 (1.5k) • 880 reviews ",
+                            text = "  ${restaurant.rating} • ${restaurant.nbr_reviews} reviews ",
                             fontSize = 14.sp,
                             color = Color(0xFF1F1F1F)
                         )
@@ -429,20 +415,20 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
                         .padding(14.dp)
                         .background(Color.White)
                 ){
-                Button(
-                    onClick = { showDialog.value = true },
-                    modifier = Modifier
-                        .width(358.dp)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Share your feedback",
-                        color = Color.White,
-                        fontSize = 16.sp
-                    )
-                }
+                    Button(
+                        onClick = { showDialog.value = true },
+                        modifier = Modifier
+                            .width(358.dp)
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Share your feedback",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
 
                 if (showDialog.value) {
