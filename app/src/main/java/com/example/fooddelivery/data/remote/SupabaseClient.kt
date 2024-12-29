@@ -8,6 +8,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
 
+import io.github.jan.supabase.postgrest.postgrest
 
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
@@ -51,4 +52,12 @@ suspend fun fetchcatego(restaurantId: String): List<String> {
         }
     }
     return response.decodeList<String>()
+}
+
+suspend fun fetchCountriesFromSupabase(): List<Country> {
+    val response = supabaseClient.postgrest["countries"]
+        .select(Columns.ALL)
+
+    // Décodage des données
+    return response.decodeList<Country>()
 }
