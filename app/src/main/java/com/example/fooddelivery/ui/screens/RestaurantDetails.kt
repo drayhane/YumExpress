@@ -1,5 +1,10 @@
 package com.example.fooddelivery.ui.screens
 
+import GetRestaurantUseCase
+import MenuRepository
+import MenuRepositoryImpl
+import RestaurantRepository
+import RestaurantRepositoryImpl
 import android.widget.Space
 import androidx.compose.foundation.Image
 import com.example.fooddelivery.ui.components.CompletionDialog
@@ -20,12 +25,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,8 +40,11 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +55,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Item
+import com.example.fooddelivery.data.model.Restaurant
 
 import com.example.fooddelivery.ui.components.MenuItem
 import com.example.fooddelivery.ui.components.TabItem
@@ -54,7 +66,55 @@ import com.example.fooddelivery.ui.components.CardItem
 import com.example.fooddelivery.ui.components.FeedbackDialog
 
 @Composable
-fun RestaurantDetailsScreen() {
+fun RestaurantScreen(
+    repository: RestaurantRepository = remember { RestaurantRepositoryImpl() },
+    menuRepository: MenuRepository = remember { MenuRepositoryImpl() }
+) {
+
+    var categories by remember { mutableStateOf<List<String>>(emptyList()) }
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    var restaurant by remember { mutableStateOf<Restaurant?>(null) }
+    var menuItems by remember { mutableStateOf<List<Item>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Static restaurantId = "1"
+    val restaurantId = "1"
+
+    // Fetch data when the Composable is launched
+    LaunchedEffect(Unit) {
+        try {
+            val fetchedRestaurant = repository.getRestaurantById(restaurantId)
+            restaurant = fetchedRestaurant
+            categories = menuRepository.getCategories(restaurantId)
+            if (categories.isNotEmpty()) {
+                // Initially load the menu items of the first category
+                menuItems = menuRepository.getMenuItemsByRestaurantId(restaurantId, categories[selectedTabIndex])
+            }
+            isLoading = false
+        } catch (e: Exception) {
+            isLoading = false
+            errorMessage = "Failed to load restaurant: ${e.localizedMessage}"
+        }
+    }
+
+    if (isLoading) {
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
+    } else if (errorMessage != null) {
+        Text(text = errorMessage!!, color = Color.Red)
+    } else {
+        restaurant?.let {
+            RestaurantDetailsScreen(restaurant = it, menuItems = menuItems)
+        }
+    }
+}
+@Composable
+fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
+
+    val categories = menuItems.groupBy { it.Type }
+    val tabTitles = categories.keys.toList()
+    var selectedTabIndex by remember { mutableStateOf(0) }
+
     // State to toggle between restaurant details and reviews
     val showReviews = remember{ mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
@@ -112,7 +172,7 @@ fun RestaurantDetailsScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "House of Burgers",
+                        text = "${restaurant.name}",
                         color = Color(0xFF1F1F1F),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -124,7 +184,7 @@ fun RestaurantDetailsScreen() {
                             contentDescription = "Star Icon"
                         )
                         Text(
-                            text = "  4.8 (1.5k) • 880 reviews ",
+                            text = "  ${restaurant.rating} • ${restaurant.nbr_reviews} reviews ",
                             fontSize = 14.sp,
                             color = Color(0xFF1F1F1F)
                         )
@@ -143,7 +203,7 @@ fun RestaurantDetailsScreen() {
                             contentDescription = "Call Icon"
                         )
                         Text(
-                            text = "  Phone number: 0676180978",
+                            text = "  Phone number: ${restaurant.phone}",
                             fontSize = 14.sp,
                             color = Color(0xFF1F1F1F)
                         )
@@ -172,8 +232,9 @@ fun RestaurantDetailsScreen() {
                                     painter = painterResource(id = R.drawable.group),
                                     contentDescription = "Delivery Fee Icon"
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "  250 DZD",
+                                    text = "${restaurant.delivery_price}",
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black
                                 )
@@ -200,8 +261,9 @@ fun RestaurantDetailsScreen() {
                                     painter = painterResource(id = R.drawable.clock),
                                     contentDescription = "Delivery Time Icon"
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "  10-20 min",
+                                    text = "${restaurant.delivery_time}",
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black
                                 )
@@ -219,7 +281,6 @@ fun RestaurantDetailsScreen() {
             }
             item {
                 // Tabs
-                val selectedTabIndex = 0
 
                 ScrollableTabRow(
                     selectedTabIndex = selectedTabIndex,
