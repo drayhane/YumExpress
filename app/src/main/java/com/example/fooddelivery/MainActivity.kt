@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fooddelivery.ui.screens.AddressScreen
+import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 
@@ -52,6 +53,11 @@ class MainActivity : ComponentActivity() {
                             AddressScreen(
                                 context = this@MainActivity,
                                 navController = navController
+                            )
+                        }
+                        composable("DeliverySuccessScreen"){
+                            DeliverySuccessScreen(
+                                navController=navController
                             )
                         }
                     }

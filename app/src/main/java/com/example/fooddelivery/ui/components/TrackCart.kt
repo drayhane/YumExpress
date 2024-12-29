@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import com.example.fooddelivery.R
 import com.example.fooddelivery.ui.theme.Black1F
 import kotlinx.coroutines.delay
@@ -47,6 +48,7 @@ fun TrackCard(
     deliveryManImageUrl: String,
     deliveryPlace: String,
     context: Context,
+    navController: NavController,
     modifier: Modifier = Modifier
 
 ) {
@@ -54,7 +56,7 @@ fun TrackCard(
 
     LaunchedEffect(Unit) {
         while (activeIconIndex < 7) {
-            delay(150_000)  // Delay for 2.5 minutes before incrementing
+            delay(10_000)  // Delay for 2.5 minutes before incrementing
             activeIconIndex++
 
             // Send notification based on the active index
@@ -66,6 +68,7 @@ fun TrackCard(
                 sendNotification(context, "Order is on the route.")
             } else if (activeIconIndex == 7) {
                 sendNotification(context, "Order delivered, please evaluate!")
+                navController.navigate("DeliverySuccessScreen")
             }
         }
     }

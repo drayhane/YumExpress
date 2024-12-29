@@ -64,7 +64,8 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
                 "0686544587",
                  "",
                 "ESI",
-                 context
+                 context,
+                navController
             )
         }
     }
