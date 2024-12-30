@@ -1,3 +1,5 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.Review
@@ -11,6 +13,9 @@ import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
 
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
@@ -37,24 +42,40 @@ suspend fun fetchRestaurantById(restaurantId: String): Restaurant? {
     return response.decodeSingleOrNull<Restaurant>()
 }
 
-suspend fun fetchMenuItems(restaurantId: String, Type: String): List<Item> {
+suspend fun fetchMenuItems(restaurantId: String): List<Item> {
     val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
         filter {
             eq("id_restaurant", restaurantId)
-            eq("Type", Type)
         }
     }
     // Decode the data into a Restaurant object
     return response.decodeList<Item>()
 }
-suspend fun fetchcatego(restaurantId: String): List<String> {
-    val response = supabaseClient.from("item").select(columns = Columns.list("Type")) {
-        filter {
-            eq("id_restaurant", restaurantId)
-        }
+
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun AddReview(restaurantId: String, userId: String, rating: Int, reviewText: String):Boolean{
+    try {
+        val currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+        val new_review = Review(
+            id_restaurant = restaurantId,
+            id_user = userId,
+            note = rating,
+            review = reviewText,
+            date = currentDate
+        )
+        val response = supabaseClient
+            .from("review")
+            .insert(
+                new_review
+            )
+        // If no error, return true
+        return true
+    } catch (e: Exception) {
+        println("Error: ${e.localizedMessage}")
+        return false
     }
-    return response.decodeList<String>()
 }
+
 
 suspend fun fetchCountriesFromSupabase(): List<Country> {
     val response = supabaseClient.postgrest["countries"]

@@ -1,7 +1,10 @@
 package com.example.fooddelivery.ui.components
 
+import AddReviewUseCase
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -21,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,9 +40,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.fooddelivery.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 @Composable
-fun FeedbackDialog(onDismiss: () -> Unit, onSubmit: () -> Unit) {
+fun FeedbackDialog(
+    restaurantId: String,
+    userId: String,
+    addReviewUseCase: AddReviewUseCase,
+    onDismiss: () -> Unit, onSubmit: () -> Unit
+) {
+
+    var rating by remember { mutableStateOf(0) }
+    var comment by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
@@ -64,16 +84,15 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSubmit: () -> Unit) {
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val rating = remember { mutableStateOf(0) }
-                    for (i in 1..5) {
-                        IconButton(onClick = { rating.value = i }) {
-                            Icon(
-                                painter = painterResource(id = if (i <= rating.value) R.drawable.star else R.drawable.star),
-                                contentDescription = "Star $i",
-                                tint = Color(0xFFFF640D),
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
+                    for (i in 0..5) {
+                        Icon(
+                            imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Star $i",
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clickable { rating = i },
+                            tint = Color(0xFFFFC107) // Gold color
+                        )
                     }
                 }
 
@@ -89,17 +108,16 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSubmit: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Feedback Input
-                val feedbackText = remember{ mutableStateOf(TextFieldValue()) }
                 BasicTextField(
-                    value = feedbackText.value,
-                    onValueChange = { feedbackText.value = it },
+                    value = comment,
+                    onValueChange = { comment = it },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)
                         .padding(8.dp)
                         .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)),
                     decorationBox = { innerTextField ->
-                        if (feedbackText.value.text.isEmpty()) {
+                        if (comment.isEmpty()) {
                             Text(
                                 text = "Write your feedback here ...",
                                 color = Color.Gray,
@@ -112,10 +130,33 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSubmit: () -> Unit) {
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
+                var errorMessage by remember { mutableStateOf<String?>(null) }
                 // Finish Button
                 Button(
-                    onClick = { onSubmit() },
+                    onClick = {
+                        errorMessage = null
+
+                        // Call use case to submit review
+                        CoroutineScope(Dispatchers.Main).launch {
+                            try {
+                                val result = addReviewUseCase(
+                                    restaurantId = restaurantId,
+                                    userId = userId,
+                                    rating = rating,
+                                    reviewText = comment
+                                )
+                                if (result) {
+                                    onSubmit() // Success, trigger onSubmit
+                                } else {
+                                    errorMessage = "Failed to submit review. Please try again."
+                                }
+                            } catch (e: Exception) {
+                                // Catch any exceptions and log them
+                                errorMessage = "An error occurred: ${e.localizedMessage}"
+                                Log.e("FeedbackDialog", "Error submitting review", e) // Log the error to logcat
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

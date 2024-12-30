@@ -7,7 +7,7 @@ data class Item(
     val id_item: String,
     val name: String,
     val image: Int,
-    val price: Int,
+    val price: Double,
     val id_restaurant: String,
     val Type: String,
     val ingredient: String

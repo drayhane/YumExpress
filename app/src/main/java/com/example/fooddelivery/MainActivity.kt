@@ -1,6 +1,8 @@
 package com.example.fooddelivery
 
+import AddReviewUseCase
 import GetRestoUsecase
+import MenuRepositoryImpl
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,14 +22,19 @@ import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
+import reviewRespository
+import reviewRespositoryImpl
 import restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
-
+import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val respo = reviewRespositoryImpl()
+        val addReviewUseCase = AddReviewUseCase(respo)
+        val restoid ="1"
         val repository = restoRepositoryImpl()
         val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()
@@ -73,7 +80,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("RestaurantScreen"){
-                            RestaurantDetailsScreen("1", getReviewUseCase = getReviewUseCase )
+                            RestaurantScreen(addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
                         }
 
                     }

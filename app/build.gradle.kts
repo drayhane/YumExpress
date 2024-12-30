@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
+    implementation(libs.junit.junit)
     kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

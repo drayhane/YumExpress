@@ -1,7 +1,5 @@
 package com.example.fooddelivery.data.model
 import kotlinx.serialization.Serializable
-import java.sql.Date
-
 
 @Serializable
 data class Review(

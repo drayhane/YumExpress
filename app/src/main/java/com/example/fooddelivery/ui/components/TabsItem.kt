@@ -1,6 +1,7 @@
 package com.example.fooddelivery.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
@@ -13,22 +14,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun TabItem(title: String, isSelected: Boolean, isFirst: Boolean) {
+fun TabItem(title: String, selected: Boolean, onClick: () -> Unit) {
     Tab(
-        selected = isSelected,
-        onClick = { /* Handle click */ },
-        modifier = Modifier
-            .background(
-                color = if (isSelected) Color(0xFFFF640D) else Color(0xFFFFF9F5),
-                shape = RoundedCornerShape(50.dp)
-            )
-            .padding(horizontal = 20.dp, vertical = 6.dp)
+        selected = selected,
+        onClick = onClick,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
     ) {
-        Text(
-            text = title,
-            color = if (isSelected) Color.White else Color(0xFFFFCFB4),
-            fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
-        )
+        Box(
+            modifier = Modifier
+                .background(
+                    color = if (selected) Color(0xFFFF640D) else Color(0xFFFFF9F5),
+                    shape = RoundedCornerShape(50.dp)
+                )
+                .padding(horizontal = 20.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = title,
+                color = if (selected) Color.White else Color(0xFFFFCFB4),
+                fontSize = 14.sp,
+                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+            )
+        }
     }
 }
