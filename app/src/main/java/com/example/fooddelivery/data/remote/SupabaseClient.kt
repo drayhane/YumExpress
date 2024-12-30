@@ -1,13 +1,16 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
-import io.github.jan.supabase.SupabaseClient
+import com.example.fooddelivery.data.model.Review
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
-import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
-
+import kotlinx.datetime.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
@@ -44,13 +47,27 @@ suspend fun fetchMenuItems(restaurantId: String): List<Item> {
     return response.decodeList<Item>()
 }
 
-suspend fun fetchReviews(restaurantId: String): List<Item> {
-    val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
-        filter {
-            eq("id_restaurant", restaurantId)
-        }
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun AddReview(restaurantId: String, userId: String, rating: Int, reviewText: String):Boolean{
+    try {
+        val currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+        val new_review = Review(
+            id_restaurant = restaurantId,
+            id_user = userId,
+            note = rating,
+            review = reviewText,
+            date = currentDate
+        )
+        val response = supabaseClient
+            .from("review")
+            .insert(
+                new_review
+            )
+        // If no error, return true
+        return true
+    } catch (e: Exception) {
+        println("Error: ${e.localizedMessage}")
+        return false
     }
-    // Decode the data into a Restaurant object
-    return response.decodeList<Item>()
 }
 

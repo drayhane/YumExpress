@@ -1,5 +1,6 @@
 package com.example.fooddelivery.ui.screens
 
+import AddReviewUseCase
 import GetRestaurantUseCase
 import MenuRepository
 import MenuRepositoryImpl
@@ -68,7 +69,8 @@ import com.example.fooddelivery.ui.components.FeedbackDialog
 @Composable
 fun RestaurantScreen(
     repository: RestaurantRepository = remember { RestaurantRepositoryImpl() },
-    menuRepository: MenuRepository = remember { MenuRepositoryImpl() }
+    menuRepository: MenuRepository = remember { MenuRepositoryImpl() },
+    addReviewUseCase: AddReviewUseCase,
 ) {
     var restaurant by remember { mutableStateOf<Restaurant?>(null) }
     var menuItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -77,6 +79,7 @@ fun RestaurantScreen(
 
     // Static restaurantId = "1"
     val restaurantId = "1"
+    val userId="7ccfe700-012b-4cc3-90b0-0f1c16ef3537"
 
     // Fetch data when the Composable is launched
     LaunchedEffect(Unit) {
@@ -97,13 +100,360 @@ fun RestaurantScreen(
     } else if (errorMessage != null) {
         Text(text = errorMessage!!, color = Color.Red)
     } else {
-        restaurant?.let {
-            RestaurantDetailsScreen(restaurant = it, menuItems = menuItems)
+        restaurant?.let { fetchedRestaurant ->
+            val types = menuItems.map { it.Type }.distinct().sorted()
+            val tabTitles = listOf("All") + types // Add "All" at the beginning
+
+            var selectedTab by remember { mutableStateOf(0) }
+
+            // Filtered menu items based on selected tab
+            val filteredMenuItems = when (selectedTab) {
+                0 -> menuItems // "All" case
+                else -> menuItems.filter { it.Type == tabTitles[selectedTab] }
+            }
+
+            // State to toggle between restaurant details and reviews
+            val showReviews = remember{ mutableStateOf(false) }
+            val showDialog = remember { mutableStateOf(false) }
+            val showCompletionDialog = remember { mutableStateOf(false) }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                // Top Image Section
+                item {
+                    Box {
+                        Image(
+                            painter = painterResource(id = R.drawable.burger_image),
+                            contentDescription = "Top Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            IconButton(
+                                onClick = { /* Action for back icon */ },
+                                modifier = Modifier.padding(8.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.arrow_left),
+                                    contentDescription = "Arrow Left Icon"
+                                )
+                            }
+                            IconButton(
+                                onClick = { /* Action for favorite icon */ },
+                                modifier = Modifier.padding(8.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.heart),
+                                    contentDescription = "Heart Icon"
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Conditional content: Show either restaurant info or reviews
+                if (!showReviews.value) {
+                    // Restaurant Info
+                    item {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "${fetchedRestaurant.name}",
+                                color = Color(0xFF1F1F1F),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.star),
+                                    contentDescription = "Star Icon"
+                                )
+                                Text(
+                                    text = "  ${fetchedRestaurant.rating} • ${fetchedRestaurant.nbr_reviews} reviews ",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF1F1F1F)
+                                )
+                                Text(
+                                    text = " (see all reviews) ",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFFFF6600),
+                                    modifier = Modifier.clickable {
+                                        showReviews.value = true // Toggle to show reviews
+                                    }
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.call),
+                                    contentDescription = "Call Icon"
+                                )
+                                Text(
+                                    text = "  Phone number: ${fetchedRestaurant.phone}",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF1F1F1F)
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .width(340.dp)
+                                .height(65.dp)
+                                .border(1.dp, Color(0xFF1F1F1F), RoundedCornerShape(8.dp))
+                                .background(Color(0xFFFFFFFF), RoundedCornerShape(8.dp))
+                                .padding(12.dp), // Padding inside the Box
+                            contentAlignment = Alignment.Center // Ensures the content (Row) is centered
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceEvenly, // Space elements evenly
+                                verticalAlignment = Alignment.CenterVertically, // Align Row content vertically
+                                modifier = Modifier.fillMaxWidth() // Make Row span the full width of the Box
+                            ) {
+                                // First Column
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.group),
+                                            contentDescription = "Delivery Fee Icon"
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "${fetchedRestaurant.delivery_price}",
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    Text(
+                                        text = "Delivery Fee",
+                                        fontSize = 12.sp,
+                                        color = Color.Gray
+                                    )
+                                }
+
+                                // Divider
+                                Divider(
+                                    color = Color(0xFF1F1F1F),
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .height(50.dp)
+                                )
+
+                                // Second Column
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.clock),
+                                            contentDescription = "Delivery Time Icon"
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "${fetchedRestaurant.delivery_time}",
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.Black
+                                        )
+                                    }
+                                    Text(
+                                        text = "Delivery Time",
+                                        fontSize = 12.sp,
+                                        color = Color.Gray
+                                    )
+                                }
+                            }
+                        }
+
+
+                    }
+                    item {
+                        // Tabs
+
+                        ScrollableTabRow(
+                            selectedTabIndex = selectedTab,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .background(Color.Transparent)
+                                .padding(16.dp),
+                            edgePadding = 8.dp,
+                            indicator = {},
+                            divider = {}
+                        ) {
+                            tabTitles.forEachIndexed { index, title ->
+                                TabItem(
+                                    title = title,
+                                    selected = selectedTab == index,
+                                    onClick = { selectedTab = index }
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(400.dp) // Set a fixed height for the independent scrollable list
+                        ){
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(filteredMenuItems) { menuItem ->
+                                    MenuItemWithDivider(
+                                        imageRes = R.drawable.new_york, // Replace with actual image logic
+                                        name = menuItem.name,
+                                        description = menuItem.ingredient,
+                                        price = "${menuItem.price} DA"
+                                    )
+                                }
+                            }
+
+                        }
+
+
+                    }
+                } else {
+                    // Reviews Section
+                    item {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "${fetchedRestaurant.name}",
+                                color = Color(0xFF1F1F1F),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.star),
+                                    contentDescription = "Star Icon"
+                                )
+                                Text(
+                                    text = "  ${fetchedRestaurant.rating} • ${fetchedRestaurant.nbr_reviews} reviews ",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF1F1F1F)
+                                )
+                            }
+                        }
+
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(400.dp) // Set a fixed height for the independent scrollable list
+                        ){
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(start = 16.dp, end = 16.dp)
+                            ) {
+                                item {
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 3
+                                    )
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 4
+                                    )
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 2
+                                    )
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 5
+                                    )
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 1
+                                    )
+                                    CardItem(
+                                        name = "Derbal Rayhane",
+                                        date = "08/11/2024",
+                                        comment = "The New York burger was delicious! The bun was soft, the meat juicy, and the fresh toppings and sauce were perfectly balanced – a great choice for burger lovers!",
+                                        rating = 4
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(94.dp)
+                                .padding(14.dp)
+                                .background(Color.White)
+                        ){
+                            Button(
+                                onClick = { showDialog.value = true },
+                                modifier = Modifier
+                                    .width(358.dp)
+                                    .height(56.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = "Share your feedback",
+                                    color = Color.White,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+
+                        if (showDialog.value) {
+                            FeedbackDialog(
+                                restaurantId = restaurantId,
+                                userId = userId,
+                                addReviewUseCase = addReviewUseCase,
+                                onDismiss = { showDialog.value = false },
+                                onSubmit = {
+                                    showDialog.value = false
+                                    showCompletionDialog.value = true
+                                }
+                            )
+                        }
+
+                        // Completion Dialog
+                        if (showCompletionDialog.value) {
+                            CompletionDialog(onDismiss = { showCompletionDialog.value = false })
+                        }
+
+                    }
+                }
+            }
         }
     }
 }
 @Composable
 fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
+
 
     val types = menuItems.map { it.Type }.distinct().sorted()
     val tabTitles = listOf("All") + types // Add "All" at the beginning
@@ -432,12 +782,7 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
                 }
 
                 if (showDialog.value) {
-                    FeedbackDialog(onDismiss = { showDialog.value = false },
-                        onSubmit = {
-                            showDialog.value = false
-                            showCompletionDialog.value = true
-                        }
-                    )
+
                 }
 
                 // Completion Dialog

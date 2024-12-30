@@ -1,5 +1,11 @@
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
+import com.example.fooddelivery.data.model.Review
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
 
 
 interface restoRepository {
@@ -38,3 +44,16 @@ class MenuRepositoryImpl : MenuRepository {
         return fetchMenuItems(restaurantId)
     }
 }
+
+interface reviewRespository {
+    suspend fun addReview(restaurantId: String, userId: String, rating: Int, reviewText:String): Boolean
+}
+
+class reviewRespositoryImpl : reviewRespository {
+    override suspend fun addReview(restaurantId: String, userId: String, rating: Int, reviewText:String): Boolean {
+        return AddReview(restaurantId, userId, rating, reviewText)
+    }
+}
+
+
+
