@@ -9,17 +9,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.fooddelivery.ui.screens.RestaurantDetailsScreen
-import com.example.fooddelivery.ui.screens.RestaurantScreen
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fooddelivery.domain.respository.ReviewRespository
+import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
 import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import restoRepositoryImpl
+import com.example.fooddelivery.domain.usecase.GetReviewUseCase
+
 
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +30,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val repository = restoRepositoryImpl()
         val getCountriesUseCase = GetRestoUsecase(repository)
+        val repositoryy = ReviewRespositoryImpl()
+        val getReviewUseCase = GetReviewUseCase(repositoryy)
 
         setContent {
             FoodDeliveryTheme {
@@ -39,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "review_screen"
+                        startDestination = "RestaurantScreen"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -68,7 +73,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("RestaurantScreen"){
-                            RestaurantScreen()
+                            RestaurantDetailsScreen("1", getReviewUseCase = getReviewUseCase )
                         }
 
                     }

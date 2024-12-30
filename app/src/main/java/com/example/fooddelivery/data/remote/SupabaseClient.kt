@@ -1,5 +1,6 @@
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
+import com.example.fooddelivery.data.model.Review
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -9,6 +10,7 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
 
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.Serializable
 
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
@@ -61,3 +63,50 @@ suspend fun fetchCountriesFromSupabase(): List<Country> {
     // Décodage des données
     return response.decodeList<Country>()
 }
+
+
+@Serializable
+data class ReviewResponse(
+    val id_restaurant: String,
+    val id_user: String,
+    val date: String,
+    val note: Int?,
+    val review: String?,
+    val user1: UserResponse // Nested user object
+)
+
+@Serializable
+data class UserResponse(
+    val name: String
+)
+
+suspend fun fetchReviewsFromSupabase(restaurantId: String): List<Pair<Review, String>> {
+    val response = supabaseClient
+        .from("review")
+        .select(columns = Columns.list("*", "user1(name)")) {
+            filter {
+                eq("id_restaurant", restaurantId)
+            }
+        }
+
+    // Decode the response directly into a list of ReviewResponse objects
+    val reviews = response.decodeList<ReviewResponse>()
+
+    // Transform the result into a list of Pair<Review, String>
+    return reviews.map { reviewData ->
+        val review = decodeReview(reviewData)
+        val userName = reviewData.user1.name
+        Pair(review, userName)
+    }
+}
+
+private fun decodeReview(data: ReviewResponse): Review {
+    return Review(
+        id_restaurant = data.id_restaurant,
+        id_user = data.id_user,
+        date = data.date,
+        note = data.note,
+        review = data.review
+    )
+}
+

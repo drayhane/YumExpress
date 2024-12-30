@@ -31,8 +31,7 @@ import com.example.fooddelivery.R
 fun CardItem(name: String, date: String, comment: String, rating: Int) {
     Box(
         modifier = Modifier
-            .width(350.dp)
-            .height(140.dp)
+            .padding(top=8.dp, bottom = 8.dp)
             .background(Color.White, RoundedCornerShape(8.dp))
     ) {
         Column{
