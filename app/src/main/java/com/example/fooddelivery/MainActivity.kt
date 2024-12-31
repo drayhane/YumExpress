@@ -1,34 +1,27 @@
 package com.example.fooddelivery
 
+
+import DisplayFavorits
+import DisplayOrders
+import Displaydetail
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.fooddelivery.ui.screen.CountriesListScreen
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.fooddelivery.data.local.OrderEntity
+import com.example.fooddelivery.domain.respository.UserRepository
+import com.example.fooddelivery.domain.respository.UserRepositoryImpl
+import com.example.fooddelivery.ui.screens.DisplayEdit
+import com.example.fooddelivery.ui.screens.DisplayPanier
+import com.example.fooddelivery.ui.screens.DisplayProfil
+import com.example.fooddelivery.ui.screens.Displaymeal
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,14 +29,63 @@ class MainActivity : ComponentActivity() {
         // Set up the theme and UI content of the app
         setContent {
             FoodDeliveryTheme{
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    // Set the Main Screen content (e.g., a list of countries)
-                    CountriesListScreen()
-                }
+                val navController = rememberNavController()
+                main(navController)
+
             }
         }
     }
 }
+@Composable
+fun  main(navcontroller : NavHostController)
+{
+    val sampleOrders = listOf(
+    OrderEntity(
+        id = 1,
+        restaurantName = "Casbah Istanbul",
+        totalPrice = "1495 DA | 2 products",
+        date = "12/02/24 17:43",
+        status = "Delivered",
+        imageRes = R.drawable.casbah_image // Remplace par ton image
+    ),
+    OrderEntity(
+        id = 2,
+        restaurantName = "ALOHA",
+        totalPrice = "5000 DA | 1 product",
+        date = "12/02/24 17:43",
+        status = "Canceled",
+        imageRes = R.drawable.aloha_image // Remplace par ton image
+    ),
+    OrderEntity(
+        id = 3,
+        restaurantName = "Patisserie",
+        totalPrice = "700 DA | 3 products",
+        date = "12/02/24 17:43",
+        status = "Delivered",
+        imageRes = R.drawable.patisserie_image // Remplace par ton image
+    )
+
+)
+
+    val userId = "1"
+    val coroutineScope = rememberCoroutineScope()
+    val userRepository: UserRepository = UserRepositoryImpl()
+val itemid="2"
+
+    var startDestination = "meal"
+    NavHost(navController = navcontroller, startDestination ){
+        composable ("Profil")   {
+
+                DisplayProfil(navcontroller, userId)
+
+        }
+        composable("EditProfil"){DisplayEdit(navcontroller,userId)}
+        composable("Orders")    {DisplayOrders(navcontroller,orders = sampleOrders)}
+        composable("details")   {Displaydetail(navcontroller)}
+        composable("favorits")  {DisplayFavorits(navcontroller)}
+        composable("meal")      {Displaymeal(navcontroller,itemid)}
+        composable("panier")    {DisplayPanier(navcontroller)}
+        }
+    }
+
+

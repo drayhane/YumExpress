@@ -2,18 +2,18 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("plugin.serialization") version "2.0.0"
+    kotlin("plugin.serialization") version "1.9.10" // Replace with a compatible version
     id("org.jetbrains.kotlin.kapt")
 
 }
 
 android {
     namespace = "com.example.fooddelivery"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.fooddelivery"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -43,7 +43,10 @@ android {
 }
 
 dependencies {
-
+    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation ("androidx.navigation:navigation-compose:2.8.3")
+    implementation ("androidx.compose.foundation:foundation:1.4.0")
+    implementation ("androidx.compose.material3:material3:1.0.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,6 +62,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.animation.core.lint)
+    implementation(libs.accessibility.test.framework)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.places)
+    implementation(libs.engage.core)
     kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
