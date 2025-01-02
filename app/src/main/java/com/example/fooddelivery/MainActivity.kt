@@ -83,7 +83,7 @@ val itemid="2"
         composable("Orders")    {DisplayOrders(navcontroller,orders = sampleOrders)}
         composable("details")   {Displaydetail(navcontroller)}
         composable("favorits")  {DisplayFavorits(navcontroller)}
-        composable("meal")      {Displaymeal(navcontroller,itemid)}
+        composable("meal")      {Displaymeal(navcontroller,itemid,userId)}
         composable("panier")    {DisplayPanier(navcontroller)}
         }
     }

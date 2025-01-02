@@ -1,5 +1,8 @@
 
+import android.util.Log
+import com.example.fooddelivery.data.model.Cart
 import com.example.fooddelivery.data.model.User1
+import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -19,7 +22,8 @@ suspend fun fetchUserById(userid: String): User1? {
             eq("id_user", userid)
         }
     }
-    // Decode the data into a Restaurant object
+
+    // Décoder la réponse en un objet User1
     return response.decodeSingleOrNull<User1>()
 }
 suspend fun fetchUpdateUser(userId: String, updatedUser: User1): User1? {
@@ -42,6 +46,49 @@ suspend fun fetchUpdateUser(userId: String, updatedUser: User1): User1? {
 
     return response.decodeSingleOrNull<User1>()
 }
+suspend fun getActiveCart(userId: String): Cart? {
+    val userResponse = supabaseClient.from("user1").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_user", userId)
+        }
+    }
+    val idCard = userResponse.decodeSingleOrNull<User1>()?.id_card ?: return null
+
+    // Vérifier si ce panier est actif
+    val cartResponse = supabaseClient.from("cart").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_card", idCard)
+            eq("is_active", true)
+        }
+    }
+    return cartResponse.decodeSingleOrNull<Cart>()
+}
+
+suspend fun hasActiveCartForRestaurant(userId: String, restaurantId: String): Boolean {
+    // Requête pour récupérer l'id_card associé à l'utilisateur
+    val userResponse = supabaseClient.from("user1").select(columns = Columns.list("id_card")) {
+        filter {
+            eq("id_user", userId)
+        }
+    }
+    val idCard = userResponse.decodeSingleOrNull<User1>()?.id_card
+
+    // Si aucun panier n'est associé à l'utilisateur, retourner false
+    if (idCard == null) {
+        return false
+    }
+
+    // Vérification dans la table `cart` pour un panier actif et lié au restaurant
+    val cartResponse = supabaseClient.from("cart").select(columns = Columns.list("id_card")) {
+        filter {
+            eq("id_card", idCard)
+            eq("id_restaurant", restaurantId)
+            eq("is_active", true)
+        }
+    }
+    return cartResponse.decodeSingleOrNull<Cart>() != null
+}
+
 suspend fun fetchitembyid(itemid:String):item?{
     val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
         filter {
@@ -51,3 +98,153 @@ suspend fun fetchitembyid(itemid:String):item?{
     // Decode the data into a Restaurant object
     return response.decodeSingleOrNull<item>()
 }
+//creer un nouveau panier et l'attribuer a un user
+suspend fun createUserCart(userId: String, restaurantId: String): Cart? {
+    // Créer un nouvel objet Cart avec un UUID généré
+    val cartData = mapOf(
+        "total_price" to 0.0,
+        "food_note" to "",
+        "Id_rest" to restaurantId,
+        "is_active" to true
+    )
+val  cart=Cart(
+    total_price = 0.0,
+    food_note = "",
+    Id_rest = restaurantId,
+    is_active = true
+)
+    return try {
+        Log.d("Supabase", "Création d'un nouveau panier pour l'utilisateur $userId")
+
+        // Insérer le panier dans la base de données
+      val response =supabaseClient
+            .from("cart")
+            .insert(cart)
+            { select()
+             }.decodeSingle<Cart>()
+        Log.d("Supabase", "Insertion du panier effectuée avec succès")
+
+        // Mettre à jour la table `user1` avec l'ID du panier
+        supabaseClient
+            .from("user1")
+            .update(mapOf("id_card" to response.id_card)) // Associe le panier à l'utilisateur
+            {select()
+                filter {eq("id_user", userId)  }}
+
+        Log.d("Supabase", "Mise à jour de l'utilisateur effectuée avec succès")
+
+        // Retourne le panier créé
+        response
+    } catch (e: Exception) {
+        Log.e("Supabase", "Erreur lors de la création ou mise à jour : ${e.message}")
+        null
+    }
+}
+
+
+//modifier restaurantid dans panier
+suspend fun ModifRestauPanier(cartid:String,restaurantId: String){
+    val response = supabaseClient.from("Cart").update(
+        {
+            set("Id_rest" , restaurantId)
+
+        }
+    ) {
+        select()
+        filter {
+
+            eq("id_card", cartid)
+        }
+    }
+}
+//mettre fin a un panier
+suspend fun EndPanier(cartid: String){
+    val response = supabaseClient.from("cart").update(
+        {
+            set("is_active" , false)
+
+        }
+    ) {
+        select()
+        filter {
+
+            eq("id_card", cartid)
+        }
+    }
+    Log.d("EndPanier", "panier=false")
+
+}
+
+suspend fun addtopanier(item: compose) {
+    try {
+        // Récupérer l'élément existant avec la même clé primaire
+        val response = supabaseClient.from("compose")
+            .select(columns = Columns.list("*")) {
+                filter {
+                    eq("id_item", item.id_item)
+                    eq("id_card", item.id_card)
+                }
+            }
+
+        // Vérifier si l'élément existe
+        val existingItem = response.decodeSingleOrNull<compose>()
+
+        if (existingItem == null) {
+            // Insérer un nouvel élément
+            val insertResponse = supabaseClient
+                .from("compose")
+                .insert(item)
+
+        } else {
+            // L'élément existe, mettre à jour la quantité
+            val newQuantity = (existingItem.quantity?.toIntOrNull() ?: 0) + (item.quantity?.toIntOrNull() ?: 0)
+
+            val updateResponse = supabaseClient
+                .from("compose")
+                .update(
+                    mapOf("quantity" to newQuantity)
+                ) {
+                    filter {
+                        eq("id_item", item.id_item)
+                        eq("id_card", item.id_card)
+                    }
+                }
+
+
+        }
+    } catch (e: Exception) {
+        Log.e("addtopanier", "Erreur lors de l'opération : ${e.message}")
+    }
+
+
+
+
+
+
+
+}
+suspend fun modifpanier(cartId: String, price: Double) {
+    val Response = supabaseClient.from("cart").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_card", cartId)
+        }
+    }
+    var currentprice = Response.decodeSingleOrNull<Cart>()?.total_price
+    if (currentprice != null) {
+        currentprice=currentprice + price
+    }
+    val response = supabaseClient
+        .from("cart")
+        .update({
+                set("total_price" ,currentprice)
+}
+        ) {
+            select()
+            filter {
+
+                eq("id_card", cartId)
+        }
+
+
+}}
+

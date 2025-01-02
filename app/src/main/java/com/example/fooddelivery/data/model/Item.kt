@@ -7,8 +7,8 @@ data class item(
     val id_item: String,
     val name: String? = null,
     val image: String? = null,
-    val price: Double? = null,
-    val id_restaurant: String? = null,
+    val price: Double ,
+    val id_restaurant: String,
     val Type: String? = null,
     val ingredient: String? = null
 )
