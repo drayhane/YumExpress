@@ -1,28 +1,29 @@
 package com.example.fooddelivery
 
+import android.Manifest
 import AddReviewUseCase
 import GetRestoUsecase
-import MenuRepositoryImpl
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.fooddelivery.ui.screens.RestaurantDetailsScreen
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.fooddelivery.domain.respository.ReviewRespository
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
 import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
-import reviewRespository
 import reviewRespositoryImpl
 import restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
@@ -32,9 +33,62 @@ import com.example.fooddelivery.ui.screens.RestaurantScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkAndRequestPermissions()}
+
+    // Function to check and request necessary permissions
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        // Check location permission
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        // Check notification permission (only for Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            // All permissions granted, proceed with the app
+            startApp()
+        }
+    }
+
+    // Activity result launcher for permissions
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val notificationsGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
+        } else {
+            true
+        }
+
+        if (locationGranted) {
+            startApp()
+        } else {
+            // If location is denied, show a message and close the app
+            showPermissionDeniedDialog()
+        }
+    }
+    private fun startApp() {
         val respo = reviewRespositoryImpl()
         val addReviewUseCase = AddReviewUseCase(respo)
-        val restoid ="1"
+        val restoid = "1"
         val repository = restoRepositoryImpl()
         val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()
@@ -51,7 +105,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "address_screen"
+                        startDestination = "RestaurantScreen"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -66,7 +120,11 @@ class MainActivity : ComponentActivity() {
                             val lat = latString.toDouble()
                             val lon = lonString.toDouble()
 
-                            TrackingScreen(navController = navController, endPointLat = lat, endPointLon = lon)
+                            TrackingScreen(
+                                navController = navController,
+                                endPointLat = lat,
+                                endPointLon = lon
+                            )
                         }
                         composable("address_screen") {
                             AddressScreen(
@@ -74,13 +132,17 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
-                        composable("DeliverySuccessScreen"){
+                        composable("DeliverySuccessScreen") {
                             DeliverySuccessScreen(
-                                navController=navController
+                                navController = navController
                             )
                         }
-                        composable("RestaurantScreen"){
-                            RestaurantScreen(addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
+                        composable("RestaurantScreen") {
+                            RestaurantScreen(
+                                addReviewUseCase = addReviewUseCase,
+                                restaurantId = "1",
+                                getReviewUseCase = getReviewUseCase
+                            )
                         }
 
                     }
@@ -89,5 +151,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    private fun showPermissionDeniedDialog() {
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Permission Required")
+        builder.setMessage("L'application nécessite l'accès à la localisation pour fonctionner. Veuillez activer la localisation.")
+        builder.setPositiveButton("Quitter") { _, _ ->
+            finish() // Close the app
+        }
+        builder.setCancelable(false)
+        builder.show()
     }
 }

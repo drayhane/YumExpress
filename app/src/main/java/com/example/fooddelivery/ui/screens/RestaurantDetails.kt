@@ -1,12 +1,11 @@
 package com.example.fooddelivery.ui.screens
 
 import AddReviewUseCase
-import GetRestaurantUseCase
+import coil.compose.rememberImagePainter
 import MenuRepository
 import MenuRepositoryImpl
 import RestaurantRepository
 import RestaurantRepositoryImpl
-import android.widget.Space
 import androidx.compose.foundation.Image
 import com.example.fooddelivery.ui.components.CompletionDialog
 import androidx.compose.foundation.background
@@ -23,22 +22,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -141,15 +134,28 @@ fun RestaurantScreen(
             ) {
                 // Top Image Section
                 item {
+                    val imageUrl = fetchedRestaurant.logo
+
                     Box {
-                        Image(
-                            painter = painterResource(id = R.drawable.burger_image),
-                            contentDescription = "Top Image",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            contentScale = ContentScale.Crop
-                        )
+                        fetchedRestaurant.logo?.let { imageUrl ->
+                            Image(
+                                painter = rememberImagePainter(imageUrl),
+                                contentDescription = "Restaurant Logo",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        } ?: run {
+                            Image(
+                                painter = painterResource(id = R.drawable.burger_image),
+                                contentDescription = "Placeholder Image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top,
@@ -181,6 +187,8 @@ fun RestaurantScreen(
                 if (!showReviews.value) {
                     // Restaurant Info
                     item {
+
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -245,9 +253,9 @@ fun RestaurantScreen(
                             contentAlignment = Alignment.Center // Ensures the content (Row) is centered
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.SpaceEvenly, // Space elements evenly
-                                verticalAlignment = Alignment.CenterVertically, // Align Row content vertically
-                                modifier = Modifier.fillMaxWidth() // Make Row span the full width of the Box
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth(),
                             ) {
                                 // First Column
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
