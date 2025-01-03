@@ -345,7 +345,7 @@ fun RestaurantScreen(
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 items(filteredMenuItems) { menuItem ->
                                     MenuItemWithDivider(
-                                        imageRes = R.drawable.new_york, // Replace with actual image logic
+                                        imageRes = R.drawable.new_york,
                                         name = menuItem.name,
                                         description = menuItem.ingredient,
                                         price = "${menuItem.price} DA"
@@ -369,31 +369,31 @@ fun RestaurantScreen(
                             contentAlignment = Alignment.Center
 
                         ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "${fetchedRestaurant.name}",
-                                color = Color(0xFF1F1F1F),
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.star),
-                                    contentDescription = "Star Icon"
-                                )
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Text(
-                                    text = "  ${fetchedRestaurant.rating} • ${fetchedRestaurant.nbr_reviews} reviews ",
-                                    fontSize = 14.sp,
-                                    color = Color(0xFF1F1F1F)
+                                    text = "${fetchedRestaurant.name}",
+                                    color = Color(0xFF1F1F1F),
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold
                                 )
-                            }
-                        }
 
-                    }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.star),
+                                        contentDescription = "Star Icon"
+                                    )
+                                    Text(
+                                        text = "  ${fetchedRestaurant.rating} • ${fetchedRestaurant.nbr_reviews} reviews ",
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF1F1F1F)
+                                    )
+                                }
+                            }
+
+                        }
                     }
                     item {
                         if (isLoading) {
@@ -648,27 +648,27 @@ fun RestaurantDetailsScreen(restaurant: Restaurant, menuItems: List<Item>) {
 
             }
             item {
-                    // Tabs
+                // Tabs
 
-                    ScrollableTabRow(
-                        selectedTabIndex = selectedTab,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .background(Color.Transparent)
-                            .padding(16.dp),
-                        edgePadding = 8.dp,
-                        indicator = {},
-                        divider = {}
-                    ) {
-                        tabTitles.forEachIndexed { index, title ->
-                            TabItem(
-                                title = title,
-                                selected = selectedTab == index,
-                                onClick = { selectedTab = index }
-                            )
-                        }
+                ScrollableTabRow(
+                    selectedTabIndex = selectedTab,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(Color.Transparent)
+                        .padding(16.dp),
+                    edgePadding = 8.dp,
+                    indicator = {},
+                    divider = {}
+                ) {
+                    tabTitles.forEachIndexed { index, title ->
+                        TabItem(
+                            title = title,
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index }
+                        )
                     }
+                }
             }
 
             item {

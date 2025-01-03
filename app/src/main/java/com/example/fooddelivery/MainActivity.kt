@@ -1,5 +1,9 @@
 package com.example.fooddelivery
 
+import DisplayFavorits
+import DisplayOrders
+import Displaydetail
+
 import android.Manifest
 import AddReviewUseCase
 import GetRestoUsecase
@@ -19,7 +23,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fooddelivery.data.local.OrderEntity
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
+import com.example.fooddelivery.domain.respository.UserRepository
+import com.example.fooddelivery.domain.respository.UserRepositoryImpl
 import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
@@ -27,6 +34,10 @@ import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import reviewRespositoryImpl
 import restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
+import com.example.fooddelivery.ui.screens.DisplayEdit
+import com.example.fooddelivery.ui.screens.DisplayPanier
+import com.example.fooddelivery.ui.screens.DisplayProfil
+import com.example.fooddelivery.ui.screens.Displaymeal
 import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 
@@ -90,10 +101,38 @@ class MainActivity : ComponentActivity() {
         val addReviewUseCase = AddReviewUseCase(respo)
         val restoid = "1"
         val repository = restoRepositoryImpl()
-        val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()
         val getReviewUseCase = GetReviewUseCase(repositoryy)
+        val userId = "1"
+        val userRepository: UserRepository = UserRepositoryImpl()
+        val itemid="2"
+        val sampleOrders = listOf(
+            OrderEntity(
+                id = 1,
+                restaurantName = "Casbah Istanbul",
+                totalPrice = "1495 DA | 2 products",
+                date = "12/02/24 17:43",
+                status = "Delivered",
+                imageRes = R.drawable.casbah_image // Remplace par ton image
+            ),
+            OrderEntity(
+                id = 2,
+                restaurantName = "ALOHA",
+                totalPrice = "5000 DA | 1 product",
+                date = "12/02/24 17:43",
+                status = "Canceled",
+                imageRes = R.drawable.aloha_image // Remplace par ton image
+            ),
+            OrderEntity(
+                id = 3,
+                restaurantName = "Patisserie",
+                totalPrice = "700 DA | 3 products",
+                date = "12/02/24 17:43",
+                status = "Delivered",
+                imageRes = R.drawable.patisserie_image // Remplace par ton image
+            )
 
+        )
         setContent {
             FoodDeliveryTheme {
                 val navController = rememberNavController()
@@ -105,7 +144,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "RestaurantScreen"
+                        startDestination = "panier"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -126,7 +165,7 @@ class MainActivity : ComponentActivity() {
                                 endPointLon = lon
                             )
                         }
-                        composable("address_screen") {
+                        composable("Orders") {
                             AddressScreen(
                                 context = this@MainActivity,
                                 navController = navController
@@ -144,6 +183,17 @@ class MainActivity : ComponentActivity() {
                                 getReviewUseCase = getReviewUseCase
                             )
                         }
+                        composable ("Profil")   {
+
+                            DisplayProfil(navController, userId)
+
+                        }
+                        composable("EditProfil"){DisplayEdit(navController,userId)}
+                        composable("Orders")    {DisplayOrders(navController,orders = sampleOrders)}
+                        composable("details")   {Displaydetail(navController)}
+                        composable("favorits")  {DisplayFavorits(navController)}
+                        composable("meal")      {Displaymeal(navController,itemid)}
+                        composable("panier")    {DisplayPanier(navController)}
 
                     }
 
