@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,9 +44,6 @@ fun CategoryList(
     repository: CategoryRepository = remember { CategoryRepositoryImpl() },
     getCategoryUseCase: GetCategoryUseCase,
 ) {
-    // Détecter l'orientation de l'écran
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == 1 // 1 => Portrait, 2 => Paysage
 
     // Utiliser LocalContext.current pour obtenir le contexte
     val context = LocalContext.current
@@ -119,7 +115,6 @@ fun CategoryList(
 
 @Composable
 fun CategoryCard(category: Category) {
-    val context = LocalContext.current
 
     Box(
         modifier = Modifier
