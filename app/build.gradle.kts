@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization)
+    //room
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
@@ -68,5 +69,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    //navigation
+    implementation("androidx.navigation:navigation-compose:2.5.0")
+    //icons
+    implementation("androidx.compose.material:material-icons-extended")
+
 
 }
