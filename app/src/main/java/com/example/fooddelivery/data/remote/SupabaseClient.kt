@@ -4,6 +4,7 @@ import com.example.fooddelivery.data.model.Cart
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
+import com.example.fooddelivery.data.model.order1
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
@@ -114,7 +115,6 @@ val  cart=Cart(
     is_active = true
 )
     return try {
-        Log.d("Supabase", "Création d'un nouveau panier pour l'utilisateur $userId")
 
         // Insérer le panier dans la base de données
       val response =supabaseClient
@@ -122,7 +122,6 @@ val  cart=Cart(
             .insert(cart)
             { select()
              }.decodeSingle<Cart>()
-        Log.d("Supabase", "Insertion du panier effectuée avec succès")
 
         // Mettre à jour la table `user1` avec l'ID du panier
         supabaseClient
@@ -131,7 +130,6 @@ val  cart=Cart(
             {select()
                 filter {eq("id_user", userId)  }}
 
-        Log.d("Supabase", "Mise à jour de l'utilisateur effectuée avec succès")
 
         // Retourne le panier créé
         response
@@ -247,4 +245,90 @@ suspend fun modifpanier(cartId: String, price: Double) {
 
 
 }}
+suspend fun getname_it(itemid: String):String?{
+    val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_item", itemid)
+        }
+    }
 
+    // Décoder la réponse en un objet User1
+    return response.decodeSingleOrNull<item>()?.id_item
+}
+suspend fun getprice_it(itemid: String): Double? {
+    val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_item", itemid)
+        }
+    }
+
+    // Décoder la réponse en un objet User1
+    return response.decodeSingleOrNull<item>()?.price
+}
+suspend fun getcardproduct(cartid: String):List<compose>?{
+    val response=supabaseClient.from("compose").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_card", cartid)
+        }
+    }
+    return response.decodeList<compose>()
+
+}
+suspend fun quantite_modif(itemId:String,cardid:String,quantite:String,totalprice:Double){
+    val response = supabaseClient.from("compose").update(
+        {
+            set("quantity" , quantite)
+
+        }
+    ) {
+        select()
+        filter {
+            eq("id_item", itemId)
+            eq("id_card", cardid)
+        }
+    }
+    modifprice(cardid,totalprice)
+
+    }
+suspend fun create_order(order: order1): Boolean {return try {
+        val response = supabaseClient
+            .from("order1")
+            .insert(order)
+       true}
+           catch (e: Exception) {
+    println("Erreur lors de la création de la commande : ${e.message}")
+    false
+}
+}
+suspend fun GetLoca(userId:String):String?{
+    val response=supabaseClient.from("user1").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_user", userId)
+        }
+    }
+   return response.decodeSingleOrNull<User1>()?.location
+
+}
+suspend fun modifprice(cartid: String,newprice:Double){
+    val response = supabaseClient.from("cart").update(
+        {
+            set("total_price" ,newprice )
+
+        }
+    ) {
+        select()
+        filter {
+
+            eq("id_card", cartid)
+        }
+    }
+}
+suspend fun deletecompose(itemid: String,cartid: String,totalprice:Double){
+    val response=supabaseClient.from("compose").delete{
+        select()
+        filter {
+            eq("id_item", itemid)
+            eq("id_card", cartid)
+    } }
+    modifprice(cartid,totalprice)
+    }

@@ -1,34 +1,33 @@
 package com.example.fooddelivery.ui.screens
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,38 +37,87 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Cart
+import com.example.fooddelivery.data.model.order1
+import com.example.fooddelivery.domain.respository.CartRepository
+import com.example.fooddelivery.domain.respository.CartRepositoryImpl
+import com.example.fooddelivery.domain.respository.ComposeRepository
+import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
+import com.example.fooddelivery.domain.respository.ItemRespository
+import com.example.fooddelivery.domain.respository.ItemRespositoryImpl
+import com.example.fooddelivery.domain.respository.OrderRespository
+import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
+import com.example.fooddelivery.domain.respository.UserRepository
+import com.example.fooddelivery.domain.respository.UserRepositoryImpl
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 data class Product(
+    val id: String,
     val name: String,
     val price: Int,
-    val quantity: Int
+    val image:String,
+    val quantity: Int,
+    val id_restaurant: String,
+    val id_Cart: String
 )
 
 val Orange500 = Color(0xFFFF5722)
-val GrayBackground = Color(0xFFF8F8F8)
 val TextPrimary = Color.Black
 val TextSecondary = Color.Gray
 
 @Composable
-fun DisplayPanier(navController: NavHostController) {
-    var products by remember {
-        mutableStateOf(
-            listOf(
-                Product("New York", 450, 1),
-                Product("Dallas", 500, 2),
-                Product("Miami", 550, 2)
-            )
-        )
+fun DisplayPanier(navController: NavHostController, userId: String) {
+    val cartRepository: CartRepository = CartRepositoryImpl()
+    val itemRepository: ItemRespository = ItemRespositoryImpl()
+    val composeRepository: ComposeRepository = ComposeRepositoryImpl()
+    val userRepository: UserRepository = UserRepositoryImpl()
+    val orderRepository: OrderRespository = OrderRespositoryImpl()
+
+    var products by remember { mutableStateOf(listOf<Product>()) }
+    var totalPrice by remember { mutableStateOf(0.0) }
+    var resultMessage by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    var location by remember { mutableStateOf("") }
+    val selectedMethod = remember { mutableStateOf("CASH") }
+    var activeCart: Cart? = null
+
+    fun recalculateTotal() {
+        totalPrice = products.sumOf { it.price * it.quantity }.toDouble()
+    }
+    LaunchedEffect(userId) {
+        try {
+            activeCart = cartRepository.Getactivecart(userId)
+            activeCart?.id_card?.let { cartId ->
+                val composeProducts = composeRepository.getproducts(cartId)
+                val enrichedProducts = composeProducts?.mapNotNull { compose ->
+                    itemRepository.getItemById(compose.id_item)?.let { item ->
+                        item.image?.let {
+                            Product(
+                                id = item.id_item,
+                                name = item.name ?: "Unknown",
+                                price = item.price.toInt(),
+                                image = it,
+                                quantity = compose.quantity.toInt(),
+                                id_restaurant = item.id_restaurant,
+                                id_Cart = cartId
+                            )
+                        }
+                    }
+                } ?: listOf()
+                products = enrichedProducts
+                totalPrice = enrichedProducts.sumOf { it.price * it.quantity }.toDouble()
+            }
+        } catch (e: Exception) {
+            println("Error loading products: ${e.message}")
+        }
     }
 
     Column(
@@ -80,7 +128,7 @@ fun DisplayPanier(navController: NavHostController) {
     ) {
         // Header
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /* Handle back navigation */ }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ret_btn),
                     contentDescription = "Back Button",
@@ -98,11 +146,15 @@ fun DisplayPanier(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        LaunchedEffect(userId) {
+            location = userRepository.GetUserLocation(userId).toString()
+        }
+
         // Delivery Location
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -110,206 +162,313 @@ fun DisplayPanier(navController: NavHostController) {
                 contentDescription = "Location",
                 tint = Orange500
             )
+
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Delivery location", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                "Bab Ezzouar Rue 02",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
-            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Delivery location",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+                Text(
+                    text = location,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Black
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Change location icon
+            IconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_forward),
+                    contentDescription = "Change Location",
+                    tint = Orange500
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+        Divider(modifier = Modifier.padding(vertical = 6.dp))
 
+        Spacer(modifier = Modifier.height(6.dp))
         // Products Section
         Text("Products", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
+        if (products.isNotEmpty()) {
+            ProductList(
+                products = products,
+                totalPrice=totalPrice,
+                composeRepository=composeRepository,
+                onProductUpdate = { updatedProduct ->
+                    products = products.map { if (it.id == updatedProduct.id) updatedProduct else it }
+                    recalculateTotal()
+                },
+                onDelete = { productToDelete ->
+                    products = products.filter { it.id != productToDelete.id }
+                    recalculateTotal()
+                    coroutineScope.launch {
+                        composeRepository.deletefrompanier(productToDelete.id,productToDelete.id_Cart,totalPrice)}
 
-        ProductList(
-            products = products,
-            onDelete = { product -> products = products.filter { it != product } }
-        )
+                }
+            )
+        } else {
+            Text("Votre panier est vide.", color = TextSecondary)
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+        Divider(modifier = Modifier.padding(vertical = 6.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Order Details
         Text("Order details", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        OrderDetailItem("Subtotal", "1200 DA")
+        val finalPrice = totalPrice + 100 + 195
+        OrderDetailItem("Subtotal", "$totalPrice DA")
         OrderDetailItem("Platform fees", "100 DA")
         OrderDetailItem("Delivery charges", "195 DA")
-        OrderDetailItem("Total", "1495 DA", isBold = true)
+        OrderDetailItem("Total", "$finalPrice DA", isBold = true, color = Orange500)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+        Divider(modifier = Modifier.padding(vertical = 6.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Payment Method
-        PaymentMethodSelection()
+        PaymentMethodSelection(selectedMethod = selectedMethod)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+        Divider(modifier = Modifier.padding(vertical = 6.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Finalize Order Button
         Button(
-            onClick = { /* Handle finalize order */ },
+            onClick = {
+                coroutineScope.launch {
+                    val idRestaurant = products.firstOrNull()?.id_restaurant ?: "Unknown"
+                    val currentDateTime = System.currentTimeMillis().toString()
+                    val idCart = products.firstOrNull()?.id_Cart ?: "Unknown"
+                    val newOrder = order1(
+                        id_order = "order_${System.currentTimeMillis()}",
+                        datee = currentDateTime,
+                        payent_meth = selectedMethod.value,
+                        status = "Processing",
+                        delivery_adress = "Bab Ezzouar Rue 02",
+                        delevery_note = "",
+                        id_user = userId,
+                        Id_rest = idRestaurant,
+                        id_card = idCart
+                    )
+                    try {
+                        val isSuccess = orderRepository.neworder(newOrder)
+                        resultMessage = if (isSuccess) {
+                            products = emptyList()
+                            totalPrice = 0.0
+                            cartRepository.Finirpanier(idCart)
+                            "Votre commande est en cours."
+                        } else {
+                            "Une erreur est survenue lors de la commande."
+                        }
+                    } catch (e: Exception) {
+                        resultMessage = "Une erreur est survenue : ${e.message}"
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            )
         ) {
-            Text("Finalize Order")
+            Text(
+                text = "Finalize Order",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
+    if (resultMessage.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(resultMessage, color = if (resultMessage.startsWith("Votre commande")) Color.Green else Color.Red)
+    }
 }
+
 @Composable
 fun ProductItem(
+    image: String,
     name: String,
     price: Int,
+    itemId:String,
+    cardId:String,
     initialQuantity: Int,
+    totalPrice:Double,
+    composeRepository:ComposeRepository,
+    onQuantityChange: (Int) -> Unit,
     onDelete: () -> Unit
 ) {
     var quantity by remember { mutableStateOf(initialQuantity) }
-    val offsetX = remember { Animatable(0f) }
-    val swipeThreshold = 300f
-    var isDeleteVisible by remember { mutableStateOf(false) } // Affiche ou non la corbeille
-
-    // Scope de coroutine pour les appels suspendus
     val coroutineScope = rememberCoroutineScope()
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        coroutineScope.launch {
-                            // Si le glissement dépasse le seuil vers la gauche, la corbeille reste visible
-                            if (offsetX.value < -swipeThreshold) {
-                                isDeleteVisible = true
-                            } else {
-                                // Sinon, cache la corbeille
-                                isDeleteVisible = false
-                            }
-                            // Revenir à la position initiale
-                            offsetX.animateTo(0f)
-                        }
-                    },
-                    onHorizontalDrag = { _, dragAmount ->
-                        coroutineScope.launch {
-                            // Applique le mouvement à l'élément tout en limitant le mouvement
-                            val newOffset = offsetX.value + dragAmount
-                            offsetX.snapTo(newOffset.coerceIn(-swipeThreshold, 0f))
-                        }
-                    }
-                )
-            }
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Affichage du fond avec la corbeille si nécessaire
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White), // Fond blanc
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            if (isDeleteVisible) {
-                // Si la corbeille est visible, on affiche l'icône de suppression
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = Color.Gray,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .size(32.dp)
-                        .clickable {
-                            onDelete()
-                            isDeleteVisible = false  // Cache la corbeille après la suppression
-                        }
-                )
-            }
-        }
-
-        // Affichage des détails du produit à l'avant
+        // Image et détails du produit
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
-                .background(Color.White)  // Fond blanc pour le produit
+                .weight(2f) // Permet un espace relatif plus large
+                .background(Color.White)
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.burger),
+                painter = rememberAsyncImagePainter(model = image),
                 contentDescription = name,
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
             Spacer(modifier = Modifier.width(8.dp))
-
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(name, style = MaterialTheme.typography.titleMedium)
-                Text("$price DA", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Bouton de réduction de la quantité
-                IconButton(onClick = { if (quantity > 1) quantity-- }) {
-                    Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-                Text("$quantity", style = MaterialTheme.typography.bodyMedium)
-                // Bouton d'augmentation de la quantité
-                IconButton(onClick = { quantity++ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Increase")
-                }
+                Text("$price DA", style = MaterialTheme.typography.bodyMedium, color = Orange500)
             }
         }
+
+        Spacer(modifier = Modifier.width(8.dp)) // Ajoute un espacement entre les colonnes
+
+        // Gestion des quantités
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp), // Espacement contrôlé entre les éléments
+            modifier = Modifier
+                .background(Color.Black, shape = RoundedCornerShape(8.dp)) // Fond noir avec coins arrondis
+                .padding(horizontal = 12.dp, vertical = 6.dp) // Espacement interne
+        ) {
+            // Bouton "-"
+            IconButton(
+                onClick = {
+                    if (quantity > 1) {
+                        quantity -= 1
+                        onQuantityChange(quantity)
+                        val newTotalPrice = totalPrice - price.toDouble()
+                        coroutineScope.launch {
+                            composeRepository.modifquantity(itemId, cardId, quantity.toString(), newTotalPrice)
+                        }
+                    }
+                },
+                modifier = Modifier.size(36.dp) // Taille compacte pour le bouton
+            ) {
+                Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+
+            // Quantité
+            Text(
+                text = "$quantity",
+                modifier = Modifier.padding(horizontal = 8.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White, // Texte en blanc
+                textAlign = TextAlign.Center
+            )
+
+            // Bouton "+"
+            IconButton(
+                onClick = {
+                    quantity += 1
+                    onQuantityChange(quantity)
+                    val newTotalPrice = totalPrice + price.toDouble()
+                    coroutineScope.launch {
+                        composeRepository.modifquantity(itemId, cardId, quantity.toString(), newTotalPrice)
+                    }
+                },
+                modifier = Modifier.size(36.dp) // Taille compacte pour le bouton
+            ) {
+                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
+
+
+        // Bouton de suppression
+        IconButton(
+            onClick = onDelete,
+            modifier = Modifier.weight(0.5f) // Réduit l'espace utilisé par ce bouton
+        ) {
+            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Item")
+        }
     }
+
 }
 
 
-
 @Composable
-fun ProductList(products: List<Product>, onDelete: (Product) -> Unit) {
+fun ProductList(
+    products: List<Product>,
+    totalPrice: Double,
+    composeRepository: ComposeRepository,
+    onProductUpdate: (Product) -> Unit,
+    onDelete: (Product) -> Unit
+) {
     Column {
         products.forEach { product ->
             ProductItem(
+                image = product.image,
                 name = product.name,
                 price = product.price,
+                itemId=product.id,
+                cardId=product.id_Cart,
                 initialQuantity = product.quantity,
+                totalPrice= totalPrice,
+                composeRepository= composeRepository,
+                onQuantityChange = { newQuantity ->
+                    onProductUpdate(product.copy(quantity = newQuantity))
+                },
                 onDelete = { onDelete(product) }
             )
         }
     }
 }
 
+
 @Composable
-fun OrderDetailItem(label: String, value: String, isBold: Boolean = false) {
+fun OrderDetailItem(
+    label: String,
+    value: String,
+    isBold: Boolean = false,
+    color: Color = TextPrimary
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = if (isBold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium)
-        Text(value, style = if (isBold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium)
+        Text(
+            label,
+            style = if (isBold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            value,
+            style = if (isBold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+            color = color
+        )
     }
 }
 
 @Composable
-fun PaymentMethodSelection() {
+fun PaymentMethodSelection(selectedMethod: MutableState<String>) {
     val paymentMethods = listOf("CASH", "EDAHABIA")
-    val selectedMethod = remember { mutableStateOf("CASH") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Payment Method",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
+    Column(modifier = Modifier.fillMaxWidth()) {
         paymentMethods.forEach { method ->
             val isSelected = method == selectedMethod.value
             Row(
@@ -317,7 +476,7 @@ fun PaymentMethodSelection() {
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .background(
-                        if (isSelected) GrayBackground else Color.Transparent,
+                        if (isSelected) Color(0xFFF8F8F8) else Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { selectedMethod.value = method }

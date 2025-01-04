@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
@@ -93,18 +94,16 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
             .padding(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            // Image
             Image(
-                painter = painterResource(id = R.drawable.burger),
+                painter = rememberAsyncImagePainter(model = item.image), // Utilisez l'URL de l'image
                 contentDescription = "Item Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop // Ajuste l'image au conteneur tout en respectant son ratio
             )
 
-            // Back Button inside the image
             IconButton(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier
@@ -169,6 +168,10 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
 
         if (!item.Type.isNullOrEmpty()) {
             sizeOptions[item.Type]?.let { sizes ->
+                // mettre size par defaut the first
+                if (selectedSize == "Simple" && sizes.isNotEmpty()) {
+                    selectedSize = sizes.first()
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     sizes.forEach { size ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -284,7 +287,15 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
             }
 
             // Add to Cart Button
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
 
+                    .background(Color( 0xFF1F1F1F))
+                    .height(56.dp)
+                    .padding(horizontal = 12.dp)
+            ) {
                     Button(
                         onClick = {
                             Log.d("Displaymeal", "Ajouter au panier cliqué")
@@ -337,14 +348,31 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
                                 }
                             }
                         },
-                        modifier = Modifier.clip(RoundedCornerShape(10.dp)),
+                        modifier = Modifier
+                            .height(56.dp)
+                            .clip(RoundedCornerShape(10.dp)),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1F1F1F))
-                    )
-                    {
-                Text(text = "Add to cart")
-            }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.panier), // Replace with your image resource ID
+                                contentDescription = "Custom Image Icon",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp)) // Espacement entre l'icône et le texte
+                            Text(
+                                text = "Add to cart",
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
         }
-    }
+    }}}}
 
     // AlertDialog
     if (showDialog) {

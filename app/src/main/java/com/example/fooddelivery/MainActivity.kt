@@ -72,7 +72,7 @@ fun  main(navcontroller : NavHostController)
     val userRepository: UserRepository = UserRepositoryImpl()
 val itemid="2"
 
-    var startDestination = "meal"
+    var startDestination = "panier"
     NavHost(navController = navcontroller, startDestination ){
         composable ("Profil")   {
 
@@ -84,7 +84,7 @@ val itemid="2"
         composable("details")   {Displaydetail(navcontroller)}
         composable("favorits")  {DisplayFavorits(navcontroller)}
         composable("meal")      {Displaymeal(navcontroller,itemid,userId)}
-        composable("panier")    {DisplayPanier(navcontroller)}
+        composable("panier")    {DisplayPanier(navcontroller,userId)}
         }
     }
 
