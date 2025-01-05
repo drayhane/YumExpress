@@ -29,8 +29,8 @@ fun NavigationView() {
         composable("SignUp4Photo"){ SignUp4Photo(navController) }
         composable("SignUpSuccess"){ SignUpSuccess(navController) }
         composable("ForgotPassword1"){ ForgotPassword1(navController) }
-        composable("ForgotPassword2"){ ForgotPassword2(navController) }
-        composable("ForgotPasswordOTP"){ ForgotPasswordOTP(navController) }
+        //composable("ForgotPassword2"){ ForgotPassword2(navController) }
+        //composable("ForgotPasswordOTP"){ ForgotPasswordOTP(navController) }
         composable("Welcome1"){ Welcome1(navController) }
         composable("LogoPage"){ LogoPage(navController) }
        // composable("authentification"){ authentification(navController) } // the one i used to test supabase with cart
@@ -40,6 +40,21 @@ fun NavigationView() {
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             SignUp3OTP(navController, email)
+        }
+
+
+        composable("ForgotPasswordOTP?email={email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            ForgotPasswordOTP(navController, email)
+        }
+
+        composable("ForgotPassword2?email={email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            ForgotPassword2(navController, email)
         }
 
 
