@@ -137,7 +137,7 @@ fun ForgotPassword2(navController: NavController, email: String) {
 
             TitleTexte("Reset Password")
             NormaleTexte("Please enter your new password.")
-
+            Spacer(modifier = Modifier.height(30.dp))
             passwordTextField("New password", value = newPassword.value, onValueChange = { newPassword.value = it })
             passwordTextField("Confirm new password", value= confirmPassword.value, onValueChange= { confirmPassword.value= it })
 
@@ -145,7 +145,7 @@ fun ForgotPassword2(navController: NavController, email: String) {
                 Text(errorMessage.value, color= Color.Red)
                 Spacer(modifier= Modifier.height(10.dp))
             }
-
+            Spacer(modifier = Modifier.height(30.dp))
             Button(onClick= {
                 if (newPassword.value != confirmPassword.value) {
                     errorMessage.value= "Passwords do not match"
@@ -168,8 +168,29 @@ fun ForgotPassword2(navController: NavController, email: String) {
                     }
                 }
 
-            }) {
-                Text("Reset Password")
+            },modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(56.dp),
+
+                contentPadding = PaddingValues(),
+                colors = ButtonDefaults.buttonColors(Color.Black),
+                shape = RoundedCornerShape(8.dp)
+
+            ) {
+                Box (modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(48.dp)
+                    .background(
+                        color = MainBlack,
+                    ),
+                    contentAlignment = Alignment.Center)
+                {
+                    Text("Reset password",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
         }

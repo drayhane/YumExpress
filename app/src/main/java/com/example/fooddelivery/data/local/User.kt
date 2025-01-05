@@ -21,5 +21,7 @@ data class User1(
 data class Cart(
     val id_card: String,
     val total_price: Double,
-    val food_note: String
+    val food_note: String,
+    val Id_rest : String?,
+    val is_active : Boolean
 )

@@ -6,9 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +20,13 @@ import androidx.core.content.pm.ShortcutInfoCompat.Surface
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +55,7 @@ import com.example.fooddelivery.components.OrSeparator
 import com.example.fooddelivery.components.OtpTextField
 import com.example.fooddelivery.components.TitleTexte
 import com.example.fooddelivery.components.passwordTextField
+import com.example.fooddelivery.ui.theme.MainBlack
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.Auth
@@ -171,8 +177,29 @@ fun SignUp3OTP (navController: NavController, email: String) {
                         }
                     }
                 }
-            }) {
-                Text("Next")
+            } ,modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(56.dp),
+
+                contentPadding = PaddingValues(),
+                colors = ButtonDefaults.buttonColors(Color.Black),
+                shape = RoundedCornerShape(8.dp)
+
+            ) {
+                Box (modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(48.dp)
+                    .background(
+                        color = MainBlack,
+                    ),
+                    contentAlignment = Alignment.Center)
+                {
+                    Text("Next",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
 

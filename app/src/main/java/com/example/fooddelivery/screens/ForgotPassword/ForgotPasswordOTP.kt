@@ -212,8 +212,29 @@ modifier = Modifier.fillMaxSize()// to vocer the whole screen
                     }
                 }
             }
-        }) {
-            Text("Next")
+        },modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(56.dp),
+
+            contentPadding = PaddingValues(),
+            colors = ButtonDefaults.buttonColors(Color.Black),
+            shape = RoundedCornerShape(8.dp)
+
+        ) {
+            Box (modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(48.dp)
+                .background(
+                    color = MainBlack,
+                ),
+                contentAlignment = Alignment.Center)
+            {
+                Text("Next",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
         }
 
 

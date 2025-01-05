@@ -2,6 +2,7 @@ package com.example.fooddelivery.screens
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -88,6 +89,8 @@ import java.util.UUID
 @Composable
 fun SignUp1 (navController: NavController){
 
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     var email = remember { mutableStateOf("") }
     var password = remember { mutableStateOf("") }
     var errorMessage = remember { mutableStateOf("") }
@@ -155,9 +158,15 @@ fun SignUp1 (navController: NavController){
                             this.password = password.value.trim()
                         }
 
+
+                        // After successful login, save login status
+                        sharedPreferences.edit().putBoolean("is_logged_in", true).apply()
+
                         // Switch to the Main thread to handle navigation
                         withContext(Dispatchers.Main) {
                             navController.navigate("SignUpSuccess") // Navigate to the Home screen or appropriate page
+
+
                         }
 
                     } catch (e: Exception) {
@@ -262,9 +271,9 @@ fun GoogleButton(navController: NavController) {
                 if (currentUser != null) {
 
 
-                    val uniqueCardId = "Cart_${UUID.randomUUID().toString()}"
+                    val uniqueCardId = UUID.randomUUID().toString()
 
-                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0")
+                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0",Id_rest=null, is_active= false)
                     supabaseClient.from("cart").insert(cart)
 
                     // Prepare data for insertion
@@ -337,4 +346,11 @@ fun GoogleButton(navController: NavController) {
     }
 
     Spacer(modifier = Modifier.height(12.dp))
+}
+
+
+
+fun isUserLoggedIn(context: Context): Boolean {
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    return sharedPreferences.getBoolean("is_logged_in", false)
 }

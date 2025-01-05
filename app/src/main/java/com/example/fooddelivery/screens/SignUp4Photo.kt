@@ -272,9 +272,9 @@ fun SignUp4Photo(navController: NavController) {
 
 
                     // to add the cart
-                    val uniqueCardId = "Cart_${UUID.randomUUID().toString()}"
+                    val uniqueCardId = UUID.randomUUID().toString()
 
-                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0")
+                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0", Id_rest = null, is_active= false)
                     supabaseClient.from("cart").insert(cart)
 
                     // Prepare data for insertion
@@ -311,8 +311,7 @@ fun SignUp4Photo(navController: NavController) {
                         navController.navigate("SignUpSuccess")
                     }
                 }
-            },
-            modifier = Modifier
+            },modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(56.dp),
 
@@ -321,20 +320,21 @@ fun SignUp4Photo(navController: NavController) {
             shape = RoundedCornerShape(8.dp)
 
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(48.dp)
-                    .background(
-                        color = MainBlack,
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Sign up")
+            Box (modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(48.dp)
+                .background(
+                    color = MainBlack,
+                ),
+                contentAlignment = Alignment.Center)
+            {
+                Text("Sign up",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
-
-
-
+        }
 
 
 
@@ -344,4 +344,4 @@ fun SignUp4Photo(navController: NavController) {
         }
     }
 
-}
+

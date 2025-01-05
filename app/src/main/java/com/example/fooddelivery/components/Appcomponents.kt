@@ -35,6 +35,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
@@ -61,6 +62,13 @@ import com.example.fooddelivery.R
 import com.example.fooddelivery.ui.theme.GreyText
 import com.example.fooddelivery.ui.theme.MainBlack
 import com.example.fooddelivery.ui.theme.MainOrange
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.content.Context
+
+import supabaseClient
 
 // to define componenets
 
@@ -497,5 +505,50 @@ fun OtpTextField(
                 )
             )
         }
+    }
+}
+
+
+@Composable
+fun LogoutButton(navController: NavController) {
+    val context = LocalContext.current
+    val composableScope = rememberCoroutineScope()
+    var errorMessage = remember { mutableStateOf("") }
+
+    Button(onClick = {
+        composableScope.launch(Dispatchers.IO) {
+            try {
+                // Call Supabase to sign out
+                supabaseClient.auth.signOut()
+
+                // Clear login status from SharedPreferences
+                val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                sharedPreferences.edit().putBoolean("is_logged_in", false).apply()
+
+                // Navigate to the login screen after logout
+                withContext(Dispatchers.Main) {
+                    navController.navigate("LogIn") {
+                        // Clear the back stack to prevent navigating back to the previous screen
+                        popUpTo("SplashScreen") { inclusive = true }
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle logout errors
+                withContext(Dispatchers.Main) {
+                    errorMessage.value = e.message ?: "Logout failed"
+                }
+            }
+        }
+    },
+        modifier = Modifier.fillMaxWidth().heightIn(56.dp),
+        colors = ButtonDefaults.buttonColors(Color.Black),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text("Logout", color = Color.White)
+    }
+
+    // Display an error message if logout failed
+    if (errorMessage.value.isNotEmpty()) {
+        Text(errorMessage.value, color = Color.Red)
     }
 }

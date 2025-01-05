@@ -1,5 +1,5 @@
 package com.yourssohail.learnsupabase
-/*
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,99 +25,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.fooddelivery.LoadingComponent
-import com.example.fooddelivery.SupabaseAuthViewModel
-import com.example.fooddelivery.data.model.UserState
+import androidx.navigation.compose.rememberNavController
+import com.example.fooddelivery.components.LogoutButton
+
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 
 @Composable
-fun Test(navController: NavController,
-    viewModel: SupabaseAuthViewModel = viewModel(),
-) {
-    val context = LocalContext.current
-    val userState by viewModel.userState
-
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
-
-    var currentUserState by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        viewModel.isUserLoggedIn(
-            context,
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        TextField(
-            value = userEmail,
-            placeholder = {
-                Text(text = "Enter email")
-            },
-            onValueChange = {
-                userEmail = it
-            })
-        Spacer(modifier = Modifier.padding(8.dp))
-        TextField(
-            value = userPassword,
-            placeholder = {
-                Text(text = "Enter password")
-            },
-            onValueChange = {
-                userPassword = it
-            }
-        )
-        Spacer(modifier = Modifier.padding(8.dp))
-        Button(onClick = {
-            viewModel.signUp(
-                context,
-                userEmail,
-                userPassword,
-            )
-        }) {
-            Text(text = "Sign Up")
-        }
-
-        Button(onClick = {
-            viewModel.login(
-                context,
-                userEmail,
-                userPassword,
-            )
-        }) {
-            Text(text = "Login")
-        }
-
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            onClick = {
-                viewModel.logout(context)
-            }) {
-            Text(text = "Logout")
-        }
-
-        when (userState) {
-            is UserState.Loading -> {
-                LoadingComponent()
-            }
-
-            is UserState.Success -> {
-                val message = (userState as UserState.Success).message
-                currentUserState = message
-            }
-
-            is UserState.Error -> {
-                val message = (userState as UserState.Error).message
-                currentUserState = message
-            }
-        }
-
-        if (currentUserState.isNotEmpty()) {
-            Text(text = currentUserState)
-        }
-    }
-}*/
+fun Test(navController: NavController){
+    LogoutButton(navController)
+}

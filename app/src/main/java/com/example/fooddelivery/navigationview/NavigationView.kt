@@ -17,12 +17,14 @@ import com.example.fooddelivery.screens.SignUp4Photo
 import com.example.fooddelivery.screens.SignUpSuccess
 import com.example.fooddelivery.screens.WelcomePages.LogoPage
 import com.example.fooddelivery.screens.WelcomePages.Welcome1
+import com.example.fooddelivery.screens.WelcomePages.userOrNull
+import com.yourssohail.learnsupabase.Test
 
 @Composable
 fun NavigationView() {
     val navController = rememberNavController()
 
-    NavHost(navController= navController, startDestination = "LogIn"){// normalement Welcome1   SignUp3OTP
+    NavHost(navController= navController, startDestination = "userOrNull"){// normalement Welcome1   SignUp3OTP
         composable("LogIn"){ SignUp1(navController) }
         composable("SignUp2"){ SignUp2(navController) }
        // composable("SignUp3OTP"){ SignUp3OTP(navController) }
@@ -33,7 +35,10 @@ fun NavigationView() {
         //composable("ForgotPasswordOTP"){ ForgotPasswordOTP(navController) }
         composable("Welcome1"){ Welcome1(navController) }
         composable("LogoPage"){ LogoPage(navController) }
-       // composable("authentification"){ authentification(navController) } // the one i used to test supabase with cart
+       composable("Test"){ Test(navController) } // the logout button page
+        composable("userOrNull"){ userOrNull(navController) } // the logout button page
+
+
 
         composable("SignUp3OTP?email={email}",
             arguments = listOf(navArgument("email") { type = NavType.StringType })
