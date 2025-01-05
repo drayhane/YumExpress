@@ -34,8 +34,27 @@ suspend fun fetchRestaurant(): List<Restaurant> {
     // Décoder les données
     return response.decodeList<Restaurant>()
 }
+/*suspend fun fetchRestaurant(): List<Restaurant> {
+    val response = supabaseClient.postgrest["restaurant"]
+        .select(Columns.ALL)
+    val fetchedRestaurants = response.decodeList<Restaurant>()
+
+    // Ajouter un log pour vérifier la structure des données
+    println("Fetched restaurants: $fetchedRestaurants")
+    return fetchedRestaurants
+}*/
+
 //------------------------Catrgories---------------------------------//
-suspend fun fetchCategory(): List<Category>{
+/*suspend fun fetchCategory(): List<Category>{
+    val response = supabaseClient.from("category")
+        .select(columns = Columns.list("*"))
+    // Décoder les données
+    return response.decodeList<Category>()
+}*/
+//------------------------Categories----------------------------------//
+
+
+suspend fun fetchCategories(): List<Category> {
     val response = supabaseClient.postgrest["category"]
         .select(Columns.ALL)
     // Décoder les données

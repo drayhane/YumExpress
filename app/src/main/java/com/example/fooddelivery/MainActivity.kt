@@ -76,13 +76,14 @@ import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.navigation.compose.rememberNavController
 import com.example.fooddelivery.data.model.Category
 import com.example.fooddelivery.data.model.Restaurant
-import com.example.fooddelivery.domain.respository.restoRepository
+/*import com.example.fooddelivery.domain.respository.restoRepository
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
-import com.example.fooddelivery.domain.usecase.GetRestoUsecase
+import com.example.fooddelivery.domain.usecase.GetRestoUsecase*/
 
 import com.example.fooddelivery.domain.respository.CategoryRepository
 import com.example.fooddelivery.domain.respository.CategoryRepositoryImpl
-import com.example.fooddelivery.domain.usecase.GetCategoryUseCase
+import com.example.fooddelivery.domain.usecase.GetCategoriesUseCase
+
 import com.example.fooddelivery.navigation.BottomNavigationBar
 import com.example.fooddelivery.navigation.NavGraph
 import kotlinx.coroutines.launch
@@ -92,11 +93,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val repo = restoRepositoryImpl()
-        val getrestoUseCase = GetRestoUsecase(repo)
-
-        val categoryrepository = CategoryRepositoryImpl()
-        val getcategoryUseCase = GetCategoryUseCase(categoryrepository)
 
         // Set up the theme and UI content of the app
         setContent {

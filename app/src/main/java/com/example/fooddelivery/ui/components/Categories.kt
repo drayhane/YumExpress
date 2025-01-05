@@ -1,5 +1,6 @@
 package com.example.fooddelivery.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,10 +37,102 @@ import androidx.compose.ui.unit.sp
 import com.example.fooddelivery.data.model.Category
 import com.example.fooddelivery.domain.respository.CategoryRepository
 import com.example.fooddelivery.domain.respository.CategoryRepositoryImpl
-import com.example.fooddelivery.domain.usecase.GetCategoryUseCase
+import com.example.fooddelivery.domain.usecase.GetCategoriesUseCase
+import coil.compose.rememberAsyncImagePainter
 
-//---------------------------Liste des Categories--------------------------//
+
+
+
+
 @Composable
+fun CategoryList(
+    repository: CategoryRepositoryImpl = remember { CategoryRepositoryImpl() },
+    getCategoriesUseCase: GetCategoriesUseCase = remember { GetCategoriesUseCase(repository) },
+) {
+    val categories = remember { mutableStateListOf<Category>() }
+    val isLoading = remember { mutableStateOf(true) }
+    val errorMessage = remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            isLoading.value = true
+            val fetchedCategories = getCategoriesUseCase()
+            categories.clear()
+            categories.addAll(fetchedCategories)
+        } catch (e: Exception) {
+            errorMessage.value = "Failed to load categories: ${e.message}"
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "All Categories",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (isLoading.value) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (errorMessage.value != null) {
+            Text(
+                text = errorMessage.value ?: "",
+                color = Color.Red,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(categories) { category ->
+                    CategoryCard(category)
+                }
+
+            }
+
+        }
+    }
+}
+
+@Composable
+fun CategoryCard(category: Category) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .width(120.dp)
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(category.image),
+            contentDescription = category.name,
+            modifier = Modifier
+                .width(80.dp)
+                .height(80.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = category.name ?: "Nom inconnu",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+        Text(
+            text = "hhhh",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+    }
+}
+//---------------------------Liste des Categories--------------------------//
+/*@Composable
 fun CategoryList(
     repository: CategoryRepository = remember { CategoryRepositoryImpl() },
     getCategoryUseCase: GetCategoryUseCase,
@@ -143,9 +236,7 @@ fun CategoryCard(category: Category) {
                     modifier = Modifier.fillMaxSize()
                 )
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
             // Texte de la catégorie
             Text(
                 text = category.name,
@@ -156,7 +247,8 @@ fun CategoryCard(category: Category) {
         }
     }
 }
+
 @Composable
 fun AsyncImage_(model: String, contentDescription: String, contentScale: ContentScale, modifier: Modifier) {
 
-}
+}*/

@@ -73,6 +73,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.5.0")
     //icons
     implementation("androidx.compose.material:material-icons-extended")
+    //image_supabase
+    implementation("io.coil-kt:coil-compose:2.3.0")
 
 
 }

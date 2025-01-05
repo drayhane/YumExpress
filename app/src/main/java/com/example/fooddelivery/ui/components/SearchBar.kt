@@ -23,8 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
+//-----------------------Barre de Recherche------------------------------//
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
+/*@Composable
 fun SearchBar() {
     var searchText by remember { mutableStateOf("") }
     // Récupérer la largeur de l'écran
@@ -40,6 +42,49 @@ fun SearchBar() {
             onValueChange = { searchText = it },
             modifier = Modifier
                 .fillMaxWidth(0.9f) // Largeur flexible, prenant 90% de la largeur de l'écran
+                .height(50.dp)
+                .background(
+                    color = Color(0xFF8C94A7).copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            placeholder = {
+                Text(text = "Rechercher des plats, restaurants", color = Color.Gray)
+            },
+            singleLine = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Icône de recherche",
+                    tint = Color.Gray
+                )
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = Color.Transparent,
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            )
+        )
+    }
+}*/
+@Composable
+fun SearchBar(
+    onSearchTextChanged: (String) -> Unit // Pass the function to handle text changes
+) {
+    var searchText by remember { mutableStateOf("") }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = {
+                searchText = it
+                onSearchTextChanged(it) // Notify parent component when the text changes
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
                 .height(50.dp)
                 .background(
                     color = Color(0xFF8C94A7).copy(alpha = 0.1f),

@@ -1,5 +1,6 @@
 package com.example.fooddelivery.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,9 +47,10 @@ import com.example.fooddelivery.domain.respository.restoRepository
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetRestoUsecase
 import kotlinx.coroutines.launch
+import coil.compose.rememberAsyncImagePainter
 
 //---------------------------Liste des Restaurants--------------------------//
-@Composable
+/*@Composable
 fun RestaurantList(
     repository: restoRepository = remember { restoRepositoryImpl() },
     getrestoUseCase: GetRestoUsecase,
@@ -154,6 +156,7 @@ fun RestaurantCard(restaurant: Restaurant) {
     // État pour suivre si le restaurant est favori ou non
     var isFavorite by remember { mutableStateOf(false) }
 
+
     Column(
         modifier = Modifier
             .width(200.dp)
@@ -166,11 +169,15 @@ fun RestaurantCard(restaurant: Restaurant) {
                 .aspectRatio(16 / 9f)
                 .clip(RoundedCornerShape(12.dp))
         ) {
-            AsyncImage(
-                model = restaurant.logo,
+
+            Image (
+                painter = rememberAsyncImagePainter(
+                    model = restaurant.logo
+                ),
                 contentDescription = restaurant.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
+
             )
         }
 
@@ -215,8 +222,179 @@ fun RestaurantCard(restaurant: Restaurant) {
         )
     }
 }
-
+*/
 @Composable
-fun AsyncImage(model: String, contentDescription: String, contentScale: ContentScale, modifier: Modifier) {
+fun RestaurantList(
+    repository: restoRepository = remember { restoRepositoryImpl() },
+    getrestoUseCase: GetRestoUsecase,
+    searchText: String // to filter restaurants
+) {
+    // pour obtenir le contexte
+    val context = LocalContext.current
 
+    //Etatpour stocker les restaurants récupérés
+    val restaurants = remember { mutableStateListOf<Restaurant>() }
+
+    // Etat pour les restaurants filtrés
+    val filteredRestaurants = remember { mutableStateListOf<Restaurant>() }
+
+    // Etat pour afficher un chargement ou des erreurs
+    val isLoading = remember { mutableStateOf(true) }
+    val errorMessage = remember { mutableStateOf<String?>(null) }
+
+   // Etat pour gérer le défilement de la liste
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+
+
+   // Filtrer les restaurants en fonction du texte de recherche
+
+    LaunchedEffect(searchText) { // charger when searchText changes
+        try {
+            isLoading.value = true
+            val fetchedRestaurants = repository.getResto()
+            restaurants.clear()
+            restaurants.addAll(fetchedRestaurants.filter {
+                it.name.contains(searchText, ignoreCase = true) // Filter by restaurant name
+            })
+        } catch (e: Exception) {
+            errorMessage.value = "Failed to load restaurants: ${e.message}"
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // Affichage du titre et du bouton de défilement
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Most popular",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Gray.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowRight,
+                    contentDescription = "Right list icon",
+                    tint = Color.Gray,
+                    modifier = Modifier
+                        .clickable {
+                            // Défilement vers le prochain élément lorsque la flèche est cliquée
+                            coroutineScope.launch {
+                                val currentIndex = listState.firstVisibleItemIndex
+                                val nextIndex = (currentIndex + 1).coerceAtMost(restaurants.size - 1)
+                                listState.animateScrollToItem(nextIndex)
+                            }
+                        }
+                )
+            }
+        }
+        if (isLoading.value) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (errorMessage.value != null) {
+            Text(
+                text = errorMessage.value ?: "",
+                color = Color.Red,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            LazyRow(
+                state = listState,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(restaurants) { restaurant ->
+                    RestaurantCard(restaurant)
+                }
+            }
+        }
+    }
+}
+@Composable
+fun RestaurantCard(restaurant: Restaurant) {
+
+    // État pour suivre si le restaurant est favori ou non
+    var isFavorite by remember { mutableStateOf(false) }
+
+
+    Column(
+        modifier = Modifier
+            .width(200.dp)
+            .clip(RoundedCornerShape(12.dp))
+    ) {
+        // Image du restaurant
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16 / 9f)
+                .clip(RoundedCornerShape(12.dp))
+        ) {
+
+            Image (
+                painter = rememberAsyncImagePainter(
+                    model = restaurant.logo
+                ),
+                contentDescription = restaurant.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Nom du restaurant et icône de favoris
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = restaurant.name,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Icon(
+                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = "Favorite icon",
+                tint = if (isFavorite) Color(0xFFFF640D) else Color.Gray,
+                modifier = Modifier
+                    .clickable {
+                        isFavorite = !isFavorite // Changement d'état
+                    }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Delivery food: ${restaurant.delivery_price}",
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
+
+        Text(
+            text = restaurant.delivery_time,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFFF640D)
+        )
+    }
 }

@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.R
 
 @Composable
 fun OfferFood() {
-   /* val image2 = painterResource(id = R.drawable.offer) // Remplacez par le nom de votre image dans drawable
+    /*
+    
+   val image = painterResource(id = R.drawable.offer) // Remplacez par le nom de votre image dans drawable
 
     Box(
         modifier = Modifier
@@ -93,6 +95,6 @@ fun OfferFood() {
         }
     }
 
-    */
+   */
 }
 
