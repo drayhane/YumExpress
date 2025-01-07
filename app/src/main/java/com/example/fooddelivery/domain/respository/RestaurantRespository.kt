@@ -68,10 +68,7 @@ class RestaurantRepositoryImpl (
             restaurantDao.getRestaurantById(restaurantId)
         }
 
-
     }
-
-
 }
 
 interface MenuRepository {

@@ -2,6 +2,7 @@ package com.example.fooddelivery
 
 import android.Manifest
 import AddReviewUseCase
+import AppDatabase
 import GetRestoUsecase
 import RestaurantDao
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.room.Room
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
 import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
@@ -32,13 +34,20 @@ import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var restaurantDao: RestaurantDao
+    companion object {
+        lateinit var database: AppDatabase
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize restaurantDao
+        database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "app-database"
+        ).build()
         checkAndRequestPermissions()}
 
     // Function to check and request necessary permissions
-    private fun checkAndRequestPermissions() {
+        private fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
         // Check location permission
@@ -67,12 +76,12 @@ class MainActivity : ComponentActivity() {
             // All permissions granted, proceed with the app
             startApp()
         }
-    }
+     }
 
     // Activity result launcher for permissions
-    private val requestPermissionsLauncher = registerForActivityResult(
+        private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+       ) { permissions ->
         val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
         val notificationsGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
@@ -141,7 +150,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("RestaurantScreen"){
                             RestaurantScreen(
-                                restaurantDao = restaurantDao,
+                                restaurantDao = database.restaurantDao(),
                                 context = this@MainActivity,
                                 addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
                         }

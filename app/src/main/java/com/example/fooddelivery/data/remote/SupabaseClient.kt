@@ -51,7 +51,6 @@ suspend fun fetchMenuItems(restaurantId: String): List<Item> {
             eq("id_restaurant", restaurantId)
         }
     }
-    // Decode the data into a Restaurant object
     return response.decodeList<Item>()
 }
 

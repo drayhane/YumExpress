@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.0"
-    id("org.jetbrains.kotlin.kapt")
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 
 }
 
@@ -43,10 +43,10 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.1"
     implementation("androidx.compose.ui:ui:1.5.1")
     implementation("androidx.compose.foundation:foundation:1.5.1")
     implementation("androidx.compose.material:material:1.5.1")
-    implementation (libs.coil.compose)
 
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -64,7 +64,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-messaging:23.1.1")
     implementation ("androidx.core:core-ktx:1.10.0")
 
-
+    implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -78,10 +78,11 @@ dependencies {
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.coroutines)
-    implementation (libs.room.runtime)
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
     implementation (libs.room.ktx)
     implementation(libs.junit.junit)
-    kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
