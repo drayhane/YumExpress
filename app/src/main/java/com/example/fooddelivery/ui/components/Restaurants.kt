@@ -50,185 +50,14 @@ import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
 
 //---------------------------Liste des Restaurants--------------------------//
-/*@Composable
-fun RestaurantList(
-    repository: restoRepository = remember { restoRepositoryImpl() },
-    getrestoUseCase: GetRestoUsecase,
-) {
-    // Utiliser LocalContext.current pour obtenir le contexte
-    val context = LocalContext.current
 
-    // Variable pour stocker les restaurants récupérés
-    val restaurants = remember { mutableStateListOf<Restaurant>() }
-
-    // État pour afficher un chargement ou des erreurs
-    val isLoading = remember { mutableStateOf(true) }
-    val errorMessage = remember { mutableStateOf<String?>(null) }
-
-    // État pour gérer le défilement de la liste
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-
-    // Charger les données
-    LaunchedEffect(Unit) {
-        try {
-            isLoading.value = true
-            val fetchedRestaurants = repository.getResto()
-            restaurants.clear()
-            restaurants.addAll(fetchedRestaurants)
-        } catch (e: Exception) {
-            errorMessage.value = "Failed to load restaurants: ${e.message}"
-        } finally {
-            isLoading.value = false
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        // Affichage du titre et du bouton de défilement
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Most popular",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.Gray.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowRight,
-                    contentDescription = "Right list icon",
-                    tint = Color.Gray,
-                    modifier = Modifier
-                        .clickable {
-                            // Défilement vers le prochain élément lorsque la flèche est cliquée
-                            coroutineScope.launch {
-                                val currentIndex = listState.firstVisibleItemIndex
-                                val nextIndex = (currentIndex + 1).coerceAtMost(restaurants.size - 1)
-                                listState.animateScrollToItem(nextIndex)
-                            }
-                        }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Affichage des données ou du chargement
-        if (isLoading.value) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (errorMessage.value != null) {
-            Text(
-                text = errorMessage.value ?: "",
-                color = Color.Red,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        } else {
-            // Liste horizontale des restaurants
-            LazyRow(
-                state = listState,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(restaurants) { restaurant ->
-                    RestaurantCard(restaurant)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RestaurantCard(restaurant: Restaurant) {
-    // État pour suivre si le restaurant est favori ou non
-    var isFavorite by remember { mutableStateOf(false) }
-
-
-    Column(
-        modifier = Modifier
-            .width(200.dp)
-            .clip(RoundedCornerShape(12.dp))
-    ) {
-        // Image du restaurant
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16 / 9f)
-                .clip(RoundedCornerShape(12.dp))
-        ) {
-
-            Image (
-                painter = rememberAsyncImagePainter(
-                    model = restaurant.logo
-                ),
-                contentDescription = restaurant.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Nom du restaurant et icône de favoris
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = restaurant.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Icon(
-                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = "Favorite icon",
-                tint = if (isFavorite) Color(0xFFFF640D) else Color.Gray,
-                modifier = Modifier
-                    .clickable {
-                        isFavorite = !isFavorite // Changement d'état
-                    }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Delivery food: ${restaurant.delivery_price}",
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
-
-        Text(
-            text = restaurant.delivery_time,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFFFF640D)
-        )
-    }
-}
-*/
 @Composable
 fun RestaurantList(
     repository: restoRepository = remember { restoRepositoryImpl() },
     getrestoUseCase: GetRestoUsecase,
-    searchText: String // to filter restaurants
-) {
+    searchText: String ,// to filter restaurants
+    selectedCategory: String?
+    ) {
     // pour obtenir le contexte
     val context = LocalContext.current
 
@@ -246,11 +75,26 @@ fun RestaurantList(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+   // Filtrer les restaurants en fonction du texte de recherche et en fonction du nom de la catégorie
+    LaunchedEffect(searchText, selectedCategory) {
+        try {
+            isLoading.value = true
+            val fetchedRestaurants = repository.getResto()
+            restaurants.clear()
+            restaurants.addAll(
+                fetchedRestaurants.filter {
+                    (it.name.contains(searchText, ignoreCase = true)) &&
+                            (selectedCategory == null || it.category == selectedCategory)
+                }
+            )
+        } catch (e: Exception) {
+            errorMessage.value = "Failed to load restaurants: ${e.message}"
+        } finally {
+            isLoading.value = false
+        }
+    }
 
-
-   // Filtrer les restaurants en fonction du texte de recherche
-
-    LaunchedEffect(searchText) { // charger when searchText changes
+   /* LaunchedEffect(searchText) { // charger when searchText changes
         try {
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
@@ -263,7 +107,7 @@ fun RestaurantList(
         } finally {
             isLoading.value = false
         }
-    }
+    }*/
 
     Column(
         modifier = Modifier
@@ -305,6 +149,9 @@ fun RestaurantList(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         if (isLoading.value) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else if (errorMessage.value != null) {

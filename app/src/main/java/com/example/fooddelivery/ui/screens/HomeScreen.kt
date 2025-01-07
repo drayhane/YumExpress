@@ -53,6 +53,7 @@ fun HomeScreen() {
 fun HomeScreen() {
     val repo = restoRepositoryImpl()
     val getrestoUseCase = GetRestoUsecase(repo)
+    val selectedCategory = remember { mutableStateOf<String?>(null) }
 
     val categoryrepository = CategoryRepositoryImpl()
     val getcategoryUseCase = GetCategoriesUseCase(categoryrepository)
@@ -69,7 +70,11 @@ fun HomeScreen() {
         LocationInfo()
         SearchBar(onSearchTextChanged = { searchText = it }) // Pass the search text handler
         OfferFood()
-        CategoryList( getCategoriesUseCase= getcategoryUseCase)
-        RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText) // Filtered list based on searchText
+        CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
+            selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
+        })
+        RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
     }
 }
+
+

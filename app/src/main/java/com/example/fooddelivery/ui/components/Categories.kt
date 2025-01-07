@@ -2,6 +2,7 @@ package com.example.fooddelivery.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +23,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +51,12 @@ import coil.compose.rememberAsyncImagePainter
 fun CategoryList(
     repository: CategoryRepositoryImpl = remember { CategoryRepositoryImpl() },
     getCategoriesUseCase: GetCategoriesUseCase = remember { GetCategoriesUseCase(repository) },
+    onCategorySelected: (String) -> Unit
 ) {
+
+    // Etat pour la catégorie selecionnée
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+
     val categories = remember { mutableStateListOf<Category>() }
     val isLoading = remember { mutableStateOf(true) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
@@ -69,7 +77,7 @@ fun CategoryList(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp)
     ) {
         Text(
             text = "All Categories",
@@ -89,11 +97,18 @@ fun CategoryList(
             )
         } else {
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(categories) { category ->
-                    CategoryCard(category)
+                    CategoryCard(
+                        category,
+                        onClick = {
+                            selectedCategory = category.name // Update selected category
+                            category.name?.let { onCategorySelected(it) } // Call the callback function
+                        },
+                        isSelected = selectedCategory == category.name // Check if category is selected
+                    )
                 }
 
             }
@@ -102,153 +117,48 @@ fun CategoryList(
     }
 }
 
-@Composable
-fun CategoryCard(category: Category) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .width(120.dp)
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter(category.image),
-            contentDescription = category.name,
-            modifier = Modifier
-                .width(80.dp)
-                .height(80.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = category.name ?: "Nom inconnu",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-        Text(
-            text = "hhhh",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-    }
-}
-//---------------------------Liste des Categories--------------------------//
-/*@Composable
-fun CategoryList(
-    repository: CategoryRepository = remember { CategoryRepositoryImpl() },
-    getCategoryUseCase: GetCategoryUseCase,
-) {
-
-    // Utiliser LocalContext.current pour obtenir le contexte
-    val context = LocalContext.current
-
-    // Variable pour stocker les categories récupérés
-    val categories = remember { mutableStateListOf<Category>() }
-
-    // État pour afficher un chargement ou des erreurs
-    val isLoading = remember { mutableStateOf(true) }
-    val errorMessage = remember { mutableStateOf<String?>(null) }
-    // Appeler la fonction fetchCategory pour récupérer les données
-    LaunchedEffect(Unit) {
-
-        try {
-            isLoading.value = true
-            val fetchedCategories = repository.getCategory()
-            // Appel à Supabase pour récupérer les restaurants
-            categories.clear()
-            categories.addAll(fetchedCategories)
-        } catch (e: Exception) {
-            errorMessage.value = "Failed to load categories: ${e.message}"
-        } finally {
-            isLoading.value = false
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start= 16.dp, end = 16.dp)
-
-    ) {
-        // Titre "All Categories"
-        Text(
-            text = "All Categories",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            // modifier = Modifier.padding(bottom = 10.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (isLoading.value) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (errorMessage.value != null) {
-            Text(
-                text = errorMessage.value ?: "",
-                color = Color.Red,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        }
-        else {
-            // Liste horizontale des catégories
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-
-                modifier = Modifier
-                    .fillMaxWidth() // Prendre toute la largeur disponible
-                    .wrapContentHeight() // Ajuster la hauteur pour que le contenu soit visible
-
-            ) {
-                items(categories) { category ->
-                    CategoryCard(category) // Passe chaque catégorie au composant CategoryCard
-                }
-            }
-        }
-    }
-}
 
 @Composable
-fun CategoryCard(category: Category) {
-
+fun CategoryCard(category: Category,onClick: () -> Unit,isSelected: Boolean) {
     Box(
         modifier = Modifier
-            .width(75.dp) // Largeur de chaque carte
-            .height(95.dp) // Hauteur de chaque carte
+            .width(75.dp)
+            .height(95.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFFF640D).copy(alpha = 0.05f)) // Couleur de fond avec opacité
+            .background(
+                if (isSelected) Color(0xFFFF640D).copy(alpha = 0.1f) // Highlight selected category
+                else Color.Transparent// Default background
+            )
             .wrapContentSize(align = Alignment.Center)
+            .clickable { onClick() } // L'utilisateur peut cliquer sur la catégorie
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
+
+    ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .background(Color.Gray)
         ) {
-            // Image circulaire
-            Box(
-                modifier = Modifier
-                    .size(60.dp) // Taille de l'image
-                    .clip(CircleShape)
-                    .background(Color.Gray) // Couleur de fond pour l'image
-            ) {
-                AsyncImage_(
-                    model = category.image,
-                    contentDescription = category.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            // Texte de la catégorie
-            Text(
-                text = category.name,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
+            Image(
+                painter = rememberAsyncImagePainter(category.image),
+                contentDescription = category.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = category.name,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
     }
 }
-
-@Composable
-fun AsyncImage_(model: String, contentDescription: String, contentScale: ContentScale, modifier: Modifier) {
-
-}*/
+}
