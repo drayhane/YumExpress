@@ -8,19 +8,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.fooddelivery.data.local.OrderEntity
-import com.example.fooddelivery.domain.respository.UserRepository
-import com.example.fooddelivery.domain.respository.UserRepositoryImpl
+import androidx.navigation.navArgument
+import com.example.fooddelivery.data.model.compose
+import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.ui.screens.DisplayEdit
 import com.example.fooddelivery.ui.screens.DisplayPanier
 import com.example.fooddelivery.ui.screens.DisplayProfil
 import com.example.fooddelivery.ui.screens.Displaymeal
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
+import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,39 +39,8 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun  main(navcontroller : NavHostController)
-{
-    val sampleOrders = listOf(
-    OrderEntity(
-        id = 1,
-        restaurantName = "Casbah Istanbul",
-        totalPrice = "1495 DA | 2 products",
-        date = "12/02/24 17:43",
-        status = "Delivered",
-        imageRes = R.drawable.casbah_image // Remplace par ton image
-    ),
-    OrderEntity(
-        id = 2,
-        restaurantName = "ALOHA",
-        totalPrice = "5000 DA | 1 product",
-        date = "12/02/24 17:43",
-        status = "Canceled",
-        imageRes = R.drawable.aloha_image // Remplace par ton image
-    ),
-    OrderEntity(
-        id = 3,
-        restaurantName = "Patisserie",
-        totalPrice = "700 DA | 3 products",
-        date = "12/02/24 17:43",
-        status = "Delivered",
-        imageRes = R.drawable.patisserie_image // Remplace par ton image
-    )
-
-)
-
-    val userId = "1"
-    val coroutineScope = rememberCoroutineScope()
-    val userRepository: UserRepository = UserRepositoryImpl()
-val itemid="2"
+{ val userId = "1"
+    val itemid="2"
 
     var startDestination = "panier"
     NavHost(navController = navcontroller, startDestination ){
@@ -80,8 +50,23 @@ val itemid="2"
 
         }
         composable("EditProfil"){DisplayEdit(navcontroller,userId)}
-        composable("Orders")    {DisplayOrders(navcontroller,orders = sampleOrders)}
-        composable("details")   {Displaydetail(navcontroller)}
+        composable("Orders")    {DisplayOrders(navcontroller,userId)}
+        composable(
+            "details/{order}/{products}/{totalPrice}",
+            arguments = listOf(
+                navArgument("order") { type = NavType.StringType },
+                navArgument("products") { type = NavType.StringType },
+                navArgument("totalPrice") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val orderJson = backStackEntry.arguments?.getString("order")
+            val productsJson = backStackEntry.arguments?.getString("products")
+            val totalPriceJson = backStackEntry.arguments?.getString("totalPrice")
+            val order = Gson().fromJson(orderJson, order1::class.java)
+            val products = Gson().fromJson(productsJson, Array<compose>::class.java).toList()
+            val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
+            Displaydetail(navcontroller, order, products, totalPrice)
+        }
         composable("favorits")  {DisplayFavorits(navcontroller)}
         composable("meal")      {Displaymeal(navcontroller,itemid,userId)}
         composable("panier")    {DisplayPanier(navcontroller,userId)}

@@ -379,21 +379,18 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
         AlertDialog(
 
             onDismissRequest = { showDialog = false },
-            title = { Text("Panier actif") },
-            text = { Text("Votre panier appartient à un autre restaurant. Voulez-vous le remplacer ?") },
+            title = { Text("Active cart\n" ) },
+            text = { Text("Your cart belongs to a different restaurant. Would you like to replace it?") },
             confirmButton = {
                 Button(onClick = {
                     runBlocking {
-                        Log.d("Displaymeal", "Panier appartient à un autre restaurant. Affichage du dialogue.")
 
                         val activeCart = cartRepository.Getactivecart(UserId)
                         activeCart?.let {
-                            Log.d("Displaymeal", "mettre fin a un panier.")
 
                             it.id_card?.let { it1 -> cartRepository.Finirpanier(it1) }
                             val newCartId = cartRepository.CreateCart(UserId, item.id_restaurant!!)!!.id_card
-                            Log.d("Displaymeal", "newCartId" +
-                                    "$newCartId")
+
 
                             val cmp = compose(
                                 id_item = ItemId,
@@ -410,12 +407,16 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
                     }
                     showDialog = false
                 }) {
-                    Text("Remplacer")
+                    Text("Replace")
                 }
             },
             dismissButton = {
-                Button(onClick = { showDialog = false }) {
-                    Text("Annuler")
+                Button(onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF9800),
+                        contentColor = Color.White
+                    )) {
+                    Text("Cancel")
                 }
             }
         )

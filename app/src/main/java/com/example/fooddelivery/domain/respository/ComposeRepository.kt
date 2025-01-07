@@ -10,7 +10,7 @@ import quantite_modif
 
 interface ComposeRepository {
     suspend fun additemtocart(item:compose,item_price:Double)
-    suspend fun getproducts(id_card:String):List<compose>?
+    suspend fun getproducts(id_card:String):List<compose>
     suspend fun modifquantity(itemId:String,cardid:String,quantite: String,totalprice:Double)
     suspend fun deletefrompanier(itemid: String,cartid: String,totalprice: Double)
 }
@@ -29,7 +29,7 @@ class ComposeRepositoryImpl : ComposeRepository{
 
     }
     //retourne la liste des produits d un panier
-    override suspend fun getproducts(idcard:String):List<compose>?{
+    override suspend fun getproducts(idcard:String):List<compose>{
         return getcardproduct(idcard)
     }
     override suspend fun modifquantity(itemId:String,cardid:String,quantite:String,totalprice:Double){

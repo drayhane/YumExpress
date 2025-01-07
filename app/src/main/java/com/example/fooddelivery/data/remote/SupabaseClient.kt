@@ -1,10 +1,13 @@
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.example.fooddelivery.data.model.Cart
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.data.model.order1
+import com.example.fooddelivery.data.model.restau
+import com.google.gson.Gson
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
@@ -18,11 +21,15 @@ val supabaseClient = createSupabaseClient(
     install(Postgrest)
 }
 suspend fun fetchUserById(userid: String): User1? {
+println("fetchuserby id")
     val response = supabaseClient.from("user1").select(columns = Columns.list("*")) {
         filter {
             eq("id_user", userid)
         }
     }
+    println("terminer ")
+
+ 
 
     // Décoder la réponse en un objet User1
     return response.decodeSingleOrNull<User1>()
@@ -100,6 +107,7 @@ suspend fun fetchitembyid(itemid:String):item?{
     return response.decodeSingleOrNull<item>()
 }
 //creer un nouveau panier et l'attribuer a un user
+@SuppressLint("SuspiciousIndentation")
 suspend fun createUserCart(userId: String, restaurantId: String): Cart? {
     // Créer un nouvel objet Cart avec un UUID généré
     val cartData = mapOf(
@@ -265,12 +273,14 @@ suspend fun getprice_it(itemid: String): Double? {
     // Décoder la réponse en un objet User1
     return response.decodeSingleOrNull<item>()?.price
 }
-suspend fun getcardproduct(cartid: String):List<compose>?{
+suspend fun getcardproduct(cartid: String): List<compose> {
+    println("get cart product $cartid")
     val response=supabaseClient.from("compose").select(columns = Columns.list("*")) {
         filter {
             eq("id_card", cartid)
         }
     }
+    println("data ${Gson().toJson(response.data)}")
     return response.decodeList<compose>()
 
 }
@@ -309,6 +319,7 @@ suspend fun GetLoca(userId:String):String?{
    return response.decodeSingleOrNull<User1>()?.location
 
 }
+
 suspend fun modifprice(cartid: String,newprice:Double){
     val response = supabaseClient.from("cart").update(
         {
@@ -323,6 +334,7 @@ suspend fun modifprice(cartid: String,newprice:Double){
         }
     }
 }
+
 suspend fun deletecompose(itemid: String,cartid: String,totalprice:Double){
     val response=supabaseClient.from("compose").delete{
         select()
@@ -332,3 +344,46 @@ suspend fun deletecompose(itemid: String,cartid: String,totalprice:Double){
     } }
     modifprice(cartid,totalprice)
     }
+
+suspend fun FetchUserOrders(userId: String):List<order1>{
+    println("get orders debut ")
+    val response=supabaseClient.from("order1").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_user", userId)
+        }
+    }
+    println("get orders fin ")
+    println("data ${Gson().toJson(response.data)}")
+    return response.decodeList<order1>()
+}
+
+suspend fun fethCartbyid(cartid:String):Cart?{
+    val response=supabaseClient.from("cart").select(columns = Columns.list("*")) {
+
+
+        filter {
+            eq("id_card", cartid)
+        }
+    }
+    return response.decodeSingleOrNull<Cart>()
+}
+suspend fun fetchrestaubyid(restid:String): restau? {
+    val response=supabaseClient.from("restaurant").select(columns = Columns.list("*")) {
+
+
+        filter {
+            eq("id_restaurant", restid)
+        }
+    }
+    return response.decodeSingleOrNull<restau>()
+}
+suspend fun deliveryprice(restid:String): String? {
+    val response=supabaseClient.from("restaurant").select(columns = Columns.list("*")) {
+
+
+        filter {
+            eq("id_restaurant", restid)
+        }
+    }
+    return response.decodeSingleOrNull<restau>()?.delivery_price
+}

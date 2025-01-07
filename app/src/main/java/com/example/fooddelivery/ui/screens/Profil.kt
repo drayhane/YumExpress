@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.domain.respository.UserRepository
@@ -71,7 +69,7 @@ fun DisplayProfil(navController: NavHostController, userId: String) {
             // Photo de profil
             Box(contentAlignment = Alignment.BottomEnd) {
                 if (user.profile_picture.isNullOrEmpty()) {
-                    // Afficher l'image par défaut si l'URL est null ou vide
+                    // Afficher l'image par défaut
                     Image(
                         painter = painterResource(id = R.drawable.profil),
                         contentDescription = "Default Profile Picture",
@@ -82,13 +80,9 @@ fun DisplayProfil(navController: NavHostController, userId: String) {
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    // Charger l'image via l'URL avec Coil
                     Image(
                         painter = rememberAsyncImagePainter(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(user.profile_picture)
-                                .placeholder(R.drawable.profil) // Placeholder pendant le chargement
-                                .build()
+                            model = user.profile_picture
                         ),
                         contentDescription = "Profile Picture",
                         modifier = Modifier

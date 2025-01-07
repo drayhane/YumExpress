@@ -1,10 +1,12 @@
 package com.example.fooddelivery.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -57,7 +60,14 @@ import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
+import com.example.fooddelivery.domain.respository.restRepository
+import com.example.fooddelivery.domain.respository.restRepositoryImpl
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 
 data class Product(
     val id: String,
@@ -73,6 +83,8 @@ val Orange500 = Color(0xFFFF5722)
 val TextPrimary = Color.Black
 val TextSecondary = Color.Gray
 
+@OptIn(DelicateCoroutinesApi::class)
+@SuppressLint("NewApi", "CoroutineCreationDuringComposition")
 @Composable
 fun DisplayPanier(navController: NavHostController, userId: String) {
     val cartRepository: CartRepository = CartRepositoryImpl()
@@ -80,10 +92,11 @@ fun DisplayPanier(navController: NavHostController, userId: String) {
     val composeRepository: ComposeRepository = ComposeRepositoryImpl()
     val userRepository: UserRepository = UserRepositoryImpl()
     val orderRepository: OrderRespository = OrderRespositoryImpl()
-
+    val restRepository:restRepository=restRepositoryImpl()
     var products by remember { mutableStateOf(listOf<Product>()) }
     var totalPrice by remember { mutableStateOf(0.0) }
     var resultMessage by remember { mutableStateOf("") }
+    var delivery by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var location by remember { mutableStateOf("") }
     val selectedMethod = remember { mutableStateOf("CASH") }
@@ -196,102 +209,132 @@ fun DisplayPanier(navController: NavHostController, userId: String) {
 
         Spacer(modifier = Modifier.height(6.dp))
         // Products Section
-        Text("Products", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        if (products.isNotEmpty()) {
-            ProductList(
-                products = products,
-                totalPrice=totalPrice,
-                composeRepository=composeRepository,
-                onProductUpdate = { updatedProduct ->
-                    products = products.map { if (it.id == updatedProduct.id) updatedProduct else it }
-                    recalculateTotal()
-                },
-                onDelete = { productToDelete ->
-                    products = products.filter { it.id != productToDelete.id }
-                    recalculateTotal()
-                    coroutineScope.launch {
-                        composeRepository.deletefrompanier(productToDelete.id,productToDelete.id_Cart,totalPrice)}
-
-                }
-            )
-        } else {
-            Text("Votre panier est vide.", color = TextSecondary)
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Order Details
-        Text("Order details", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        val finalPrice = totalPrice + 100 + 195
-        OrderDetailItem("Subtotal", "$totalPrice DA")
-        OrderDetailItem("Platform fees", "100 DA")
-        OrderDetailItem("Delivery charges", "195 DA")
-        OrderDetailItem("Total", "$finalPrice DA", isBold = true, color = Orange500)
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Payment Method
-        PaymentMethodSelection(selectedMethod = selectedMethod)
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Finalize Order Button
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    val idRestaurant = products.firstOrNull()?.id_restaurant ?: "Unknown"
-                    val currentDateTime = System.currentTimeMillis().toString()
-                    val idCart = products.firstOrNull()?.id_Cart ?: "Unknown"
-                    val newOrder = order1(
-                        id_order = "order_${System.currentTimeMillis()}",
-                        datee = currentDateTime,
-                        payent_meth = selectedMethod.value,
-                        status = "Processing",
-                        delivery_adress = "Bab Ezzouar Rue 02",
-                        delevery_note = "",
-                        id_user = userId,
-                        Id_rest = idRestaurant,
-                        id_card = idCart
-                    )
-                    try {
-                        val isSuccess = orderRepository.neworder(newOrder)
-                        resultMessage = if (isSuccess) {
-                            products = emptyList()
-                            totalPrice = 0.0
-                            cartRepository.Finirpanier(idCart)
-                            "Votre commande est en cours."
-                        } else {
-                            "Une erreur est survenue lors de la commande."
-                        }
-                    } catch (e: Exception) {
-                        resultMessage = "Une erreur est survenue : ${e.message}"
-                    }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
-            )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp)
         ) {
-            Text(
-                text = "Finalize Order",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            item {
+                Text("Products", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                if (products.isNotEmpty()) {
+                    ProductList(
+                        products = products,
+                        totalPrice = totalPrice,
+                        composeRepository = composeRepository,
+                        onProductUpdate = { updatedProduct ->
+                            products =
+                                products.map { if (it.id == updatedProduct.id) updatedProduct else it }
+                            recalculateTotal()
+                        },
+                        onDelete = { productToDelete ->
+                            products = products.filter { it.id != productToDelete.id }
+                            recalculateTotal()
+                            coroutineScope.launch {
+                                composeRepository.deletefrompanier(
+                                    productToDelete.id,
+                                    productToDelete.id_Cart,
+                                    totalPrice
+                                )
+                            }
+                        }
+                    )
+                } else {
+                    Text("Votre panier est vide.", color = TextSecondary)
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                Divider(modifier = Modifier.padding(vertical = 6.dp))
+            }
+
+            item {
+                Text("Order details", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                OrderDetailItem("Subtotal", "$totalPrice DA")
+                OrderDetailItem("Platform fees", "100 DA")
+                GlobalScope.launch {
+                    val price =
+                        restRepository.getdeliveryprice(products.firstOrNull()?.id_restaurant ?: "")
+                    delivery = price
+                }
+                OrderDetailItem(
+                    "Delivery charges",
+                    "$delivery DA"
+                ) // get from restaurant delivery_price
+                val finalPrice = totalPrice + 100 + (delivery?.toDouble() ?: 0.0)
+                OrderDetailItem("Total", "$finalPrice DA", isBold = true, color = Orange500)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                Divider(modifier = Modifier.padding(vertical = 6.dp))
+            }
+
+            item {
+                Text("Payment Method", style = MaterialTheme.typography.titleMedium)
+                PaymentMethodSelection(selectedMethod = selectedMethod)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                Divider(modifier = Modifier.padding(vertical = 6.dp))
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            val idRestaurant = products.firstOrNull()?.id_restaurant ?: "Unknown"
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                            val currentDateTime = LocalDateTime.now().format(formatter).toString()
+                            val idCart = products.firstOrNull()?.id_Cart ?: "Unknown"
+                            val newOrder = order1(
+                                id_order = "order_${System.currentTimeMillis()}",
+                                datee = currentDateTime,
+                                payent_meth = selectedMethod.value,
+                                status = "Processing",
+                                delivery_adress = location,
+                                delevery_note = "",
+                                id_user = userId,
+                                Id_rest = idRestaurant,
+                                id_card = idCart
+                            )
+                            try {
+                                val isSuccess = orderRepository.neworder(newOrder)
+                                resultMessage = if (isSuccess) {
+                                    products = emptyList()
+                                    totalPrice = 0.0
+                                    cartRepository.Finirpanier(idCart)
+                                    "Votre commande est en cours."
+                                } else {
+                                    "Une erreur est survenue lors de la commande."
+                                }
+                            } catch (e: Exception) {
+                                resultMessage = "Une erreur est survenue : ${e.message}"
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Finalize Order",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+
         }
     }
     if (resultMessage.isNotEmpty()) {

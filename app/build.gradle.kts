@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.compose.material)
     implementation(libs.places)
     implementation(libs.engage.core)
+    implementation(libs.androidx.core.i18n)
     kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
