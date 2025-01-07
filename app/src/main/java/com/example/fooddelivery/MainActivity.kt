@@ -3,6 +3,7 @@ package com.example.fooddelivery
 import android.Manifest
 import AddReviewUseCase
 import GetRestoUsecase
+import RestaurantDao
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -31,6 +32,7 @@ import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 
 class MainActivity : ComponentActivity() {
+    private lateinit var restaurantDao: RestaurantDao
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkAndRequestPermissions()}
@@ -139,6 +141,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("RestaurantScreen"){
                             RestaurantScreen(
+                                restaurantDao = restaurantDao,
                                 context = this@MainActivity,
                                 addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
                         }

@@ -1,9 +1,12 @@
 package com.example.fooddelivery.data.model
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Entity(tableName = "restaurant")
 data class Restaurant(
-    val id_restaurant: String,
+    @PrimaryKey val id_restaurant: String,
     val name: String,
     val delivery_price: String?,
     val logo: String?,

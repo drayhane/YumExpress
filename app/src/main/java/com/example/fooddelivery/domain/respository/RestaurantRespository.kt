@@ -7,6 +7,23 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork ?: return false
+    val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return when {
+        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+        else -> false
+    }
+}
+
+
 
 
 interface restoRepository {
@@ -28,11 +45,32 @@ interface RestaurantRepository {
     suspend fun getRestaurantById(restaurantId: String): Restaurant?
 }
 
-class RestaurantRepositoryImpl : RestaurantRepository {
+
+class RestaurantRepositoryImpl (
+    private val restaurantDao: RestaurantDao, // Local database DAO
+    private val context: Context
+
+
+) : RestaurantRepository {
+
 
     override suspend fun getRestaurantById(restaurantId: String): Restaurant? {
-        return fetchRestaurantById(restaurantId)
+        return if (isInternetAvailable(context)) {
+            // Fetch data from the remote server
+            val remoteRestaurant = fetchRestaurantById(restaurantId)
+            if (remoteRestaurant != null) {
+                // Save the fetched data to the local database for offline access
+                restaurantDao.insertRestaurant(remoteRestaurant)
+            }
+            remoteRestaurant
+        } else {
+            // Fetch data from the local database when offline
+            restaurantDao.getRestaurantById(restaurantId)
+        }
+
+
     }
+
 
 }
 

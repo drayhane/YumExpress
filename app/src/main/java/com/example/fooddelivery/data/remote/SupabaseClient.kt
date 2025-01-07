@@ -80,13 +80,6 @@ suspend fun AddReview(restaurantId: String, userId: String, rating: Int, reviewT
 }
 
 
-suspend fun fetchCountriesFromSupabase(): List<Country> {
-    val response = supabaseClient.postgrest["countries"]
-        .select(Columns.ALL)
-
-    // Décodage des données
-    return response.decodeList<Country>()
-}
 
 
 @Serializable
