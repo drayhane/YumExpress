@@ -4,7 +4,9 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -14,12 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -67,7 +63,7 @@ fun TrackCard(
             } else if (activeIconIndex == 5) {
                 sendNotification(context, "Order is on the route.")
             } else if (activeIconIndex == 7) {
-                sendNotification(context, "Order delivered, please evaluate!")
+                sendNotification(context, "Order delivered, you can give your feedback about the restaurant!")
                 navController.navigate("DeliverySuccessScreen")
             }
         }
@@ -173,7 +169,12 @@ fun TrackCard(
                 }
             }
 
-            IconButton(onClick = { /* Handle call action */ }) {
+            IconButton(onClick = {
+                val dialIntent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$deliveryManPhone")}
+                    context.startActivity(dialIntent)
+
+            }) {
                 Box(
                     modifier = Modifier
                         .size(52.dp)
@@ -251,13 +252,7 @@ fun sendNotification(context: Context, message: String) {
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
+
         return
     }
     NotificationManagerCompat.from(context).notify(0, notification)

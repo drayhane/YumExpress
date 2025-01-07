@@ -67,8 +67,12 @@ fun DeliverySuccessScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
        Row(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier
+                .clickable {
+                    navController.navigate("RestaurantScreen")
+                },
             verticalAlignment = Alignment.CenterVertically
+
         ) {
             Text(
                 text = "Leave review",

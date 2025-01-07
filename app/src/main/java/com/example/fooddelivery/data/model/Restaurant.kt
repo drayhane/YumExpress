@@ -16,4 +16,8 @@ data class Restaurant(
     val instagramme: String?,
     val facebook: String?,
     val delivery_time: String?,
+    val alongitude: Float?,
+    val lat :Float?,
+    val delivery_man: String?,
+    val num_delivery_man: String?
 )

@@ -184,6 +184,8 @@ fun RestaurantScreen(
                 if (!showReviews.value) {
                     // Restaurant Info
                     item {
+
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
