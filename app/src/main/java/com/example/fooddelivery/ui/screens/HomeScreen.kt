@@ -59,6 +59,8 @@ fun HomeScreen() {
     val getcategoryUseCase = GetCategoriesUseCase(categoryrepository)
 
     var searchText by remember { mutableStateOf("") }
+    val resetCategory = remember { mutableStateOf(false) } // Flag to reset the category when "Most Popular" is clicked
+
 
     Column(
         modifier = Modifier
@@ -70,10 +72,24 @@ fun HomeScreen() {
         LocationInfo()
         SearchBar(onSearchTextChanged = { searchText = it }) // Pass the search text handler
         OfferFood()
+        /*CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
+            selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
+        })*/
         CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
             selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
+            resetCategory.value = false // Reset the flag when a category is selected
         })
-        RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
+        RestaurantList(
+            getrestoUseCase = getrestoUseCase,
+            searchText = searchText,
+            selectedCategory = selectedCategory.value,
+            resetCategory = resetCategory.value,
+            onCategorySelected = { categoryName ->
+                selectedCategory.value = categoryName
+                resetCategory.value = true // Set the flag to reset the category
+            }
+        )
+       // RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
     }
 }
 

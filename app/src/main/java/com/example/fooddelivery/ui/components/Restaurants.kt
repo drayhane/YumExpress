@@ -55,28 +55,30 @@ import coil.compose.rememberAsyncImagePainter
 fun RestaurantList(
     repository: restoRepository = remember { restoRepositoryImpl() },
     getrestoUseCase: GetRestoUsecase,
-    searchText: String ,// to filter restaurants
-    selectedCategory: String?
-    ) {
-    // pour obtenir le contexte
+    searchText: String, // to filter restaurants
+    selectedCategory: String?,
+    resetCategory: Boolean, // Added flag to reset category when "Most Popular" is clicked
+    onCategorySelected: (String) -> Unit // Added callback for category selection
+) {
+    // Pour obtenir le contexte
     val context = LocalContext.current
 
-    //Etatpour stocker les restaurants récupérés
+    // Etat pour stocker les restaurants récupérés
     val restaurants = remember { mutableStateListOf<Restaurant>() }
-
-    // Etat pour les restaurants filtrés
-    val filteredRestaurants = remember { mutableStateListOf<Restaurant>() }
 
     // Etat pour afficher un chargement ou des erreurs
     val isLoading = remember { mutableStateOf(true) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
-   // Etat pour gérer le défilement de la liste
+    // Etat pour gérer le défilement de la liste
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-   // Filtrer les restaurants en fonction du texte de recherche et en fonction du nom de la catégorie
-    LaunchedEffect(searchText, selectedCategory) {
+    // Réinitialiser la catégorie lorsque "Most Popular" est sélectionné
+    val currentCategory = if (resetCategory) null else selectedCategory
+
+    // Filtrer les restaurants en fonction du texte de recherche et de la catégorie
+    LaunchedEffect(searchText, currentCategory) {
         try {
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
@@ -84,7 +86,7 @@ fun RestaurantList(
             restaurants.addAll(
                 fetchedRestaurants.filter {
                     (it.name.contains(searchText, ignoreCase = true)) &&
-                            (selectedCategory == null || it.category == selectedCategory)
+                            (currentCategory == null || it.category == currentCategory)
                 }
             )
         } catch (e: Exception) {
@@ -93,21 +95,6 @@ fun RestaurantList(
             isLoading.value = false
         }
     }
-
-   /* LaunchedEffect(searchText) { // charger when searchText changes
-        try {
-            isLoading.value = true
-            val fetchedRestaurants = repository.getResto()
-            restaurants.clear()
-            restaurants.addAll(fetchedRestaurants.filter {
-                it.name.contains(searchText, ignoreCase = true) // Filter by restaurant name
-            })
-        } catch (e: Exception) {
-            errorMessage.value = "Failed to load restaurants: ${e.message}"
-        } finally {
-            isLoading.value = false
-        }
-    }*/
 
     Column(
         modifier = Modifier
@@ -125,7 +112,11 @@ fun RestaurantList(
                 text = "Most popular",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.Black,
+                modifier = Modifier.clickable {
+                    // Lorsqu'on clique sur "Most popular", réinitialiser la catégorie
+                    onCategorySelected("") // Clear the selected category
+                }
             )
             Box(
                 modifier = Modifier
@@ -154,25 +145,28 @@ fun RestaurantList(
 
         if (isLoading.value) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (errorMessage.value != null) {
-            Text(
-                text = errorMessage.value ?: "",
-                color = Color.Red,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
         } else {
-            LazyRow(
-                state = listState,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(restaurants) { restaurant ->
-                    RestaurantCard(restaurant)
+            if (restaurants.isEmpty()) {
+                Text(
+                    text = "No restaurants found.",
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            } else {
+                LazyRow(
+                    state = listState,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(restaurants) { restaurant ->
+                        RestaurantCard(restaurant)
+                    }
                 }
             }
         }
     }
 }
+
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
 

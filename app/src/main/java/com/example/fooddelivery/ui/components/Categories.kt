@@ -53,10 +53,7 @@ fun CategoryList(
     getCategoriesUseCase: GetCategoriesUseCase = remember { GetCategoriesUseCase(repository) },
     onCategorySelected: (String) -> Unit
 ) {
-
-    // Etat pour la catégorie selecionnée
     var selectedCategory by remember { mutableStateOf<String?>(null) }
-
     val categories = remember { mutableStateListOf<Category>() }
     val isLoading = remember { mutableStateOf(true) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
@@ -110,13 +107,10 @@ fun CategoryList(
                         isSelected = selectedCategory == category.name // Check if category is selected
                     )
                 }
-
             }
-
         }
     }
 }
-
 
 @Composable
 fun CategoryCard(category: Category,onClick: () -> Unit,isSelected: Boolean) {
