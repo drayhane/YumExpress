@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Item(
     val id_item: String,
     val name: String,
-    val image: Int,
+    val image: String?,
     val price: Double,
     val id_restaurant: String,
     val Type: String,

@@ -14,9 +14,11 @@ kotlinx-serialization = "1.5.1"
 kotlinx-coroutines = "1.7.3"
 room = "2.5.2"
 junitJunit = "4.12"
+coil = "2.4.0"
 
 [libraries]
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }

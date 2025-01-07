@@ -17,11 +17,14 @@ import kotlinx.datetime.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
     supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmaGN2bGVnenVlbXJ4d2ZrZ2FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5NTQxOTMsImV4cCI6MjA0OTUzMDE5M30.oizzttRgeJEtvcozA5fkCbmO8fynjmd4EgGNBCzYGMA"
+
 ) {
-    install(Postgrest)
+    install(Postgrest){
+    }
 }
 
 suspend fun fetchRestaurant(): List<Restaurant> {

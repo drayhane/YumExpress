@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.fooddelivery.ui.screens.RestaurantDetailsScreen
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -80,7 +79,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("RestaurantScreen"){
-                            RestaurantScreen(addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
+                            RestaurantScreen(
+                                context = this@MainActivity,
+                                addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
                         }
 
                     }

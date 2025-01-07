@@ -25,10 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
 import com.example.fooddelivery.R
 
 @Composable
-fun MenuItem(imageRes: Int, name: String, description: String, price: String) {
+fun MenuItem(imageRes: String?, name: String, description: String, price: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,7 +38,7 @@ fun MenuItem(imageRes: Int, name: String, description: String, price: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = imageRes),
+            painter = rememberImagePainter(imageRes),
             contentDescription = "Menu Item",
             modifier = Modifier
                 .size(124.dp, 102.dp)
@@ -73,7 +74,7 @@ fun MenuItem(imageRes: Int, name: String, description: String, price: String) {
 }
 
 @Composable
-fun MenuItemWithDivider(imageRes: Int, name: String, description: String, price: String) {
+fun MenuItemWithDivider(imageRes: String?, name: String, description: String, price: String) {
     Column {
         MenuItem(imageRes = imageRes, name = name, description = description, price = price)
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

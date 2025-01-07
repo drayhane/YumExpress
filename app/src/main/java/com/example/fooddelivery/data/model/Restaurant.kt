@@ -8,7 +8,7 @@ data class Restaurant(
     val delivery_price: String?,
     val logo: String?,
     val location: String,
-    val type: String,
+    val category: String,
     val rating: Double,
     val nbr_reviews: Int,
     val phone: String?,

@@ -55,6 +55,8 @@ fun FeedbackDialog(
 
     var rating by remember { mutableStateOf(0) }
     var comment by remember { mutableStateOf("") }
+    val chef1image = "https://kfhcvlegzuemrxwfkgak.supabase.co/storage/v1/object/public/Images_avatar/chef1.svg"
+
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
