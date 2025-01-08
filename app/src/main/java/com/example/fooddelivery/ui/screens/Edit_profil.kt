@@ -31,8 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -115,7 +113,7 @@ fun DisplayEdit(navController: NavHostController, userId: String) {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
+/*
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -129,7 +127,7 @@ fun DisplayEdit(navController: NavHostController, userId: String) {
             },
             modifier = Modifier.fillMaxWidth()
         )
-
+*/
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(

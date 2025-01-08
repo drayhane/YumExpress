@@ -42,7 +42,7 @@ fun  main(navcontroller : NavHostController)
 { val userId = "1"
     val itemid="2"
 
-    var startDestination = "favorits"
+    var startDestination = "panier"
     NavHost(navController = navcontroller, startDestination ){
         composable ("Profil")   {
 
