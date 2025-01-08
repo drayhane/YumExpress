@@ -213,7 +213,7 @@ fun RestaurantCard(restaurant: Restaurant) {
         )
 
         Text(
-            text = restaurant.delivery_time,
+            text = "${restaurant.delivery_time}",
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFFF640D)

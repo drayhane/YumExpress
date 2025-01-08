@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.0"
-    id("org.jetbrains.kotlin.kapt")
+
 
 }
 
@@ -81,9 +81,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
-    testImplementation("junit:junit:4.13.2")
+  //  testImplementation("junit:junit:4.13.2")
     implementation(libs.junit.junit)
-    kapt(libs.room.compiler)
+   // kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -92,11 +92,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     //navigation
-    implementation("androidx.navigation:navigation-compose:2.5.0")
+    //implementation("androidx.navigation:navigation-compose:2.5.0")
     //icons
     implementation("androidx.compose.material:material-icons-extended")
     //image_supabase
-    implementation("io.coil-kt:coil-compose:2.3.0")
+    //implementation("io.coil-kt:coil-compose:2.3.0")
 
 
 

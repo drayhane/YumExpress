@@ -33,6 +33,7 @@ import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 import com.example.fooddelivery.navigation.BottomNavigationBar
 import com.example.fooddelivery.navigation.NavGraph
+import com.example.fooddelivery.ui.screens.HomeScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -112,7 +113,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "address_screen"
+                        startDestination = "HomeScreen"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -148,6 +149,10 @@ class MainActivity : ComponentActivity() {
                             RestaurantScreen(
                                 context = this@MainActivity,
                                 addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
+                        }
+                        composable("HomeScreen"){
+                            HomeScreen()
+
                         }
 
                     }
