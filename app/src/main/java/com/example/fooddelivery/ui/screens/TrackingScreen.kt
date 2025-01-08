@@ -35,7 +35,7 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
             // OpenStreetMap as the background layer
             OpenStreetMapComposable(
                 context = LocalContext.current,
-                startPoint = GeoPoint(36.77165290000001, 5.606316820071114),
+                startPoint = GeoPoint(36.7059919,3.172007267242316),
                 endPoint = endPoint,
                 modifier = Modifier.fillMaxSize()
             )

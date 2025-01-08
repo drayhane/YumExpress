@@ -47,7 +47,7 @@ interface RestaurantRepository {
 
 
 class RestaurantRepositoryImpl (
-    private val restaurantDao: RestaurantDao, // Local database DAO
+  /*  private val restaurantDao: RestaurantDao, // Local database DAO*/
     private val context: Context
 
 
@@ -55,18 +55,9 @@ class RestaurantRepositoryImpl (
 
 
     override suspend fun getRestaurantById(restaurantId: String): Restaurant? {
-        return if (isInternetAvailable(context)) {
-            // Fetch data from the remote server
-            val remoteRestaurant = fetchRestaurantById(restaurantId)
-            if (remoteRestaurant != null) {
-                // Save the fetched data to the local database for offline access
-                restaurantDao.insertRestaurant(remoteRestaurant)
-            }
-            remoteRestaurant
-        } else {
-            // Fetch data from the local database when offline
-            restaurantDao.getRestaurantById(restaurantId)
-        }
+
+        return fetchRestaurantById(restaurantId)
+
 
 
     }

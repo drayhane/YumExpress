@@ -3,7 +3,6 @@ package com.example.fooddelivery.ui.screens
 import AddReviewUseCase
 import MenuRepository
 import MenuRepositoryImpl
-import RestaurantDao
 import RestaurantRepository
 import RestaurantRepositoryImpl
 import android.content.Context
@@ -72,9 +71,8 @@ import com.example.fooddelivery.ui.components.FeedbackDialog
 
 @Composable
 fun RestaurantScreen(
-    restaurantDao: RestaurantDao,
     context: Context,
-    repository: RestaurantRepository = remember { RestaurantRepositoryImpl(restaurantDao = restaurantDao, context= context ) },
+    repository: RestaurantRepository = remember { RestaurantRepositoryImpl( context= context ) },
     addReviewUseCase: AddReviewUseCase,
     restaurantId: String,
     getReviewUseCase: GetReviewUseCase,
