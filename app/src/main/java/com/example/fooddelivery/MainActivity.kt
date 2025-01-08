@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
             applicationContext,
             AppDatabase::class.java, "app-database"
         ).build()
-        checkAndRequestPermissions()}
+        checkAndRequestPermissions()
+    }
 
     // Function to check and request necessary permissions
         private fun checkAndRequestPermissions() {
@@ -99,9 +100,6 @@ class MainActivity : ComponentActivity() {
     private fun startApp() {
         val respo = reviewRespositoryImpl()
         val addReviewUseCase = AddReviewUseCase(respo)
-        val restoid = "1"
-        val repository = restoRepositoryImpl()
-        val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()
         val getReviewUseCase = GetReviewUseCase(repositoryy)
 
@@ -156,8 +154,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                     }
-
-
                 }
             }
         }
