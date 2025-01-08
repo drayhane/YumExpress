@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,43 +49,32 @@ import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
 
 //---------------------------Liste des Restaurants--------------------------//
-
 @Composable
 fun RestaurantList(
     repository: restoRepository = remember { restoRepositoryImpl() },
     getrestoUseCase: GetRestoUsecase,
-    searchText: String, // to filter restaurants
+    searchText: String,
     selectedCategory: String?,
-    resetCategory: Boolean, // Added flag to reset category when "Most Popular" is clicked
-    onCategorySelected: (String) -> Unit // Added callback for category selection
+    onCategorySelected: (String?) -> Unit
 ) {
-    // Pour obtenir le contexte
-    val context = LocalContext.current
-
-    // Etat pour stocker les restaurants récupérés
+    //Etat pour la liste des restaurants
     val restaurants = remember { mutableStateListOf<Restaurant>() }
-
-    // Etat pour afficher un chargement ou des erreurs
+    // Indicateur de chargement
     val isLoading = remember { mutableStateOf(true) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
-
     // Etat pour gérer le défilement de la liste
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    // Réinitialiser la catégorie lorsque "Most Popular" est sélectionné
-    val currentCategory = if (resetCategory) null else selectedCategory
-
-    // Filtrer les restaurants en fonction du texte de recherche et de la catégorie
-    LaunchedEffect(searchText, currentCategory) {
+    LaunchedEffect(searchText, selectedCategory) {
         try {
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
             restaurants.clear()
             restaurants.addAll(
                 fetchedRestaurants.filter {
-                    (it.name.contains(searchText, ignoreCase = true)) &&
-                            (currentCategory == null || it.category == currentCategory)
+                    (it.name.contains(searchText, ignoreCase = true)) &&// filtrer selon le nom de la catégorie et searchtext
+                            (selectedCategory == null || it.category == selectedCategory)
                 }
             )
         } catch (e: Exception) {
@@ -101,10 +89,8 @@ fun RestaurantList(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Affichage du titre et du bouton de défilement
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -114,10 +100,10 @@ fun RestaurantList(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.clickable {
-                    // Lorsqu'on clique sur "Most popular", réinitialiser la catégorie
-                    onCategorySelected("") // Clear the selected category
+                    onCategorySelected(null) // Réinitialise la sélection
                 }
             )
+            // Flèche pour défiler
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
@@ -145,34 +131,29 @@ fun RestaurantList(
 
         if (isLoading.value) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (restaurants.isEmpty()) {
+            Text(
+                text = "No restaurants found.",
+                color = Color.Gray,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
         } else {
-            if (restaurants.isEmpty()) {
-                Text(
-                    text = "No restaurants found.",
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            } else {
-                LazyRow(
-                    state = listState,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(restaurants) { restaurant ->
-                        RestaurantCard(restaurant)
-                    }
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(restaurants) { restaurant ->
+                    RestaurantCard(restaurant)
                 }
             }
         }
     }
 }
-
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
 
     // État pour suivre si le restaurant est favori ou non
     var isFavorite by remember { mutableStateOf(false) }
-
 
     Column(
         modifier = Modifier

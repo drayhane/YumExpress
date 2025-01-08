@@ -77,13 +77,14 @@ fun HomeScreen() {
         })*/
         CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
             selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
-            resetCategory.value = false // Reset the flag when a category is selected
-        })
+
+        },
+            selectedCategory = selectedCategory.value,)
         RestaurantList(
             getrestoUseCase = getrestoUseCase,
             searchText = searchText,
             selectedCategory = selectedCategory.value,
-            resetCategory = resetCategory.value,
+            //resetCategory = resetCategory.value,
             onCategorySelected = { categoryName ->
                 selectedCategory.value = categoryName
                 resetCategory.value = true // Set the flag to reset the category
