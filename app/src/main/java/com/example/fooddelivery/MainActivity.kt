@@ -14,6 +14,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
@@ -33,6 +39,7 @@ import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 import com.example.fooddelivery.navigation.BottomNavigationBar
 import com.example.fooddelivery.navigation.NavGraph
+import com.example.fooddelivery.navigationview.NavigationView
 import com.example.fooddelivery.ui.screens.HomeScreen
 
 
@@ -113,7 +120,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "HomeScreen"
+                        startDestination = "Login"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -152,6 +159,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("HomeScreen"){
                             HomeScreen()
+
+                        }
+
+                        composable("Login"){
+                            NavigationView()
 
                         }
 

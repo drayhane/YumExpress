@@ -30,6 +30,16 @@ android {
             )
         }
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/NOTICE"
+        }
+    }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -65,6 +75,13 @@ dependencies {
     implementation ("androidx.core:core-ktx:1.10.0")
 
 
+    implementation ("com.google.accompanist:accompanist-pager:0.25.1")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.25.1")
+
+
+    implementation (libs.androidx.foundation)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -77,10 +94,12 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization)
-    //room
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.storage)
+    implementation(libs.firebase.crashlytics.buildtools)
   //  testImplementation("junit:junit:4.13.2")
     implementation(libs.junit.junit)
    // kapt(libs.room.compiler)
@@ -99,5 +118,17 @@ dependencies {
     //implementation("io.coil-kt:coil-compose:2.3.0")
 
 
+
+
+    implementation("io.github.jan-tennert.supabase:auth-kt:3.0.3")
+
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+
+    // images
+    implementation("io.coil-kt:coil:2.4.0")
+
+    implementation ("com.google.code.gson:gson:2.8.8")
 
 }
