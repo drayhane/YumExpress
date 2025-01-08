@@ -1,4 +1,4 @@
-package com.example.fooddelivery.data.local
+package com.example.fooddelivery.data.model
 
 import kotlinx.serialization.Serializable
 
