@@ -42,7 +42,7 @@ fun  main(navcontroller : NavHostController)
 { val userId = "1"
     val itemid="2"
 
-    var startDestination = "panier"
+    var startDestination = "favorits"
     NavHost(navController = navcontroller, startDestination ){
         composable ("Profil")   {
 
@@ -67,7 +67,7 @@ fun  main(navcontroller : NavHostController)
             val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
             Displaydetail(navcontroller, order, products, totalPrice)
         }
-        composable("favorits")  {DisplayFavorits(navcontroller)}
+        composable("favorits")  {DisplayFavorits(navcontroller,userId)}
         composable("meal")      {Displaymeal(navcontroller,itemid,userId)}
         composable("panier")    {DisplayPanier(navcontroller,userId)}
         }

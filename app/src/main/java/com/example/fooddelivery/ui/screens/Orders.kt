@@ -36,17 +36,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
-import com.example.fooddelivery.data.model.restau
 import com.example.fooddelivery.domain.respository.CartRepository
 import com.example.fooddelivery.domain.respository.CartRepositoryImpl
 import com.example.fooddelivery.domain.respository.ComposeRepository
 import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
 import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
-import com.example.fooddelivery.domain.respository.restRepository
-import com.example.fooddelivery.domain.respository.restRepositoryImpl
+import com.example.fooddelivery.domain.respository.RestaurantRepository
+import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
@@ -66,7 +66,7 @@ fun DisplayOrders(navController: NavHostController, userid: String) {
     val composeRepository: ComposeRepository = ComposeRepositoryImpl()
     val coroutineScope = rememberCoroutineScope()
     val cartRepository: CartRepository = CartRepositoryImpl()
-    val restaurantRepository: restRepository = restRepositoryImpl()
+    val restaurantRepository: RestaurantRepository = RestaurantRepositoryImpl()
     var totalPrice=0.0
     // États pour gérer le chargement et les données
     val ordersWithDetails = remember { mutableStateOf<List<OrderWithDetails>>(emptyList()) }
@@ -161,7 +161,7 @@ fun DisplayOrders(navController: NavHostController, userid: String) {
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun OrderItem(order: OrderWithDetails, navController: NavHostController, restaurantRepository: restRepository) {
+fun OrderItem(order: OrderWithDetails, navController: NavHostController, restaurantRepository: RestaurantRepository) {
     // Couleur dynamique en fonction du statut
     val statusColor = when (order.order.status) {
         "Delivered" -> Color(0xFF4CAF50) // Vert
@@ -170,13 +170,13 @@ fun OrderItem(order: OrderWithDetails, navController: NavHostController, restaur
     }
 
     // État pour stocker les informations du restaurant
-    val restaurantState = remember { mutableStateOf<restau?>(null) }
+    val restaurantState = remember { mutableStateOf<Restaurant?>(null) }
 
     // Coroutine pour récupérer le restaurant
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(order.order.Id_rest) {
         order.order.Id_rest?.let {
-            restaurantState.value = restaurantRepository.getRestaubyid(it)
+            restaurantState.value = restaurantRepository.getRestaurantById(it)
         }
     }
 

@@ -38,14 +38,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.data.model.order1
-import com.example.fooddelivery.data.model.restau
 import com.example.fooddelivery.domain.respository.ItemRespository
 import com.example.fooddelivery.domain.respository.ItemRespositoryImpl
-import com.example.fooddelivery.domain.respository.restRepository
-import com.example.fooddelivery.domain.respository.restRepositoryImpl
+import com.example.fooddelivery.domain.respository.RestaurantRepository
+import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -54,17 +54,17 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun Displaydetail(navController: NavHostController, order: order1, products: List<compose>,totalPrice:Double) {
-    val restaurantRepository: restRepository = restRepositoryImpl()
+    val restaurantRepository: RestaurantRepository = RestaurantRepositoryImpl()
     val itemRepository: ItemRespository = ItemRespositoryImpl()
-    val restRepository:restRepository=restRepositoryImpl()
+    val restRepository:RestaurantRepository=RestaurantRepositoryImpl()
 
-    val restaurantState = remember { mutableStateOf<restau?>(null) }
+    val restaurantState = remember { mutableStateOf<Restaurant?>(null) }
 
     // Coroutine to fetch the restaurant
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(order.Id_rest) {
         order.Id_rest?.let {
-            restaurantState.value = restaurantRepository.getRestaubyid(it)
+            restaurantState.value = restaurantRepository.getRestaurantById(it)
         }
     }
     val delivery: String? =restaurantState.value?.delivery_price

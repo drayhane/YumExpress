@@ -2,16 +2,18 @@
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.fooddelivery.data.model.Cart
+import com.example.fooddelivery.data.model.FavoriteId
+import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.data.model.order1
-import com.example.fooddelivery.data.model.restau
 import com.google.gson.Gson
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.serialization.json.Json
 
 
 val supabaseClient = createSupabaseClient(
@@ -367,7 +369,7 @@ suspend fun fethCartbyid(cartid:String):Cart?{
     }
     return response.decodeSingleOrNull<Cart>()
 }
-suspend fun fetchrestaubyid(restid:String): restau? {
+suspend fun fetchrestaubyid(restid:String): Restaurant? {
     val response=supabaseClient.from("restaurant").select(columns = Columns.list("*")) {
 
 
@@ -375,7 +377,7 @@ suspend fun fetchrestaubyid(restid:String): restau? {
             eq("id_restaurant", restid)
         }
     }
-    return response.decodeSingleOrNull<restau>()
+    return response.decodeSingleOrNull<Restaurant>()
 }
 suspend fun deliveryprice(restid:String): String? {
     val response=supabaseClient.from("restaurant").select(columns = Columns.list("*")) {
@@ -385,5 +387,56 @@ suspend fun deliveryprice(restid:String): String? {
             eq("id_restaurant", restid)
         }
     }
-    return response.decodeSingleOrNull<restau>()?.delivery_price
+    return response.decodeSingleOrNull<Restaurant>()?.delivery_price
+}
+
+suspend fun getFavoriteRestaurants(userId: String): List<Restaurant>? {
+    return try {
+        // Récupérer les IDs des restaurants favoris
+        val favoriteIdsResponse = supabaseClient
+            .from("favori_res")
+            .select(Columns.list("id_restaurant")) {
+                filter {
+                    eq("id_user", userId)
+                }
+            }
+
+        // Log de la réponse brute pour débogage
+        Log.d("getFavoriteRestaurants", "Response: $favoriteIdsResponse")
+        val rawJson = favoriteIdsResponse.data
+        Log.d("getFavoriteRestaurants", "Raw JSON: $rawJson")
+
+        // Décoder les IDs des restaurants
+        val favoriteIds = Json.decodeFromString<List<FavoriteId>>(rawJson.toString())
+            .map { it.id_restaurant }
+
+        Log.d("getFavoriteRestaurants", "Favorite IDs: $favoriteIds")
+        // Récupérer les détails des restaurants à partir des IDs
+        val favoriteRestaurants = favoriteIds.mapNotNull { restaurantId ->
+            fetchrestaubyid(restaurantId).also { restaurant ->
+                Log.d("getFavoriteRestaurants", "Restaurant: $restaurantId -> $restaurant")
+            }
+        }
+
+        favoriteRestaurants
+    } catch (e: Exception) {
+        Log.e("getFavoriteRestaurants", "Erreur : ${e.message}")
+        null
+    }
+}
+
+
+suspend fun deletefavoris(idUser: String, idRestaurant : String){
+    val response=supabaseClient.from("favori_res").delete{
+        select()
+        filter {
+            eq("id_user", idUser)
+            eq("id_restaurant", idRestaurant)
+        } }
+
+}
+
+suspend fun removeFromFavorites(userId: String , idRestaurant: String) {
+    // Appeler la fonction de suppression de la base de données
+    deletefavoris(userId, idRestaurant)
 }

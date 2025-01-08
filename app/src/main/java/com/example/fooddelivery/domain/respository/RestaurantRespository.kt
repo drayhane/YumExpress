@@ -1,15 +1,15 @@
 package com.example.fooddelivery.domain.respository
 
-import com.example.fooddelivery.data.model.restau
+import com.example.fooddelivery.data.model.Restaurant
 import deliveryprice
 import fetchrestaubyid
 
-interface restRepository {
-    suspend fun getRestaubyid(restid:String): restau?
+interface RestaurantRepository {
+    suspend fun getRestaurantById(restid:String): Restaurant?
     suspend fun getdeliveryprice(restid: String):String?
 }
-class restRepositoryImpl : restRepository{
-    override suspend fun getRestaubyid(restid:String): restau? {
+class RestaurantRepositoryImpl : RestaurantRepository{
+    override suspend fun getRestaurantById(restid:String): Restaurant? {
         return fetchrestaubyid(restid)
     }
     override suspend fun getdeliveryprice(restid: String): String? {

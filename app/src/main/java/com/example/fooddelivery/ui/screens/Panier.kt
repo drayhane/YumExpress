@@ -60,8 +60,8 @@ import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
-import com.example.fooddelivery.domain.respository.restRepository
-import com.example.fooddelivery.domain.respository.restRepositoryImpl
+import com.example.fooddelivery.domain.respository.RestaurantRepository
+import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -92,7 +92,7 @@ fun DisplayPanier(navController: NavHostController, userId: String) {
     val composeRepository: ComposeRepository = ComposeRepositoryImpl()
     val userRepository: UserRepository = UserRepositoryImpl()
     val orderRepository: OrderRespository = OrderRespositoryImpl()
-    val restRepository:restRepository=restRepositoryImpl()
+    val restRepository:RestaurantRepository=RestaurantRepositoryImpl()
     var products by remember { mutableStateOf(listOf<Product>()) }
     var totalPrice by remember { mutableStateOf(0.0) }
     var resultMessage by remember { mutableStateOf("") }
