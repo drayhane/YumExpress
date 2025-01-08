@@ -81,6 +81,7 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 import java.util.UUID
@@ -271,6 +272,8 @@ fun GoogleButton(navController: NavController) {
                 if (currentUser != null) {
 
 
+
+
                     val uniqueCardId = UUID.randomUUID().toString()
 
                     val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0",Id_rest=null, is_active= false)
@@ -347,6 +350,8 @@ fun GoogleButton(navController: NavController) {
 
     Spacer(modifier = Modifier.height(12.dp))
 }
+
+
 
 
 

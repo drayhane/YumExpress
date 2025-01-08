@@ -88,6 +88,7 @@ dependencies {
     implementation (libs.room.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.storage)
+    implementation(libs.firebase.crashlytics.buildtools)
     kapt(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -103,5 +104,10 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+
+    // images
+    implementation("io.coil-kt:coil:2.4.0")
+
+    implementation ("com.google.code.gson:gson:2.8.8")
 
 }
