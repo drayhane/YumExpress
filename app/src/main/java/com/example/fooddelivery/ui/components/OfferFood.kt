@@ -28,16 +28,16 @@ import androidx.compose.foundation.layout.R
 
 @Composable
 fun OfferFood() {
+
     /*
-    
-   val image = painterResource(id = R.drawable.offer) // Remplacez par le nom de votre image dans drawable
+   val image = painterResource(id = R.drawable.offer)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(155.dp) // Hauteur minimale pour garantir la visibilité dynamique
+            .height(155.dp)
     ) {
-        // Image de fond avec bords arrondis
+
         Image(
             painter = image,
             contentDescription = "Offer Image",
@@ -46,17 +46,17 @@ fun OfferFood() {
                 .fillMaxSize(0.9f)
                 .fillMaxWidth(0.95f)
                 .align(Alignment.Center)
-                .clip(RoundedCornerShape(12.dp)) // Bords arrondis sur l'image
+                .clip(RoundedCornerShape(12.dp))
         )
 
-        // Contenu superposé
+
         Column(
             modifier = Modifier
                 .fillMaxSize(0.9f)
                 .fillMaxWidth(0.95f)
-                .align(Alignment.Center), // Centrer la colonne sur l'image
+                .align(Alignment.Center),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start // Aligne horizontalement à gauche
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = "Special Offer For March",
@@ -65,7 +65,7 @@ fun OfferFood() {
                 fontSize = 24.sp, // Taille dynamique
                 modifier = Modifier.padding(start = 16.dp),
                 maxLines = 2, // Limiter à 1 ligne
-                overflow = TextOverflow.Ellipsis // Gérer le débordement si nécessaire
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = "We are here with the best desserts in town",
@@ -74,15 +74,15 @@ fun OfferFood() {
                 fontSize = 16.sp,
                 modifier = Modifier.padding(start = 16.dp),
                 maxLines = 2, // Limiter à 1 ligne
-                overflow = TextOverflow.Ellipsis // Gérer le débordement si nécessaire
+                overflow = TextOverflow.Ellipsis
             )
             // Bouton "Buy Now" avec bords arrondis
             Button(
                 onClick = { /* Action ici */ },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White, // Arrière-plan du bouton
+                    containerColor = Color.White,
                     contentColor = Color(0xFFFF640D)                ),
-                shape = RoundedCornerShape(12.dp), // Définir explicitement les bords arrondis du bouton
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .wrapContentSize()
