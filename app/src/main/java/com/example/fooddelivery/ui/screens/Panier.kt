@@ -1,5 +1,7 @@
 package com.example.fooddelivery.ui.screens
 
+import RestaurantRepository
+import RestaurantRepositoryImpl
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,8 +62,6 @@ import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
-import com.example.fooddelivery.domain.respository.RestaurantRepository
-import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

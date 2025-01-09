@@ -1,3 +1,8 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.fooddelivery.data.model.Item
+import com.example.fooddelivery.data.model.Review
+import io.github.jan.supabase.SupabaseClient
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -6,11 +11,20 @@ import com.example.fooddelivery.data.model.FavoriteId
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.data.model.compose
-import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.data.model.order1
 import com.google.gson.Gson
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
+
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.Serializable
+import kotlinx.datetime.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.json.Json
@@ -19,9 +33,113 @@ import kotlinx.serialization.json.Json
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
     supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmaGN2bGVnenVlbXJ4d2ZrZ2FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5NTQxOTMsImV4cCI6MjA0OTUzMDE5M30.oizzttRgeJEtvcozA5fkCbmO8fynjmd4EgGNBCzYGMA"
+
 ) {
-    install(Postgrest)
+    install(Postgrest){
+    }
 }
+
+suspend fun fetchRestaurant(): List<Restaurant> {
+    val response = supabaseClient.postgrest["restaurant"]
+        .select(Columns.ALL)
+
+    // Décodage des données
+    return response.decodeList<Restaurant>()
+}
+
+suspend fun fetchRestaurantById(restaurantId: String): Restaurant? {
+    val response = supabaseClient.from("restaurant").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_restaurant", restaurantId)
+        }
+    }
+    // Decode the data into a Restaurant object
+    return response.decodeSingleOrNull<Restaurant>()
+}
+
+suspend fun fetchMenuItems(restaurantId: String): List<Item> {
+    val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
+        filter {
+            eq("id_restaurant", restaurantId)
+        }
+    }
+    // Decode the data into a Restaurant object
+    return response.decodeList<Item>()
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun AddReview(restaurantId: String, userId: String, rating: Int, reviewText: String):Boolean{
+    try {
+        val currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+        val new_review = Review(
+            id_restaurant = restaurantId,
+            id_user = userId,
+            note = rating,
+            review = reviewText,
+            date = currentDate
+        )
+        val response = supabaseClient
+            .from("review")
+            .insert(
+                new_review
+            )
+        // If no error, return true
+        return true
+    } catch (e: Exception) {
+        println("Error: ${e.localizedMessage}")
+        return false
+    }
+}
+
+
+
+
+@Serializable
+data class ReviewResponse(
+    val id_restaurant: String,
+    val id_user: String,
+    val date: String,
+    val note: Int?,
+    val review: String?,
+    val user1: UserResponse // Nested user object
+)
+
+@Serializable
+data class UserResponse(
+    val name: String
+)
+
+suspend fun fetchReviewsFromSupabase(restaurantId: String): List<Pair<Review, String>> {
+    val response = supabaseClient
+        .from("review")
+        .select(columns = Columns.list("*", "user1(name)")) {
+            filter {
+                eq("id_restaurant", restaurantId)
+            }
+        }
+
+    // Decode the response directly into a list of ReviewResponse objects
+    val reviews = response.decodeList<ReviewResponse>()
+
+    // Transform the result into a list of Pair<Review, String>
+    return reviews.map { reviewData ->
+        val review = decodeReview(reviewData)
+        val userName = reviewData.user1.name
+        Pair(review, userName)
+    }
+}
+
+private fun decodeReview(data: ReviewResponse): Review {
+    return Review(
+        id_restaurant = data.id_restaurant,
+        id_user = data.id_user,
+        date = data.date,
+        note = data.note,
+        review = data.review
+    )
+}
+
+
 suspend fun fetchUserById(userid: String): User1? {
 println("fetchuserby id")
     val response = supabaseClient.from("user1").select(columns = Columns.list("*")) {
@@ -31,7 +149,7 @@ println("fetchuserby id")
     }
     println("terminer ")
 
- 
+
 
     // Décoder la réponse en un objet User1
     return response.decodeSingleOrNull<User1>()
@@ -99,14 +217,14 @@ suspend fun hasActiveCartForRestaurant(userId: String, restaurantId: String): Bo
     return cartResponse.decodeSingleOrNull<Cart>() != null
 }
 
-suspend fun fetchitembyid(itemid:String):item?{
+suspend fun fetchitembyid(itemid:String):Item?{
     val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
         filter {
             eq("id_item", itemid)
         }
     }
     // Decode the data into a Restaurant object
-    return response.decodeSingleOrNull<item>()
+    return response.decodeSingleOrNull<Item>()
 }
 //creer un nouveau panier et l'attribuer a un user
 @SuppressLint("SuspiciousIndentation")
@@ -263,7 +381,7 @@ suspend fun getname_it(itemid: String):String?{
     }
 
     // Décoder la réponse en un objet User1
-    return response.decodeSingleOrNull<item>()?.id_item
+    return response.decodeSingleOrNull<Item>()?.id_item
 }
 suspend fun getprice_it(itemid: String): Double? {
     val response = supabaseClient.from("item").select(columns = Columns.list("*")) {
@@ -273,7 +391,7 @@ suspend fun getprice_it(itemid: String): Double? {
     }
 
     // Décoder la réponse en un objet User1
-    return response.decodeSingleOrNull<item>()?.price
+    return response.decodeSingleOrNull<Item>()?.price
 }
 suspend fun getcardproduct(cartid: String): List<compose> {
     println("get cart product $cartid")

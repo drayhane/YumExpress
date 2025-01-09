@@ -1,4 +1,5 @@
 
+
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,14 +39,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.compose
-import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ItemRespository
 import com.example.fooddelivery.domain.respository.ItemRespositoryImpl
-import com.example.fooddelivery.domain.respository.RestaurantRepository
-import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -196,7 +195,7 @@ fun Displaydetail(navController: NavHostController, order: order1, products: Lis
 
                 // Product Items
                 items(products) { product ->
-                    val itemState = remember { mutableStateOf<item?>(null) }
+                    val itemState = remember { mutableStateOf<Item?>(null) }
                     coroutineScope.launch {
                         itemState.value = itemRepository.getItemById(product.id_item)
 

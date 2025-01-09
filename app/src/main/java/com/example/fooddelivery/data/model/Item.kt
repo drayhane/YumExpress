@@ -3,12 +3,12 @@ package com.example.fooddelivery.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class item(
+data class Item(
     val id_item: String,
-    val name: String? = null,
-    val image: String? = null,
-    val price: Double ,
+    val name: String,
+    val image: String?,
+    val price: Double,
     val id_restaurant: String,
-    val Type: String? = null,
-    val ingredient: String? = null
+    val Type: String,
+    val ingredient: String
 )

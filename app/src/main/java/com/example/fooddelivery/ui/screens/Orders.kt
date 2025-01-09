@@ -45,8 +45,7 @@ import com.example.fooddelivery.domain.respository.ComposeRepository
 import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
 import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
-import com.example.fooddelivery.domain.respository.RestaurantRepository
-import com.example.fooddelivery.domain.respository.RestaurantRepositoryImpl
+
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 

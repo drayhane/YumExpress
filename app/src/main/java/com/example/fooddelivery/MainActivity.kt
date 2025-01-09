@@ -1,14 +1,23 @@
 package com.example.fooddelivery
 
 
+import AddReviewUseCase
 import DisplayFavorits
 import DisplayOrders
 import Displaydetail
+import GetRestoUsecase
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,60 +25,169 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
+import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
+import com.example.fooddelivery.domain.usecase.GetReviewUseCase
+import com.example.fooddelivery.ui.screens.AddressScreen
+import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.DisplayEdit
 import com.example.fooddelivery.ui.screens.DisplayPanier
 import com.example.fooddelivery.ui.screens.DisplayProfil
 import com.example.fooddelivery.ui.screens.Displaymeal
+import com.example.fooddelivery.ui.screens.RestaurantScreen
+import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import com.google.gson.Gson
+import restoRepositoryImpl
+import reviewRespositoryImpl
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkAndRequestPermissions()}
 
-        // Set up the theme and UI content of the app
-        setContent {
-            FoodDeliveryTheme{
-                val navController = rememberNavController()
-                main(navController)
+    // Function to check and request necessary permissions
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
 
+        // Check location permission
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        // Check notification permission (only for Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            // All permissions granted, proceed with the app
+            startApp()
+        }
     }
-}
-@Composable
-fun  main(navcontroller : NavHostController)
-{ val userId = "1"
-    val itemid="2"
 
-    var startDestination = "panier"
-    NavHost(navController = navcontroller, startDestination ){
-        composable ("Profil")   {
-
-                DisplayProfil(navcontroller, userId)
-
+    // Activity result launcher for permissions
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val notificationsGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
+        } else {
+            true
         }
-        composable("EditProfil"){DisplayEdit(navcontroller,userId)}
-        composable("Orders")    {DisplayOrders(navcontroller,userId)}
-        composable(
-            "details/{order}/{products}/{totalPrice}",
-            arguments = listOf(
-                navArgument("order") { type = NavType.StringType },
-                navArgument("products") { type = NavType.StringType },
-                navArgument("totalPrice") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val orderJson = backStackEntry.arguments?.getString("order")
-            val productsJson = backStackEntry.arguments?.getString("products")
-            val totalPriceJson = backStackEntry.arguments?.getString("totalPrice")
-            val order = Gson().fromJson(orderJson, order1::class.java)
-            val products = Gson().fromJson(productsJson, Array<compose>::class.java).toList()
-            val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
-            Displaydetail(navcontroller, order, products, totalPrice)
+
+        if (locationGranted) {
+            startApp()
+        } else {
+            // If location is denied, show a message and close the app
+           /* showPermissionDeniedDialog()*/
         }
-        composable("favorits")  {DisplayFavorits(navcontroller,userId)}
-        composable("meal")      {Displaymeal(navcontroller,itemid,userId)}
-        composable("panier")    {DisplayPanier(navcontroller,userId)}
+    }
+    private fun startApp() {
+        val respo = reviewRespositoryImpl()
+        val addReviewUseCase = AddReviewUseCase(respo)
+        val restoid = "1"
+        val userId = "1"
+        val itemid="2"
+        val repository = restoRepositoryImpl()
+        val getCountriesUseCase = GetRestoUsecase(repository)
+        val repositoryy = ReviewRespositoryImpl()
+        val getReviewUseCase = GetReviewUseCase(repositoryy)
+
+        setContent {
+            FoodDeliveryTheme {
+                val navController = rememberNavController()
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    // Navigation logic directly embedded
+                    NavHost(
+                        navController = navController,
+                        startDestination = "favorits"
+                    ) {
+                        composable(
+                            route = "tracking_screen?lat={lat}&lon={lon}",
+                            arguments = listOf(
+                                navArgument("lat") { type = NavType.StringType },
+                                navArgument("lon") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val latString = backStackEntry.arguments?.getString("lat") ?: "0.0"
+                            val lonString = backStackEntry.arguments?.getString("lon") ?: "0.0"
+                            // Convert String to Double
+                            val lat = latString.toDouble()
+                            val lon = lonString.toDouble()
+
+                            TrackingScreen(
+                                navController = navController,
+                                endPointLat = lat,
+                                endPointLon = lon
+                            )
+                        }
+                        composable("address_screen") {
+                            AddressScreen(
+                                context = this@MainActivity,
+                                navController = navController
+                            )
+                        }
+                        composable("DeliverySuccessScreen") {
+                            DeliverySuccessScreen(
+                                navController = navController
+                            )
+                        }
+                        composable("RestaurantScreen"){
+                            RestaurantScreen(
+                                context = this@MainActivity,
+                                addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
+                        }
+                        composable ("Profil")   {
+
+                            DisplayProfil(navController, userId)
+
+                        }
+                        composable("EditProfil"){DisplayEdit(navController,userId)}
+                        composable("Orders")    {DisplayOrders(navController,userId)}
+                        composable(
+                            "details/{order}/{products}/{totalPrice}",
+                            arguments = listOf(
+                                navArgument("order") { type = NavType.StringType },
+                                navArgument("products") { type = NavType.StringType },
+                                navArgument("totalPrice") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val orderJson = backStackEntry.arguments?.getString("order")
+                            val productsJson = backStackEntry.arguments?.getString("products")
+                            val totalPriceJson = backStackEntry.arguments?.getString("totalPrice")
+                            val order = Gson().fromJson(orderJson, order1::class.java)
+                            val products = Gson().fromJson(productsJson, Array<compose>::class.java).toList()
+                            val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
+                            Displaydetail(navController, order, products, totalPrice)
+                        }
+                        composable("favorits")  {DisplayFavorits(navController,userId)}
+                        composable("meal")      {Displaymeal(navController,itemid,userId)}
+                        composable("panier")    {DisplayPanier(navController,userId)}
+                    }
+
+
+                    }
+
+
+                }
+            }
         }
     }
 

@@ -27,7 +27,10 @@ fun FoodDeliveryTheme(
 
     // Apply the theme using MaterialTheme
     MaterialTheme(
-        colorScheme = colors,
+        colorScheme = lightColorScheme(
+            background = Color.White, // Couleur de fond globale
+            surface = Color.White
+        ),
         typography = Typography,
         shapes = Shapes(),
         content = content

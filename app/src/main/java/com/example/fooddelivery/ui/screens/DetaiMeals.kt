@@ -11,14 +11,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -27,10 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,8 +51,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.compose
-import com.example.fooddelivery.data.model.item
 import com.example.fooddelivery.domain.respository.CartRepository
 import com.example.fooddelivery.domain.respository.CartRepositoryImpl
 import com.example.fooddelivery.domain.respository.ComposeRepository
@@ -68,7 +67,7 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
     val ItemRespository: ItemRespository = ItemRespositoryImpl()
     val cartRepository: CartRepository = CartRepositoryImpl()
     val composerepository: ComposeRepository = ComposeRepositoryImpl()
-    val item: item = runBlocking(Dispatchers.IO) {
+    val item: Item = runBlocking(Dispatchers.IO) {
         ItemRespository.getItemById(ItemId)!!
     }
 
@@ -77,10 +76,7 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
     val selectedSauces = remember { mutableStateListOf<String>() }
     var quantity by remember { mutableStateOf(1) }
     var notes by remember { mutableStateOf(TextFieldValue("")) }
-    // Snackbar state
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // When a meal is added to the cart, show a snackbar
     var mealAdded by remember { mutableStateOf(false) }
 
     if (mealAdded) {
@@ -88,269 +84,228 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
             snackbarHostState.showSnackbar("Meal added to cart!")
         }
     }
-    Column(
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Image(
-                painter = rememberAsyncImagePainter(model = item.image), // Utilisez l'URL de l'image
-                contentDescription = "Item Image",
+        item {
+            Box(modifier = Modifier.fillMaxWidth()) {
+
+                Image(
+                    painter = rememberAsyncImagePainter(model = item.image),
+                    contentDescription = "Top Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                IconButton(
+                    onClick = { /* Action for back icon */ },
+                    modifier = Modifier.padding(8.dp)
+                )  {
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_left),
+                        contentDescription = "Arrow Left Icon"
+                    )
+                }
+            }
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop // Ajuste l'image au conteneur tout en respectant son ratio
-            )
+                    .offset(y = (-15).dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
 
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ret_btn),
-                    contentDescription = "Back",
-                    tint = Color.White
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                item.name?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+                Text(
+                    text = "${item.price} DA",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color(0xFFFF640D)
                 )
             }
-        }
 
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Title and Price
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            item.name?.let {
+            Text(text = "Ingredients", style = MaterialTheme.typography.titleMedium)
+            item.ingredient?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
             }
-            Text(
-                text = "${item.price} DA",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color(0xFFFF640D)
+
+            Spacer(modifier = Modifier.height(6.dp))
+            Divider(modifier = Modifier.padding(vertical = 6.dp))
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            val sizeOptions = mapOf(
+                "Burger" to listOf("Simple", "Double", "Mega"),
+                "Tacos" to listOf("M", "L", "XL"),
+                "Pizza" to listOf("M", "L", "XL")
             )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Size", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Select the sizing of your item.", style = MaterialTheme.typography.bodyMedium,color = Color.Gray)
 
-        // Ingredients
-        Text(text = "Ingredients", style = MaterialTheme.typography.titleMedium)
-        item.ingredient?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Size options
-        val sizeOptions = mapOf(
-            "Burger" to listOf("Simple", "Double", "Mega"),
-            "Tacos" to listOf("M", "L", "XL"),
-            "Pizza" to listOf("M", "L", "XL")
-        )
-
-        Text(text = "Size", style = MaterialTheme.typography.titleMedium)
-        Text(text = "Select the sizing of your item.", style = MaterialTheme.typography.bodyMedium)
-
-        if (!item.Type.isNullOrEmpty()) {
-            sizeOptions[item.Type]?.let { sizes ->
-                // mettre size par defaut the first
-                if (selectedSize == "Simple" && sizes.isNotEmpty()) {
-                    selectedSize = sizes.first()
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    sizes.forEach { size ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selectedSize == size,
-                                onClick = { selectedSize = size }
-                            )
-                            Text(text = size)
-                            Spacer(modifier = Modifier.width(16.dp))
+            if (!item.Type.isNullOrEmpty()) {
+                sizeOptions[item.Type]?.let { sizes ->
+                    if (selectedSize == "Simple" && sizes.isNotEmpty()) {
+                        selectedSize = sizes.first()
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        sizes.forEach { size ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedSize == size,
+                                    onClick = { selectedSize = size }
+                                )
+                                Text(text = size)
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Divider(modifier = Modifier.padding(vertical = 6.dp))
 
-        Spacer(modifier = Modifier.height(6.dp))
-        // Sauce options
-        Text(text = "Sauces", style = MaterialTheme.typography.titleMedium)
-        Text(text = "Select up to 3 sauces", style = MaterialTheme.typography.bodyMedium)
-        Column {
-            listOf("Mayonnaise sauce", "Spicy sauce", "BBQ sauce").forEach { sauce ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = selectedSauces.contains(sauce),
-                        onCheckedChange = {
-                            if (selectedSauces.contains(sauce)) {
-                                selectedSauces.remove(sauce)
-                            } else if (selectedSauces.size < 3) {
-                                selectedSauces.add(sauce)
-                            }
-                        }
-                    )
-                    Text(text = sauce)
-                }
-            }
-        }
+            Spacer(modifier = Modifier.height(6.dp))
 
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-        // Additional notes
-        Text(text = "Additional notes", style = MaterialTheme.typography.titleMedium)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-                .padding(8.dp)
-        ) {
-            BasicTextField(
-                value = notes,
-                onValueChange = { newValue -> notes = newValue },
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(fontSize = 16.sp)
+            Text(text = "Sauces", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Select up to 3 sauces", style = MaterialTheme.typography.bodyMedium,color = Color.Gray)
+            Column(
+                modifier = Modifier.padding(vertical = 0.dp) // Espacement minimal entre les lignes
             )
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Divider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Spacer(modifier = Modifier.height(6.dp))
-        // Quantity and Add to Cart
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Quantity controls
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFFFF640D))
-                    .height(56.dp)
-                    .padding(horizontal = 12.dp)
-            ) {
-                IconButton(
-                    onClick = { if (quantity > 1) quantity-- },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Text(
-                        text = "-",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    {
+                listOf("Mayonnaise sauce", "Spicy sauce", "BBQ sauce").forEach { sauce ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 1.dp) // Adjust vertical spacing here
+                    ) {
+                        Checkbox(
+                            checked = selectedSauces.contains(sauce),
+                            onCheckedChange = {
+                                if (selectedSauces.contains(sauce)) {
+                                    selectedSauces.remove(sauce)
+                                } else if (selectedSauces.size < 3) {
+                                    selectedSauces.add(sauce)
+                                }
+                            }
+                        )
+                        Text(text = sauce, modifier = Modifier.padding(start = 4.dp)) // Add small padding if needed
+                    }
                 }
 
-                Text(
-                    text = "$quantity",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-
-                IconButton(
-                    onClick = { quantity++ },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
             }
 
-            // Add to Cart Button
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Divider(modifier = Modifier.padding(vertical = 6.dp))
 
-                    .background(Color( 0xFF1F1F1F))
-                    .height(56.dp)
-                    .padding(horizontal = 12.dp)
+
+            Text(text = "Additional notes", style = MaterialTheme.typography.titleMedium)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .border(0.5.dp, Color.Gray, RoundedCornerShape(4.dp))
+                    .padding(8.dp)
             ) {
+                BasicTextField(
+                    value = notes,
+                    onValueChange = { newValue -> notes = newValue },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontSize = 16.sp)
+                )
+            }
+                    Spacer(modifier = Modifier.height(6.dp))
+
+            Divider(modifier = Modifier.padding(vertical = 6.dp))
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFF640D))
+                        .height(46.dp)
+                ) {
+                    IconButton(
+                        onClick = { if (quantity > 1) quantity-- },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Text(
+                            text = "-",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+
+                    Text(
+                        text = "$quantity",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    IconButton(
+                        onClick = { quantity++ },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+//
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFF1F1F1F))
+                        .height(46.dp)
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth()
+                ) {
                     Button(
                         onClick = {
                             Log.d("Displaymeal", "Ajouter au panier cliqué")
                             runBlocking {
                                 val activeCart = cartRepository.Getactivecart(UserId)
                                 Log.d("Displaymeal", "Panier actif: $activeCart")
-
-                                if (activeCart == null || activeCart.Id_rest != item.id_restaurant) {
-                                 if (activeCart == null){
-                                     val newCartId = cartRepository.CreateCart(UserId, item.id_restaurant)
-                                     val cmp = newCartId?.let {
-                                         it.id_card?.let { it1 ->
-                                             compose(
-                                                 id_item = ItemId,
-                                                 id_card = it1, // Utilisation de it.id_card si newCartId n'est pas nul
-                                                 quantity = quantity.toString(),
-                                                 supp = notes.text,
-                                                 sauce = selectedSauces.joinToString(", "),
-                                                 size = selectedSize
-                                             )
-                                         }
-                                     }
-                                     if (cmp != null) {
-                                         cmp.id_card = newCartId.id_card.toString()
-                                     }
-                                     if (cmp != null) {
-                                         composerepository.additemtocart(cmp, item.price)
-                                         mealAdded = true
-
-                                     }
-                                 }else{
-                                    showDialog = true}
-                                } else {
-                                    Log.d("Displaymeal", "Ajout de l'article au panier")
-                                    val cmp = activeCart.id_card?.let {
-                                        compose(
-                                            id_item = ItemId,
-                                            id_card = it,
-                                            quantity = quantity.toString(),
-                                            supp = notes.text,
-                                            sauce = selectedSauces.joinToString(", "),
-                                            size = selectedSize
-                                        )
-                                    }
-                                    if (cmp != null) {
-                                        composerepository.additemtocart(cmp, item.price)
-                                        mealAdded = true
-
-                                    }
-                                }
                             }
                         },
-                        modifier = Modifier
-                            .height(56.dp)
-                            .clip(RoundedCornerShape(10.dp)),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1F1F1F))
                     ) {
                         Row(
@@ -370,69 +325,12 @@ fun Displaymeal(navController: NavHostController, ItemId: String, UserId: String
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodyMedium
                             )
-
-        }
-    }}}}
-
-    // AlertDialog
-    if (showDialog) {
-        AlertDialog(
-
-            onDismissRequest = { showDialog = false },
-            title = { Text("Active cart\n" ) },
-            text = { Text("Your cart belongs to a different restaurant. Would you like to replace it?") },
-            confirmButton = {
-                Button(onClick = {
-                    runBlocking {
-
-                        val activeCart = cartRepository.Getactivecart(UserId)
-                        activeCart?.let {
-
-                            it.id_card?.let { it1 -> cartRepository.Finirpanier(it1) }
-                            val newCartId = cartRepository.CreateCart(UserId, item.id_restaurant!!)!!.id_card
-
-
-                            val cmp = compose(
-                                id_item = ItemId,
-                                id_card = newCartId?: "0",
-                                quantity = quantity.toString(),
-                                supp = notes.text,
-                                sauce = selectedSauces.joinToString(", "),
-                                size = selectedSize
-                            )
-                            composerepository.additemtocart(cmp, item.price)
-                            mealAdded = true
-
-                        }
                     }
-                    showDialog = false
-                }) {
-                    Text("Replace")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showDialog = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFF9800),
-                        contentColor = Color.White
-                    )) {
-                    Text("Cancel")
                 }
             }
-        )
+        }}}
     }
-    if (mealAdded) {
-        Snackbar(
-            action = {
-                TextButton(onClick = { mealAdded = false }) {
-                    Text("Dismiss")
-                }
-            }
-        ) {
-            Text("Meal added to cart!!")
-        }
-    }
-}
+}}
 
 
 
