@@ -60,19 +60,19 @@ fun resendOtp() {
 
     composableScope.launch(Dispatchers.IO) {
         try {
-            //val result = supabaseClient.auth.signUpWith(Google)
-            val result = supabaseClient.auth.signUpWith(Email) {
-                this.email= email  // Pass the value, not the state
+
+            // Clear any existing error message before sending OTP
+            withContext(Dispatchers.Main) {
+                errorMessage.value = ""
             }
 
-            // Switch to Main thread for navigation
-            withContext(Dispatchers.Main) {
-                navController.navigate("ForgotPassword2?email=${email}")
-            }
+            //val result = supabaseClient.auth.signUpWith(Google)
+            supabaseClient.auth.resetPasswordForEmail(email.trim())
+
 
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorMessage.value = e.message ?: "Sign-up failed"
+                errorMessage.value = e.message ?: "Reset password failed"
             }
         }
     }

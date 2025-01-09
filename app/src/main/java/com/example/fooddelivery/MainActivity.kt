@@ -43,6 +43,7 @@ import reviewRespositoryImpl
 
 import com.example.fooddelivery.navigationview.NavigationView
 import com.example.fooddelivery.ui.screens.HomeScreen
+import com.example.fooddelivery.ui.screens.WelcomePages.LogoPage
 
 
 class MainActivity : ComponentActivity() {
@@ -120,7 +121,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "Login"
+                        startDestination = "LogoPage"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -141,6 +142,9 @@ class MainActivity : ComponentActivity() {
                                 endPointLon = lon
                             )
                         }
+
+                        composable("LogoPage"){ LogoPage(navController) }
+
                         composable("address_screen") {
                             AddressScreen(
                                 context = this@MainActivity,

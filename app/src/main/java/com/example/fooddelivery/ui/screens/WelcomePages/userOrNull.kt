@@ -24,7 +24,7 @@ fun userOrNull(navController: NavController) {
     LaunchedEffect(Unit) {
         if (isLoggedIn) {
             // User is logged in, navigate to the main screen
-            navController.navigate("Test") {
+            navController.navigate("HomeScreen") {
                 popUpTo("SplashScreen") { inclusive = true }
             }
         } else {

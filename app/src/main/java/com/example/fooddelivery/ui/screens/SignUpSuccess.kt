@@ -38,7 +38,6 @@ fun SignUpSuccess (navController: NavController){
             horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
             //verticalArrangement = Arrangement.Center // Center vertically
         ) {
-            BackArrowButton(navController)
             Spacer(modifier = Modifier.height(20.dp))
 
             TitleTexte("Your account was succefully created !")
