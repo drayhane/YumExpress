@@ -22,8 +22,10 @@ kotlinx-coroutines = "1.7.3"
 room = "2.5.2"
 navigationCompose = "2.8.5"
 storage = "1.4.2"
+supabaseJava = "1.0.0"
 supabaseKotlin = "2.0.0"
 firebaseCrashlyticsBuildtools = "3.0.2"
+supabaseStorageKt = "1.0.0"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerIndicators" }
@@ -39,6 +41,7 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sendgrid-java = { module = "com.sendgrid:sendgrid-java", version.ref = "sendgridJava" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }
+supabase-java = { module = "io.github.jan.supabase:supabase-java", version.ref = "supabaseJava" }
 supabase-kotlin = { module = "io.supabase:supabase-kotlin", version.ref = "supabaseKotlin" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
@@ -61,6 +64,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+supabase-storage-kt = { module = "io.github.jan-tennert.supabase:supabase-storage-kt", version.ref = "supabaseStorageKt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
