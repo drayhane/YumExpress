@@ -237,7 +237,7 @@ fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favo
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Delivery food: ${restaurant.delivery_price}",
+            text = "Delivery food: ${restaurant.delivery_price} DA",
             fontSize = 14.sp,
             color = Color.Gray
         )

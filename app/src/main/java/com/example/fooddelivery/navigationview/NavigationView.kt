@@ -49,7 +49,7 @@ fun NavigationView() {
     val getReviewUseCase = GetReviewUseCase(repositoryy)
 
 
-    NavHost(navController= navController, startDestination = "HomeScreen"){// normalement Welcome1   SignUp3OTP
+    NavHost(navController= navController, startDestination = "Login"){// normalement Welcome1   SignUp3OTP
 
         composable(Destination.Home.route) { HomeScreen(navController = navController) }
         composable(Destination.Orders.route) { DisplayOrders(navController) }
@@ -70,9 +70,6 @@ fun NavigationView() {
         composable("LogoPage"){ LogoPage(navController) }
        composable("Test"){ Test(navController) } // the logout button page
         composable("userOrNull"){ userOrNull(navController) } // the logout button page
-        composable("HomeScreen"){
-            HomeScreen(navController = navController)
-        }
         composable("RestaurantScreen/{restaurantId}",
             arguments = listOf(
                 navArgument("restaurantId") { type = NavType.StringType },
