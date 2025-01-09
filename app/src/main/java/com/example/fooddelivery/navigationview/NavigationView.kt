@@ -49,7 +49,7 @@ fun NavigationView() {
     val getReviewUseCase = GetReviewUseCase(repositoryy)
 
 
-    NavHost(navController= navController, startDestination = "Login"){// normalement Welcome1   SignUp3OTP
+    NavHost(navController= navController, startDestination = "HomeScreen"){// normalement Welcome1   SignUp3OTP
 
         composable(Destination.Home.route) { HomeScreen(navController = navController) }
         composable(Destination.Orders.route) { DisplayOrders(navController) }

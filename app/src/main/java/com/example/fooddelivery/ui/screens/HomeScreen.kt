@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,41 +65,45 @@ fun HomeScreen(navController: NavHostController) {
     var searchText by remember { mutableStateOf("") }
     val resetCategory = remember { mutableStateOf(false) } // Flag to reset the category when "Most Popular" is clicked
 
+    Scaffold(
 
-    Column(
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues) // Respect padding from the Scaffold
+                    .padding(8.dp) // Additional padding
+                    .verticalScroll(rememberScrollState()), // Enable vertical scrolling
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                LocationInfo()
+                SearchBar(onSearchTextChanged = { searchText = it }) // Pass the search text handler
+                OfferFood()
 
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState()), // Permettre le scroll vertical,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        LocationInfo()
-        SearchBar(onSearchTextChanged = { searchText = it }) // Pass the search text handler
-        OfferFood()
-        /*CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
-            selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
-        })*/
-        CategoryList(getCategoriesUseCase = getcategoryUseCase, onCategorySelected = { categoryName ->
-            selectedCategory.value = categoryName // Filtrer les restaurants en fonction de la catégorie sélectionnée
+                CategoryList(
+                    getCategoriesUseCase = getcategoryUseCase,
+                    onCategorySelected = { categoryName ->
+                        selectedCategory.value = categoryName // Filter restaurants based on selected category
+                    },
+                    selectedCategory = selectedCategory.value,
+                )
 
+                RestaurantList(
+                    getrestoUseCase = getrestoUseCase,
+                    searchText = searchText,
+                    selectedCategory = selectedCategory.value,
+                    onCategorySelected = { categoryName ->
+                        selectedCategory.value = categoryName
+                        resetCategory.value = true // Set the flag to reset the category
+                    },
+                    navController = navController
+                )
+            }
         },
-            selectedCategory = selectedCategory.value,)
-        RestaurantList(
-            getrestoUseCase = getrestoUseCase,
-            searchText = searchText,
-            selectedCategory = selectedCategory.value,
-            //resetCategory = resetCategory.value,
-            onCategorySelected = { categoryName ->
-                selectedCategory.value = categoryName
-                resetCategory.value = true // Set the flag to reset the category
-            },
-            navController = navController
-        )
-       // RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
-        BottomNavigationBar(navController)
-    }
-
+        bottomBar = {
+            BottomNavigationBar(navController)
+        },
+    )
 }
 
 
