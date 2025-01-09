@@ -45,6 +45,7 @@ import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ItemRespository
 import com.example.fooddelivery.domain.respository.ItemRespositoryImpl
+import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -129,8 +130,8 @@ fun Displaydetail(navController: NavHostController, order: order1, products: Lis
                                     addStyle(SpanStyle(textDecoration = TextDecoration.Underline), 0, length)
                                 },
                                 modifier = Modifier.clickable {
-                                    //navController.navigate("restaurantPage")
-                                }
+                                    val idresrt= Gson().toJson(order.Id_rest)
+                                    navController.navigate("RestaurantScreen/${idresrt}") } // Handle the card click                                }
                             )
                         }
                     }

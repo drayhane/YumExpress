@@ -18,6 +18,7 @@ import com.example.fooddelivery.domain.respository.CategoryRepositoryImpl
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetCategoriesUseCase
 import com.example.fooddelivery.domain.usecase.GetRestoUsecase
+import com.example.fooddelivery.navigationview.BottomNavigationBar
 import com.example.fooddelivery.ui.components.LocationInfo
 import com.example.fooddelivery.ui.components.SearchBar
 import com.example.fooddelivery.ui.components.OfferFood
@@ -65,6 +66,7 @@ fun HomeScreen(navController: NavHostController) {
 
 
     Column(
+
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
@@ -94,7 +96,9 @@ fun HomeScreen(navController: NavHostController) {
             navController = navController
         )
        // RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
+        BottomNavigationBar(navController)
     }
+
 }
 
 

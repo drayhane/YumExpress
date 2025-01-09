@@ -15,15 +15,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
@@ -47,10 +40,7 @@ import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import com.google.gson.Gson
 import restoRepositoryImpl
 import reviewRespositoryImpl
-import com.example.fooddelivery.ui.screens.RestaurantScreen
 
-import com.example.fooddelivery.navigation.BottomNavigationBar
-import com.example.fooddelivery.navigation.NavGraph
 import com.example.fooddelivery.navigationview.NavigationView
 import com.example.fooddelivery.ui.screens.HomeScreen
 
@@ -113,9 +103,7 @@ class MainActivity : ComponentActivity() {
     private fun startApp() {
         val respo = reviewRespositoryImpl()
         val addReviewUseCase = AddReviewUseCase(respo)
-        val restoid = "1"
-        val userId = "1"
-        val itemid="2"
+
         val repository = restoRepositoryImpl()
         val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()

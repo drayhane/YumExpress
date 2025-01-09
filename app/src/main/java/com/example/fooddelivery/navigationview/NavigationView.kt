@@ -15,13 +15,18 @@ import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
+import com.example.fooddelivery.ui.screens.CartsScreen
 import com.example.fooddelivery.ui.screens.DisplayEdit
+import com.example.fooddelivery.ui.screens.DisplayPanier
 import com.example.fooddelivery.ui.screens.DisplayProfil
 import com.example.fooddelivery.ui.screens.Displaymeal
+import com.example.fooddelivery.ui.screens.FavoritesScreen
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPassword1
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPassword2
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPasswordOTP
 import com.example.fooddelivery.ui.screens.HomeScreen
+import com.example.fooddelivery.ui.screens.OrdersScreen
+import com.example.fooddelivery.ui.screens.ProfileScreen
 import com.example.fooddelivery.ui.screens.RestaurantScreen
 import com.example.fooddelivery.ui.screens.SignUp1
 import com.example.fooddelivery.ui.screens.SignUp2
@@ -44,7 +49,15 @@ fun NavigationView() {
     val getReviewUseCase = GetReviewUseCase(repositoryy)
 
 
-    NavHost(navController= navController, startDestination = "userOrNull"){// normalement Welcome1   SignUp3OTP
+    NavHost(navController= navController, startDestination = "Login"){// normalement Welcome1   SignUp3OTP
+
+        composable(Destination.Home.route) { HomeScreen(navController = navController) }
+        composable(Destination.Orders.route) { DisplayOrders(navController) }
+        composable(Destination.Carts.route) {  DisplayPanier(navController) }
+        composable(Destination.Favorites.route) { DisplayFavorits(navController) }
+        composable(Destination.Profile.route) {  DisplayProfil(navController) }
+
+        /////////////////////////////////////////////////////////////
         composable("LogIn"){ SignUp1(navController) }
         composable("SignUp2"){ SignUp2(navController) }
        // composable("SignUp3OTP"){ SignUp3OTP(navController) }
@@ -134,6 +147,7 @@ fun NavigationView() {
             Displaydetail(navController, order, products, totalPrice)
         }
         composable("favorits")  {DisplayFavorits(navController)}
+        composable("panier")    { DisplayPanier(navController) }
 
 
 

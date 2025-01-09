@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.fooddelivery.navigationview.Destination
 import com.example.fooddelivery.ui.screens.*
 
 @Composable

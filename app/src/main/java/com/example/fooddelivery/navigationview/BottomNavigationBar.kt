@@ -1,4 +1,4 @@
-package  com.example.fooddelivery.navigation
+package  com.example.fooddelivery.navigationview
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
