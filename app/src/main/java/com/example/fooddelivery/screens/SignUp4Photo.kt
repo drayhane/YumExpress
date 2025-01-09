@@ -335,9 +335,6 @@ fun SignUp4Photo(navController: NavController) {
             }
         }
 
-
-
-
             Spacer(modifier = Modifier.height(15.dp))
             HaveAccount(navController)
         }

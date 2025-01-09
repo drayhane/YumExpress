@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +37,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Room
@@ -77,7 +80,6 @@ fun RestaurantScreen(
     restaurantId: String,
     getReviewUseCase: GetReviewUseCase,
 ) {
-
     val menuRepository: MenuRepository = remember { MenuRepositoryImpl() }
     var restaurant by remember { mutableStateOf<Restaurant?>(null) }
     var menuItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -515,6 +517,104 @@ fun RestaurantScreen(
                     }
                 }
             }
+        }
+
+
+    }
+}
+
+@Composable
+fun ContactInformationPopup(fetchedRestaurant: Restaurant) {
+    // State to control the visibility of the popup
+    var isPopupVisible by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Underlined "Contact Information" Text
+        Text(
+            text = "Contact Information",
+            color = Color(0xFF1F1F1F),
+            fontSize = 16.sp,
+            modifier = Modifier
+                .clickable { isPopupVisible = true } // Show popup on click
+                .padding(8.dp),
+            textDecoration = TextDecoration.Underline
+        )
+
+        // Popup to show the contact details
+        if (isPopupVisible) {
+            AlertDialog(
+                onDismissRequest = { isPopupVisible = false }, // Close the popup
+                title = {
+                    Text(text = "Contact Information")
+                },
+                text = {
+                    Column {
+                        // Address
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.location),
+                                contentDescription = "Location Icon",
+                                modifier = Modifier.size(16.dp),
+                                colorFilter = ColorFilter.tint(Color(0xFFFF6600))
+                            )
+                            Text(
+                                text = "  Address: ${fetchedRestaurant.location}",
+                                fontSize = 14.sp,
+                                color = Color(0xFF1F1F1F)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Facebook and Instagram
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.facebook),
+                                contentDescription = "Facebook Icon",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "  ${fetchedRestaurant.facebook}",
+                                fontSize = 14.sp,
+                                color = Color(0xFF1F1F1F)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.instagram),
+                                contentDescription = "Instagram Icon",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "  @${fetchedRestaurant.instagramme}",
+                                fontSize = 14.sp,
+                                color = Color(0xFF1F1F1F)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Email
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.sms),
+                                contentDescription = "Email Icon",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "  ${fetchedRestaurant.email}",
+                                fontSize = 14.sp,
+                                color = Color(0xFF1F1F1F)
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { isPopupVisible = false }) { // Close button
+                        Text("Close")
+                    }
+                }
+            )
         }
     }
 }

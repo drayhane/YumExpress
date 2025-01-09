@@ -86,14 +86,14 @@ fun FeedbackDialog(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    for (i in 0..5) {
+                    for (i in 0..4) {
                         Icon(
                             imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = "Star $i",
                             modifier = Modifier
                                 .size(32.dp)
                                 .clickable { rating = i },
-                            tint = Color(0xFFFFC107) // Gold color
+                            tint = if (i <= rating) Color(0xFFFF640D) else Color(0xFFFF640D).copy(alpha = 0.2f) // Orange for filled, lighter orange for outlined
                         )
                     }
                 }

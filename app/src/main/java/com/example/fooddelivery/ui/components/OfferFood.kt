@@ -29,9 +29,6 @@ import androidx.compose.foundation.layout.R
 @Composable
 fun OfferFood() {
 
-    /*
-   val image = painterResource(id = R.drawable.offer)
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,7 +36,7 @@ fun OfferFood() {
     ) {
 
         Image(
-            painter = image,
+            painter = painterResource(id = com.example.fooddelivery.R.drawable.offer),
             contentDescription = "Offer Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -94,7 +91,5 @@ fun OfferFood() {
             }
         }
     }
-
-   */
 }
 

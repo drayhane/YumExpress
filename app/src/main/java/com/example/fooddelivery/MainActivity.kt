@@ -120,7 +120,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "Login"
+                        startDestination = "RestaurantScreen"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
