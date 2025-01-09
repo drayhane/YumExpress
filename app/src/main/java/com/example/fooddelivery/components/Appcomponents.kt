@@ -541,7 +541,8 @@ fun LogoutButton(navController: NavController) {
         colors = ButtonDefaults.buttonColors(Color.Black),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Text("Logout", color = Color.White)
+        Text("Logout", color = Color.White,fontSize = 18.sp,
+            fontWeight = FontWeight.Bold)
     }
 
     // Display an error message if logout failed

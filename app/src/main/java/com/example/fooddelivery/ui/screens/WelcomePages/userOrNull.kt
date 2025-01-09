@@ -29,7 +29,7 @@ fun userOrNull(navController: NavController) {
             }
         } else {
             // User is not logged in, navigate to the login screen
-            navController.navigate("LogIn") {
+            navController.navigate("LogoPage") {
                 popUpTo("SplashScreen") { inclusive = true }
             }
         }
