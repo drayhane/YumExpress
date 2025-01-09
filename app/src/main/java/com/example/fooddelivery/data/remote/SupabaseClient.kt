@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 
 import android.util.Log
 import com.example.fooddelivery.data.model.Category
+import com.example.fooddelivery.data.model.favoris_res
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
@@ -591,6 +592,16 @@ suspend fun fetchCategories(): List<Category> {
         .select(Columns.ALL)
     // Décoder les données
     return response.decodeList<Category>()
+}
+suspend fun addtofavorit(idUser: String , idRestaurant: String){
+    val new_favorit = favoris_res(
+        id_user = idUser,
+        id_restaurant=idRestaurant
+
+    )
+    val response = supabaseClient
+        .from("favorit_res")
+        .insert(new_favorit)
 }
 
 val authentification = supabaseClient.auth

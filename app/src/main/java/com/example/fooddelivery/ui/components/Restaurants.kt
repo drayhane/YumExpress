@@ -48,11 +48,15 @@ import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetRestoUsecase
 import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
+import com.example.fooddelivery.data.model.favoris_res
+import com.example.fooddelivery.domain.respository.ComposeRepository
+import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
+import com.example.fooddelivery.domain.respository.FavorisRepository
+import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
 import com.google.gson.Gson
 import io.github.jan.supabase.auth.auth
 import supabaseClient
 
-//---------------------------Liste des Restaurants--------------------------//
 @Composable
 fun RestaurantList(
     repository: restoRepository = remember { restoRepositoryImpl() },
@@ -71,6 +75,7 @@ fun RestaurantList(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val favorisRes:FavorisRepository=FavorisRepositoryImpl()
     LaunchedEffect(searchText, selectedCategory) {
         try {
             val currentUser = supabaseClient.auth.currentUserOrNull()
@@ -151,7 +156,7 @@ fun RestaurantList(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(restaurants) { restaurant ->
-                    RestaurantCard(restaurant = restaurant , navController = navController )
+                    RestaurantCard(restaurant = restaurant , navController = navController,favorisRes=favorisRes )
 
                 }
             }
@@ -159,7 +164,8 @@ fun RestaurantList(
     }
 }
 @Composable
-fun RestaurantCard(restaurant: Restaurant, navController: NavHostController) {
+fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favorisRes:FavorisRepository) {
+    val coroutineScope = rememberCoroutineScope()
 
     // État pour suivre si le restaurant est favori ou non
     var isFavorite by remember { mutableStateOf(false) }
@@ -211,6 +217,18 @@ fun RestaurantCard(restaurant: Restaurant, navController: NavHostController) {
                 tint = if (isFavorite) Color(0xFFFF640D) else Color.Gray,
                 modifier = Modifier
                     .clickable {
+                        val currentUser = supabaseClient.auth.currentUserOrNull()
+                        val userId = currentUser?.id ?: throw Exception("User not authenticated")
+                        coroutineScope.launch {
+                            try {
+                                val currentUser = supabaseClient.auth.currentUserOrNull()
+                                val userId = currentUser?.id ?: throw Exception("User not authenticated")
+                                favorisRes.addfavorits(userId, restaurant.id_restaurant)
+                                isFavorite = !isFavorite // Update state only after success
+                            } catch (e: Exception) {
+                                e.printStackTrace() // Handle the exception
+                            }
+                        }
                         isFavorite = !isFavorite // Changement d'état
                     }
             )
