@@ -1,4 +1,4 @@
-package com.example.fooddelivery.screens
+package com.example.fooddelivery.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -54,6 +53,6 @@ fun SignUpSuccess (navController: NavController){
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            ButtonComponent("Continue",navController,"Test") // should go to the acceuil
+            ButtonComponent("Continue",navController,"HomeScreen") // should go to the acceuil
         }}
 }

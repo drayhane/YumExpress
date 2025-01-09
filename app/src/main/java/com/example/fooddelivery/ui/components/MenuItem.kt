@@ -2,6 +2,7 @@ package com.example.fooddelivery.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,15 +26,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.fooddelivery.R
+import com.google.gson.Gson
 
 @Composable
-fun MenuItem(imageRes: String?, name: String, description: String, price: String) {
+fun MenuItem(navController: NavController, imageRes: String?, name: String, description: String, price: String, itemId:String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp),
+            .padding(12.dp)
+        .clickable {
+        val iditem= Gson().toJson(itemId)
+        navController.navigate("meal/${iditem}") }, // Handle the card click
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -74,9 +80,9 @@ fun MenuItem(imageRes: String?, name: String, description: String, price: String
 }
 
 @Composable
-fun MenuItemWithDivider(imageRes: String?, name: String, description: String, price: String) {
+fun MenuItemWithDivider(navController: NavController,imageRes: String?, name: String, description: String, price: String, itemId:String) {
     Column {
-        MenuItem(imageRes = imageRes, name = name, description = description, price = price)
+        MenuItem(imageRes = imageRes, name = name, description = description, price = price, navController = navController, itemId = itemId)
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Divider(
                 color = Color(0xFFEBEBEB),

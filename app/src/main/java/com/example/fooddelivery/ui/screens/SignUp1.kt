@@ -1,9 +1,6 @@
-package com.example.fooddelivery.screens
+package com.example.fooddelivery.ui.screens
 
-import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,19 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.core.content.pm.ShortcutInfoCompat.Surface
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -44,12 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
@@ -57,12 +44,9 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavController
 import com.example.fooddelivery.R
-import com.example.fooddelivery.components.ButtonComponent
 import com.example.fooddelivery.components.ControllerText
-import com.example.fooddelivery.components.GoogleLoginIn
 import com.example.fooddelivery.components.DontHaveAccount
 import com.example.fooddelivery.components.MyTextField
-import com.example.fooddelivery.components.NormaleTexte
 import com.example.fooddelivery.components.OrSeparator
 import com.example.fooddelivery.components.TitleTexte
 import com.example.fooddelivery.components.passwordTextField
@@ -80,7 +64,6 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 import java.util.UUID
@@ -164,9 +147,7 @@ fun SignUp1 (navController: NavController){
 
                         // Switch to the Main thread to handle navigation
                         withContext(Dispatchers.Main) {
-                            navController.navigate("SignUpSuccess") // Navigate to the Home screen or appropriate page
-
-
+                            navController.navigate("HomeScreen") // Navigate to the Home screen or appropriate pag
                         }
 
                     } catch (e: Exception) {
@@ -300,7 +281,7 @@ fun GoogleButton(navController: NavController) {
 
                 }
 
-                    navController.navigate("SignUpSuccess")
+                    navController.navigate("HomeScreen")
                 // Handle successful sign-in
             } catch (e: GetCredentialException) {
                 Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()

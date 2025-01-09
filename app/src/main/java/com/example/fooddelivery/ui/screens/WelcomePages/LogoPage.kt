@@ -1,4 +1,4 @@
-package com.example.fooddelivery.screens.WelcomePages
+package com.example.fooddelivery.ui.screens.WelcomePages
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState

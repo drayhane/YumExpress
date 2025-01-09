@@ -1,29 +1,6 @@
-import android.database.Cursor
+
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
-import com.example.fooddelivery.data.model.Review
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDate
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-
-fun isInternetAvailable(context: Context): Boolean {
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val network = connectivityManager.activeNetwork ?: return false
-    val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-    return when {
-        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-        activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-        else -> false
-    }
-}
-
-
 
 
 interface restoRepository {
@@ -43,25 +20,18 @@ class restoRepositoryImpl : restoRepository {
 
 interface RestaurantRepository {
     suspend fun getRestaurantById(restaurantId: String): Restaurant?
+    suspend fun getdeliveryprice(restid: String):String?
+
 }
 
-
-class RestaurantRepositoryImpl (
-  /*  private val restaurantDao: RestaurantDao, // Local database DAO*/
-    private val context: Context
-
-
-) : RestaurantRepository {
-
+class RestaurantRepositoryImpl : RestaurantRepository {
 
     override suspend fun getRestaurantById(restaurantId: String): Restaurant? {
-
         return fetchRestaurantById(restaurantId)
-
-
-
     }
-
+    override suspend fun getdeliveryprice(restid: String): String? {
+        return deliveryprice(restid)
+    }
 
 }
 
@@ -70,9 +40,8 @@ interface MenuRepository {
 }
 
 class MenuRepositoryImpl : MenuRepository {
-
     override suspend fun getMenuItemsByRestaurantId(restaurantId: String): List<Item> {
-       return fetchMenuItems(restaurantId)
+        return fetchMenuItems(restaurantId)
     }
 }
 
@@ -85,6 +54,5 @@ class reviewRespositoryImpl : reviewRespository {
         return AddReview(restaurantId, userId, rating, reviewText)
     }
 }
-
 
 

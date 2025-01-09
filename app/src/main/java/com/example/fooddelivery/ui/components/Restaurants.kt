@@ -41,12 +41,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.domain.respository.restoRepository
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetRestoUsecase
 import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
+import com.google.gson.Gson
+import io.github.jan.supabase.auth.auth
+import supabaseClient
 
 //---------------------------Liste des Restaurants--------------------------//
 @Composable
@@ -55,7 +59,8 @@ fun RestaurantList(
     getrestoUseCase: GetRestoUsecase,
     searchText: String,
     selectedCategory: String?,
-    onCategorySelected: (String?) -> Unit
+    onCategorySelected: (String?) -> Unit,
+    navController: NavHostController
 ) {
     //Etat pour la liste des restaurants
     val restaurants = remember { mutableStateListOf<Restaurant>() }
@@ -68,6 +73,9 @@ fun RestaurantList(
 
     LaunchedEffect(searchText, selectedCategory) {
         try {
+            val currentUser = supabaseClient.auth.currentUserOrNull()
+            val userId = currentUser?.id ?: throw Exception("User not authenticated")
+            println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh ${userId}")
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
             restaurants.clear()
@@ -143,14 +151,15 @@ fun RestaurantList(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(restaurants) { restaurant ->
-                    RestaurantCard(restaurant)
+                    RestaurantCard(restaurant = restaurant , navController = navController )
+
                 }
             }
         }
     }
 }
 @Composable
-fun RestaurantCard(restaurant: Restaurant) {
+fun RestaurantCard(restaurant: Restaurant, navController: NavHostController) {
 
     // État pour suivre si le restaurant est favori ou non
     var isFavorite by remember { mutableStateOf(false) }
@@ -159,6 +168,9 @@ fun RestaurantCard(restaurant: Restaurant) {
         modifier = Modifier
             .width(200.dp)
             .clip(RoundedCornerShape(12.dp))
+            .clickable {
+                val idresrt= Gson().toJson(restaurant.id_restaurant)
+                navController.navigate("RestaurantScreen/${idresrt}") } // Handle the card click
     ) {
         // Image du restaurant
         Box(

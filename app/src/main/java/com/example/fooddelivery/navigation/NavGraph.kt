@@ -14,7 +14,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         startDestination = Destination.Home.route,
         modifier = modifier
     ) {
-        composable(Destination.Home.route) { HomeScreen() }
+        composable(Destination.Home.route) { HomeScreen(navController = navController) }
         composable(Destination.Orders.route) { OrdersScreen() }
         composable(Destination.Carts.route) { CartsScreen() }
         composable(Destination.Favorites.route) { FavoritesScreen() }

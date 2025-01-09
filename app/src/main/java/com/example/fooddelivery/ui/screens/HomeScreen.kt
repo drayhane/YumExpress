@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.fooddelivery.domain.respository.CategoryRepositoryImpl
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetCategoriesUseCase
@@ -50,10 +51,11 @@ fun HomeScreen() {
 */
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     val repo = restoRepositoryImpl()
     val getrestoUseCase = GetRestoUsecase(repo)
     val selectedCategory = remember { mutableStateOf<String?>(null) }
+    val selectedRestaurantId = remember { mutableStateOf<String?>(null) }
 
     val categoryrepository = CategoryRepositoryImpl()
     val getcategoryUseCase = GetCategoriesUseCase(categoryrepository)
@@ -88,7 +90,8 @@ fun HomeScreen() {
             onCategorySelected = { categoryName ->
                 selectedCategory.value = categoryName
                 resetCategory.value = true // Set the flag to reset the category
-            }
+            },
+            navController = navController
         )
        // RestaurantList(getrestoUseCase = getrestoUseCase, searchText = searchText, selectedCategory = selectedCategory.value) // Filtered list based on searchText
     }

@@ -2,9 +2,13 @@ package com.example.fooddelivery
 import androidx.compose.foundation.layout.fillMaxSize
 
 
-import android.Manifest
+
 import AddReviewUseCase
+import DisplayFavorits
+import DisplayOrders
+import Displaydetail
 import GetRestoUsecase
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -27,14 +31,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fooddelivery.data.model.compose
+import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
+import com.example.fooddelivery.domain.usecase.GetReviewUseCase
 import com.example.fooddelivery.ui.screens.AddressScreen
 import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
+import com.example.fooddelivery.ui.screens.DisplayEdit
+import com.example.fooddelivery.ui.screens.DisplayPanier
+import com.example.fooddelivery.ui.screens.DisplayProfil
+import com.example.fooddelivery.ui.screens.Displaymeal
+import com.example.fooddelivery.ui.screens.RestaurantScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
-import reviewRespositoryImpl
+import com.google.gson.Gson
 import restoRepositoryImpl
-import com.example.fooddelivery.domain.usecase.GetReviewUseCase
+import reviewRespositoryImpl
 import com.example.fooddelivery.ui.screens.RestaurantScreen
 
 import com.example.fooddelivery.navigation.BottomNavigationBar
@@ -102,13 +114,13 @@ class MainActivity : ComponentActivity() {
         val respo = reviewRespositoryImpl()
         val addReviewUseCase = AddReviewUseCase(respo)
         val restoid = "1"
+        val userId = "1"
+        val itemid="2"
         val repository = restoRepositoryImpl()
         val getCountriesUseCase = GetRestoUsecase(repository)
         val repositoryy = ReviewRespositoryImpl()
         val getReviewUseCase = GetReviewUseCase(repositoryy)
 
-
-        // Set up the theme and UI content of the app
         setContent {
             FoodDeliveryTheme {
                 val navController = rememberNavController()
@@ -120,7 +132,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "RestaurantScreen"
+                        startDestination = "Login"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}",
@@ -152,25 +164,66 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
-                        composable("RestaurantScreen"){
+                        composable("RestaurantScreen/{restaurantId}",
+                            arguments = listOf(
+                                navArgument("restaurantId") { type = NavType.StringType },
+                            )
+
+                        ){ backStackEntry ->
+                            val restaurantIdJson = backStackEntry.arguments?.getString("restaurantId")
+                            val restaurantId = Gson().fromJson(restaurantIdJson, String::class.java)
+
                             RestaurantScreen(
+                                navController,
                                 context = this@MainActivity,
-                                addReviewUseCase = addReviewUseCase, restaurantId = "1", getReviewUseCase = getReviewUseCase)
+                                addReviewUseCase = addReviewUseCase, restaurantId = restaurantId, getReviewUseCase = getReviewUseCase
+                            )
+                        }
+                        composable ("Profil") {
+                            DisplayProfil(navController)
                         }
                         composable("HomeScreen"){
-                            HomeScreen()
-
+                            HomeScreen(navController)
                         }
-
                         composable("Login"){
                             NavigationView()
-
+                        }
+                        composable("EditProfil"){DisplayEdit(navController)}
+                        composable("Orders")    {DisplayOrders(navController)}
+                        composable(
+                            "details/{order}/{products}/{totalPrice}",
+                            arguments = listOf(
+                                navArgument("order") { type = NavType.StringType },
+                                navArgument("products") { type = NavType.StringType },
+                                navArgument("totalPrice") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val orderJson = backStackEntry.arguments?.getString("order")
+                            val productsJson = backStackEntry.arguments?.getString("products")
+                            val totalPriceJson = backStackEntry.arguments?.getString("totalPrice")
+                            val order = Gson().fromJson(orderJson, order1::class.java)
+                            val products = Gson().fromJson(productsJson, Array<compose>::class.java).toList()
+                            val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
+                            Displaydetail(navController, order, products, totalPrice)
+                        }
+                        composable("favorits")  {DisplayFavorits(navController)}
+                        composable(
+                            "meal/{iditem}",
+                                arguments = listOf(
+                                navArgument("iditem") { type = NavType.StringType }
+                                ),
+                        ){ backStackEntry ->
+                            val iditemJson = backStackEntry.arguments?.getString("iditem")
+                            val iditem = Gson().fromJson(iditemJson, String::class.java)
+                                    Displaymeal(navController,iditem)
                         }
 
+
+
+                        composable("panier")    {DisplayPanier(navController)}
                     }
-
-
                 }
+
             }
         }
     }
@@ -179,7 +232,7 @@ class MainActivity : ComponentActivity() {
         builder.setTitle("Permission Required")
         builder.setMessage("L'application nécessite l'accès à la localisation pour fonctionner. Veuillez activer la localisation.")
         builder.setPositiveButton("Quitter") { _, _ ->
-            finish() // Close the app
+            finish()
         }
         builder.setCancelable(false)
         builder.show()

@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.example.fooddelivery"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.fooddelivery"
@@ -82,6 +82,10 @@ dependencies {
     implementation (libs.androidx.foundation)
     implementation(libs.coil.compose)
     implementation(libs.androidx.material.icons.extended)
+    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation ("androidx.navigation:navigation-compose:2.8.3")
+    implementation ("androidx.compose.foundation:foundation:1.4.0")
+    implementation ("androidx.compose.material3:material3:1.0.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -97,6 +101,15 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation (libs.room.runtime)
     implementation (libs.room.ktx)
+
+    /*implementation(libs.junit.junit)*/
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.animation.core.lint)
+    implementation(libs.accessibility.test.framework)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.places)
+    implementation(libs.engage.core)
+    implementation(libs.androidx.core.i18n)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.storage)
     implementation(libs.firebase.crashlytics.buildtools)

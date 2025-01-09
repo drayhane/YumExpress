@@ -6,10 +6,7 @@ import MenuRepositoryImpl
 import RestaurantRepository
 import RestaurantRepositoryImpl
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
-import com.example.fooddelivery.ui.components.CompletionDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,32 +47,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.Room
+import androidx.navigation.NavHostController
+import coil.compose.rememberImagePainter
 import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.Review
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
-import coil.compose.rememberImagePainter
-
-import com.example.fooddelivery.ui.components.TabItem
-import com.example.fooddelivery.ui.components.MenuItemWithDivider
-
 import com.example.fooddelivery.ui.components.CardItem
+import com.example.fooddelivery.ui.components.CompletionDialog
 import com.example.fooddelivery.ui.components.FeedbackDialog
-
+import com.example.fooddelivery.ui.components.MenuItemWithDivider
+import com.example.fooddelivery.ui.components.TabItem
+import io.github.jan.supabase.auth.auth
+import supabaseClient
 
 
 @Composable
 fun RestaurantScreen(
+    navController: NavHostController,
     context: Context,
-    repository: RestaurantRepository = remember { RestaurantRepositoryImpl( context= context ) },
+    repository: RestaurantRepository = remember { RestaurantRepositoryImpl( ) },
     addReviewUseCase: AddReviewUseCase,
     restaurantId: String,
     getReviewUseCase: GetReviewUseCase,
@@ -86,10 +83,8 @@ fun RestaurantScreen(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var reviews by remember { mutableStateOf<List<Pair<Review, String>>?>(null) }
-
-    // Static restaurantId = "1"
-    val restaurantId = "1"
-    val userId="7ccfe700-012b-4cc3-90b0-0f1c16ef3537"
+    val currentUser = supabaseClient.auth.currentUserOrNull()
+    val userId = currentUser?.id ?: throw Exception("User not authenticated")
 
     // Fetch data when the Composable is launched
     LaunchedEffect(Unit) {
@@ -397,10 +392,12 @@ fun RestaurantScreen(
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 items(filteredMenuItems) { menuItem ->
                                     MenuItemWithDivider(
+                                        navController = navController,
                                         imageRes = menuItem.image, // Replace with actual image logic
                                         name = menuItem.name,
                                         description = menuItem.ingredient,
-                                        price = "${menuItem.price} DA"
+                                        price = "${menuItem.price} DA",
+                                        itemId = "${menuItem.id_item}"
                                     )
                                 }
                             }
