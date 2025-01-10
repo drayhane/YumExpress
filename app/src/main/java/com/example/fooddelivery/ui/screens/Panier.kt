@@ -338,12 +338,18 @@ fun DisplayPanier(navController: NavHostController) {
                         onDelete = { productToDelete ->
                             products = products.filter { it.id != productToDelete.id }
                             recalculateTotal()
+                            // Vérifier si le panier est vide après la suppression du produit
+
                             coroutineScope.launch {
                                 composeRepository.deletefrompanier(
                                     productToDelete.id,
                                     productToDelete.id_Cart,
                                     totalPrice
                                 )
+                                if (products.isEmpty()) {
+                                    activeCart!!.id_card?.let { cartRepository.Finirpanier(it) }
+                                    activeCart = null  
+                                }
                             }
                         }
                     )
