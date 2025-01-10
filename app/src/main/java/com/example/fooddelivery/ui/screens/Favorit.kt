@@ -82,7 +82,7 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /* Action de retour */ }) {
+            IconButton(onClick = { navcontrolle.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ret_btn),
                     contentDescription = "Back Button",

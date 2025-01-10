@@ -6,6 +6,7 @@ import MenuRepositoryImpl
 import RestaurantRepository
 import RestaurantRepositoryImpl
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,11 +27,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
@@ -38,8 +43,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +65,8 @@ import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.Review
+import com.example.fooddelivery.domain.respository.FavorisRepository
+import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
 import com.example.fooddelivery.ui.components.CardItem
 import com.example.fooddelivery.ui.components.CompletionDialog
@@ -65,6 +74,7 @@ import com.example.fooddelivery.ui.components.FeedbackDialog
 import com.example.fooddelivery.ui.components.MenuItemWithDivider
 import com.example.fooddelivery.ui.components.TabItem
 import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 import supabaseClient
 
 
@@ -85,6 +95,21 @@ fun RestaurantScreen(
     var reviews by remember { mutableStateOf<List<Pair<Review, String>>?>(null) }
     val currentUser = supabaseClient.auth.currentUserOrNull()
     val userId = currentUser?.id ?: throw Exception("User not authenticated")
+    var isFavorite by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val favoriteRestaurants = remember { mutableStateListOf<Restaurant>() }
+    val favorisRes:FavorisRepository=FavorisRepositoryImpl()
+
+
+    LaunchedEffect(Unit){
+        val favoris = favorisRes.getFavRestaurants(userId) // Retourne une liste d'objets Restaurant
+        favoriteRestaurants.clear()
+        if (favoris != null) {
+            favoriteRestaurants.addAll(favoris)
+            Log.d("FavoriteRestaurants", "Favoris mis à jour: ${favoriteRestaurants.map { it.id_restaurant }}")
+
+        }
+    }
 
     // Fetch data when the Composable is launched
     LaunchedEffect(Unit) {
@@ -133,6 +158,7 @@ fun RestaurantScreen(
             val showCompletionDialog = remember { mutableStateOf(false) }
             val restaurantImage = fetchedRestaurant.logo
 
+            isFavorite = favoriteRestaurants.any { it.id_restaurant == restaurant?.id_restaurant }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -165,12 +191,31 @@ fun RestaurantScreen(
                                 )
                             }
                             IconButton(
-                                onClick = { /* Action for favorite icon */ },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        try {
+                                            if (isFavorite) {
+                                                // Remove from favorites
+                                                println("remove favorite")
+                                                favorisRes.removeFromFav(userId, restaurant!!.id_restaurant)
+                                                isFavorite = false // Update state after success
+                                             } else {
+                                                println("Add to favorites")
+                                                favorisRes.addfavorits(userId, restaurant!!.id_restaurant)
+                                                isFavorite = true // Update state after success
+
+                                            }
+                                        } catch (e: Exception) {
+                                            e.printStackTrace() // Handle exception
+                                        }
+                                    }
+                                },
                                 modifier = Modifier.padding(8.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.heart),
-                                    contentDescription = "Heart Icon"
+                                Icon(
+                                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = "Favorite icon",
+                                    tint = if (isFavorite) Color(0xFFFF640D) else Color.Gray // Utilisation de tint ici
                                 )
                             }
                         }

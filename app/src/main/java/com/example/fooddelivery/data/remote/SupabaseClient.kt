@@ -1,15 +1,21 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
-import com.example.fooddelivery.data.model.Item
-import com.example.fooddelivery.data.model.Review
-import io.github.jan.supabase.SupabaseClient
+
+
+
+
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.example.fooddelivery.data.model.Cart
+import com.example.fooddelivery.data.model.Category
 import com.example.fooddelivery.data.model.FavoriteId
+import com.example.fooddelivery.data.model.Item
 import com.example.fooddelivery.data.model.Restaurant
+import com.example.fooddelivery.data.model.Review
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.data.model.compose
+import com.example.fooddelivery.data.model.favoris_res
 import com.example.fooddelivery.data.model.order1
 import com.google.gson.Gson
 import io.github.jan.supabase.auth.Auth
@@ -18,30 +24,11 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-
-
-
-
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.Serializable
-
-import android.util.Log
-import com.example.fooddelivery.data.model.Category
-import com.example.fooddelivery.data.model.favoris_res
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
-import kotlinx.datetime.LocalDate
-
+import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
-import kotlinx.serialization.json.Json
-
-import kotlin.time.Duration
-import io.github.jan.supabase.serializer.KotlinXSerializer
 
 val supabaseClient = createSupabaseClient(
     supabaseUrl = "https://kfhcvlegzuemrxwfkgak.supabase.co",
@@ -593,15 +580,25 @@ suspend fun fetchCategories(): List<Category> {
     // Décoder les données
     return response.decodeList<Category>()
 }
-suspend fun addtofavorit(idUser: String , idRestaurant: String){
-    val new_favorit = favoris_res(
+suspend fun addtofavorit(idUser: String, idRestaurant: String) {
+    val newFavorit = favoris_res(
         id_user = idUser,
-        id_restaurant=idRestaurant
-
+        id_restaurant = idRestaurant
     )
-    val response = supabaseClient
-        .from("favorit_res")
-        .insert(new_favorit)
+
+    try {
+        val response = supabaseClient
+            .from("favori_res")
+            .insert(newFavorit)
+
+
+
+    } catch (e: Exception) {
+        // Log or rethrow the exception
+        e.printStackTrace()
+        throw Exception("Failed to add favorite: ${e.message}")
+    }
 }
+
 
 val authentification = supabaseClient.auth

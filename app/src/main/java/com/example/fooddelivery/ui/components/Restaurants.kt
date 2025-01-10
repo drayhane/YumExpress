@@ -42,19 +42,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.data.model.Restaurant
+import com.example.fooddelivery.domain.respository.FavorisRepository
+import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
 import com.example.fooddelivery.domain.respository.restoRepository
 import com.example.fooddelivery.domain.respository.restoRepositoryImpl
 import com.example.fooddelivery.domain.usecase.GetRestoUsecase
-import kotlinx.coroutines.launch
-import coil.compose.rememberAsyncImagePainter
-import com.example.fooddelivery.data.model.favoris_res
-import com.example.fooddelivery.domain.respository.ComposeRepository
-import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
-import com.example.fooddelivery.domain.respository.FavorisRepository
-import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
 import com.google.gson.Gson
 import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 import supabaseClient
 
 @Composable
@@ -74,13 +71,25 @@ fun RestaurantList(
     // Etat pour gérer le défilement de la liste
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
+    //pour mettre les restau fav
+    val favoriteRestaurants = remember { mutableStateListOf<Restaurant>() }
     val favorisRes:FavorisRepository=FavorisRepositoryImpl()
+
+    val currentUser = supabaseClient.auth.currentUserOrNull()
+    val userId = currentUser?.id ?: throw Exception("User not authenticated")
+    LaunchedEffect(Unit){
+        val favoris = favorisRes.getFavRestaurants(userId) // Retourne une liste d'objets Restaurant
+        favoriteRestaurants.clear()
+        if (favoris != null) {
+            favoriteRestaurants.addAll(favoris)
+        }
+    }
+
+
+
     LaunchedEffect(searchText, selectedCategory) {
         try {
-            val currentUser = supabaseClient.auth.currentUserOrNull()
-            val userId = currentUser?.id ?: throw Exception("User not authenticated")
-            println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh ${userId}")
+
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
             restaurants.clear()
@@ -156,19 +165,22 @@ fun RestaurantList(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(restaurants) { restaurant ->
-                    RestaurantCard(restaurant = restaurant , navController = navController,favorisRes=favorisRes )
+                    RestaurantCard(restaurant = restaurant , navController = navController,favorisRes=favorisRes,favorisList=favoriteRestaurants )
 
                 }
             }
         }
     }
 }
+
 @Composable
-fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favorisRes:FavorisRepository) {
+fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favorisRes:FavorisRepository, favorisList: List<Restaurant>) {
     val coroutineScope = rememberCoroutineScope()
 
     // État pour suivre si le restaurant est favori ou non
-    var isFavorite by remember { mutableStateOf(false) }
+    var isFavorite by remember {
+        mutableStateOf(favorisList.any { it.id_restaurant == restaurant.id_restaurant })
+    }
 
     Column(
         modifier = Modifier
@@ -186,7 +198,7 @@ fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favo
                 .clip(RoundedCornerShape(12.dp))
         ) {
 
-            Image (
+            Image(
                 painter = rememberAsyncImagePainter(
                     model = restaurant.logo
                 ),
@@ -221,18 +233,36 @@ fun RestaurantCard(restaurant: Restaurant, navController: NavHostController,favo
                         val userId = currentUser?.id ?: throw Exception("User not authenticated")
                         coroutineScope.launch {
                             try {
-                                val currentUser = supabaseClient.auth.currentUserOrNull()
-                                val userId = currentUser?.id ?: throw Exception("User not authenticated")
-                                favorisRes.addfavorits(userId, restaurant.id_restaurant)
-                                isFavorite = !isFavorite // Update state only after success
+                                // Perform add or remove operation based on the current state
+                                if (isFavorite) {
+                                    println("Removing from favorites")
+                                    // Call remove function
+                                    favorisRes.removeFromFav(userId, restaurant.id_restaurant)
+
+                                    // Only update state after successful removal
+                                    isFavorite = false // Update state after success
+                                } else {
+                                    println("Adding to favorites")
+                                    // Call add function
+                                    favorisRes.addfavorits(userId, restaurant.id_restaurant)
+
+                                    // Only update state after successful addition
+                                    isFavorite = true // Update state after success
+                                }
                             } catch (e: Exception) {
-                                e.printStackTrace() // Handle the exception
+                                e.printStackTrace() // Log error for debugging
+                                // Optionally, you can revert the state in case of error to avoid UI inconsistency
+                                isFavorite = !isFavorite // Revert state in case of error
                             }
                         }
-                        isFavorite = !isFavorite // Changement d'état
                     }
             )
+
         }
+
+
+
+
 
         Spacer(modifier = Modifier.height(4.dp))
 

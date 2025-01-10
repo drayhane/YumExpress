@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -167,9 +169,10 @@ fun DisplayPanier(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
     var location by remember { mutableStateOf("") }
     val selectedMethod = remember { mutableStateOf("CASH") }
-    var activeCart: Cart? = null
+    //var activeCart: Cart? = null
     var locationName by remember { mutableStateOf("Loading...") }
     val context = LocalContext.current
+    var activeCart by remember { mutableStateOf<Cart?>(null) }
 
 // Launch a coroutine to get the current location name
     LaunchedEffect(Unit) {
@@ -181,7 +184,9 @@ fun DisplayPanier(navController: NavHostController) {
     }
     LaunchedEffect(userId) {
         try {
-            activeCart = cartRepository.Getactivecart(userId)
+            val cart = cartRepository.Getactivecart(userId)
+            activeCart = cart
+
             activeCart?.id_card?.let { cartId ->
                 val composeProducts = composeRepository.getproducts(cartId)
                 val enrichedProducts = composeProducts?.mapNotNull { compose ->
@@ -236,7 +241,34 @@ fun DisplayPanier(navController: NavHostController) {
         LaunchedEffect(userId) {
             location = userRepository.GetUserLocation(userId).toString()
         }
+         if (activeCart == null) {
+             Box(
+                 modifier = Modifier
+                     .fillMaxSize()
+                     .background(Color.White),
+                 contentAlignment = Alignment.Center
+             ) {
+                 Column(
+                     horizontalAlignment = Alignment.CenterHorizontally,
+                     verticalArrangement = Arrangement.Center
+                 ) {
+                     Icon(
+                         imageVector = Icons.Default.ShoppingCart,
+                         contentDescription = "Cart Icon",
+                         tint = Orange500,
+                         modifier = Modifier.size(64.dp)
+                     )
 
+                     Spacer(modifier = Modifier.height(16.dp))
+                     Text(
+                         "No active cart is available.",
+                         style = MaterialTheme.typography.bodyMedium,
+                         color = Color.Black
+                     )
+                 }
+             }
+        }
+       else{
         // Delivery Location
         Row(
             modifier = Modifier
@@ -410,7 +442,7 @@ fun DisplayPanier(navController: NavHostController) {
 
 
         }
-    }
+    }}
     if (resultMessage.isNotEmpty()) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(resultMessage, color = if (resultMessage.startsWith("Votre commande")) Color.Green else Color.Red)
