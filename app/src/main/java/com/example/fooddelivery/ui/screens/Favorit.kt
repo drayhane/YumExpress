@@ -1,6 +1,7 @@
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +51,7 @@ import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.domain.respository.FavorisRepository
 import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
+import com.example.fooddelivery.ui.theme.Black1F
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 
@@ -82,11 +85,22 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /* Action de retour */ }) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF8F8F8)),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ret_btn),
-                    contentDescription = "Back Button",
-                    tint = Color.Black
+                    imageVector = Icons.Sharp.KeyboardArrowLeft,
+                    contentDescription = "Call",
+                    tint = Black1F,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable  {
+
+                        }
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))

@@ -123,22 +123,47 @@ class MainActivity : ComponentActivity() {
                         startDestination = "Login"
                     ) {
                         composable(
-                            route = "tracking_screen?lat={lat}&lon={lon}",
+                            route = "tracking_screen?lat={lat}&lon={lon}&lat2={lat2}&lon2={lon2}&name={name}&num={num}&res={res}&id_res={id_res}",
                             arguments = listOf(
                                 navArgument("lat") { type = NavType.StringType },
-                                navArgument("lon") { type = NavType.StringType }
+                                navArgument("lon") { type = NavType.StringType },
+                                navArgument("lat2") { type = NavType.StringType },
+                                navArgument("lon2") { type = NavType.StringType },
+                                navArgument("name") { type = NavType.StringType },
+                                navArgument("num") { type = NavType.StringType },
+                                navArgument("res") { type = NavType.StringType },
+                                navArgument("id_res") { type = NavType.StringType }
+
+
                             )
                         ) { backStackEntry ->
                             val latString = backStackEntry.arguments?.getString("lat") ?: "0.0"
                             val lonString = backStackEntry.arguments?.getString("lon") ?: "0.0"
+                            val latString2 = backStackEntry.arguments?.getString("lat2") ?: "0.0"
+                            val lonString2 = backStackEntry.arguments?.getString("lon2") ?: "0.0"
+                            val name = backStackEntry.arguments?.getString("name") ?: "Unknow"
+                            val num = backStackEntry.arguments?.getString("num")?: "Unknow"
+                            val res = backStackEntry.arguments?.getString("res") ?: "Unknow"
+                            val id_res = backStackEntry.arguments?.getString("idres")?: "Unknow"
+
+
                             // Convert String to Double
                             val lat = latString.toDouble()
                             val lon = lonString.toDouble()
+                            val lat2= latString2.toDouble()
+                            val lon2 = lonString2.toDouble()
+
 
                             TrackingScreen(
                                 navController = navController,
                                 endPointLat = lat,
-                                endPointLon = lon
+                                endPointLon = lon,
+                                startPointLat = lat2,
+                                startPointLon = lon2,
+                                name=name,
+                                num=num,
+                                res=res,
+                                id_res = id_res
                             )
                         }
                         composable("address_screen") {
@@ -147,9 +172,15 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
-                        composable("DeliverySuccessScreen") {
+                        composable("DeliverySuccessScreen?id_res={id_res}",
+                            arguments = listOf(
+                                navArgument("id_res") { type = NavType.StringType }))
+                        { backStackEntry ->
+                            val id_res = backStackEntry.arguments?.getString("id_res") ?: "1"
+
                             DeliverySuccessScreen(
-                                navController = navController
+                                navController = navController,
+                                id_res=id_res
                             )
                         }
                         composable("RestaurantScreen/{restaurantId}",
@@ -208,7 +239,29 @@ class MainActivity : ComponentActivity() {
 
 
 
-                        composable("panier")    {DisplayPanier(navController)}
+                        composable("panier?adress={adress}&lat={lat}&long={lon}",
+                            arguments = listOf(
+                                navArgument("adress"){type=NavType.StringType},
+                                navArgument("lat") { type = NavType.StringType },
+                                navArgument("lon") { type = NavType.StringType })
+                        )
+                        { backStackEntry ->
+                            val adress = backStackEntry.arguments?.getString("adress") ?: ""
+                            val latString = backStackEntry.arguments?.getString("lat") ?: "0.0"
+                            val lonString = backStackEntry.arguments?.getString("lon") ?: "0.0"
+                            val lat = if (latString.isNotEmpty()) {
+                                latString.toDouble()
+                            } else {
+                                0.0 // or a default value if needed
+                            }
+
+                            val lon = if (lonString.isNotEmpty()) {
+                                lonString.toDouble()
+                            } else {
+                                0.0 // or a default value if needed
+                            }
+                            DisplayPanier(navController,adress,lat,lon)
+                        }
                     }
                 }
 

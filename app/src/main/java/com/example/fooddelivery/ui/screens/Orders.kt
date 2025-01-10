@@ -3,6 +3,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +48,7 @@ import com.example.fooddelivery.domain.respository.ComposeRepository
 import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
 import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
+import com.example.fooddelivery.ui.theme.Black1F
 
 import com.google.gson.Gson
 import io.github.jan.supabase.auth.auth
@@ -105,11 +109,22 @@ fun DisplayOrders(navController: NavHostController) {
     ) {
         // Barre supérieure
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { navController.popBackStack() }) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF8F8F8)),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ret_btn),
-                    contentDescription = "Back Button",
-                    tint = Color.Black
+                    imageVector = Icons.Sharp.KeyboardArrowLeft,
+                    contentDescription = "Call",
+                    tint = Black1F,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable  {
+                            navController.popBackStack()
+                        }
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))

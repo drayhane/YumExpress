@@ -18,8 +18,9 @@ import com.example.fooddelivery.ui.components.OpenStreetMapComposable
 import com.example.fooddelivery.ui.components.TrackCard
 import org.osmdroid.util.GeoPoint
 @Composable
-fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLon: Double) {
+fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLon: Double,startPointLat: Double, startPointLon: Double,name: String, num:String,id_res:String,res:String) {
     val endPoint = GeoPoint(endPointLat, endPointLon)
+    val startPoint = GeoPoint(startPointLat, startPointLon)
     val context= LocalContext.current
     LaunchedEffect(Unit) {
         println("Received Lat: $endPointLat, Lon: $endPointLon")
@@ -35,7 +36,7 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
             // OpenStreetMap as the background layer
             OpenStreetMapComposable(
                 context = LocalContext.current,
-                startPoint = GeoPoint(36.7059919,3.172007267242316),
+                startPoint = startPoint,
                 endPoint = endPoint,
                 modifier = Modifier.fillMaxSize()
             )
@@ -60,10 +61,11 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
         ) {
             TrackCard(
                  "12:30",
-                "Derbal Zakaria",
-                "0686544587",
+                name,
+                num,
                  "",
-                "ESI",
+                res,
+                id_res,
                  context,
                 navController
             )

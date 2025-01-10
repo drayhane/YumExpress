@@ -23,7 +23,7 @@ import com.example.fooddelivery.ui.theme.Black1F
 
 
 @Composable
-fun DeliverySuccessScreen(navController: NavController) {
+fun DeliverySuccessScreen(navController: NavController,id_res :String) {
   Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,7 +69,7 @@ fun DeliverySuccessScreen(navController: NavController) {
        Row(
             modifier = Modifier
                 .clickable {
-                    navController.navigate("RestaurantScreen")
+                    navController.navigate("RestaurantScreen/${id_res}")
                 },
             verticalAlignment = Alignment.CenterVertically
 

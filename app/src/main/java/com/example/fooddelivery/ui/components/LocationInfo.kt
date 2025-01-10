@@ -72,9 +72,9 @@ suspend fun getCurrentLocationName(context: Context): String? {
                     val geocoder = Geocoder(context, Locale.getDefault())
                     val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                     if (!addresses.isNullOrEmpty()) {
-                        val address = addresses[0]
-                        // Return the locality (city), or fallback to the full address
-                        val locationName = address.locality ?: address.getAddressLine(0)
+                        val addressLine = addresses[0].getAddressLine(0) ?: "No address line"
+                        val country = addresses[0].countryName ?: "No country name"
+                        val locationName = "$addressLine, $country"
                         continuation.resume(locationName)
                     } else {
                         Log.d("Location", "No address found for the location")
@@ -167,8 +167,8 @@ fun LocationInfo() {
 
                 Text(
                     text = locationName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Thin,
                     color = Color.Black
                 )
             }

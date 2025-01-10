@@ -43,6 +43,7 @@ fun TrackCard(
     deliveryManPhone: String,
     deliveryManImageUrl: String,
     deliveryPlace: String,
+    idrestaurant:String,
     context: Context,
     navController: NavController,
     modifier: Modifier = Modifier
@@ -64,7 +65,7 @@ fun TrackCard(
                 sendNotification(context, "Order is on the route.")
             } else if (activeIconIndex == 7) {
                 sendNotification(context, "Order delivered, you can give your feedback about the restaurant!")
-                navController.navigate("DeliverySuccessScreen")
+                navController.navigate("DeliverySuccessScreen?id_res=${idrestaurant}")
             }
         }
     }
