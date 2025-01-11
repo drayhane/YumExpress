@@ -138,12 +138,12 @@ fun DisplayProfil(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Address
-            CustomTextField(label = "Address", value = user.adress)
+            CustomTextField(label = "Address", value = user.adress ?: "",)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Phone number
-            CustomTextField(label = "Phone number", value = user.num_tel)
+            CustomTextField(label = "Phone number", value = user.num_tel?: "")
 
             Spacer(modifier = Modifier.weight(1f))
 

@@ -281,7 +281,7 @@ fun DisplayEdit(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = address,
+            value = address ?: "",
             onValueChange = { address = it },
             label = { Text("Address") },
             singleLine = true,
@@ -291,7 +291,7 @@ fun DisplayEdit(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = phone,
+            value = phone ?: "",
             onValueChange = { phone = it },
             label = { Text("Phone number") },
             singleLine = true,

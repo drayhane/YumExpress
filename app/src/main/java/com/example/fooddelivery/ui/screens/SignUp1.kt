@@ -205,9 +205,11 @@ fun SignUp1 (navController: NavController){
 
 @Composable
 fun GoogleButton(navController: NavController) {
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
     val emailExists = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
     val users = remember { mutableStateListOf<User1>() }
     var newUser by remember { mutableStateOf("") }
     val onClick: () -> Unit = {
@@ -323,8 +325,11 @@ fun GoogleButton(navController: NavController) {
                     newUser = ""
                 }
             }
+                sharedPreferences.edit().putBoolean("is_logged_in", true).apply()
+                navController.navigate("HomeScreen") {
+                    popUpTo("LogIn") { inclusive = true }
+                }
 
-                navController.navigate("HomeScreen")
                 // Handle successful sign-in
             } catch (e: GetCredentialException) {
                 Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()

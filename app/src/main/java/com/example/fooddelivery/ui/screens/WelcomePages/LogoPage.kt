@@ -36,7 +36,9 @@ fun LogoPage(navController: NavController) {
     LaunchedEffect(Unit) {
         isLogoVisible.value = true
         delay(2500)
-        navController.navigate("LogIn")
+        navController.navigate("LogIn"){
+            popUpTo("LogoPage") { inclusive = true }
+        }
     }
 
     Box(

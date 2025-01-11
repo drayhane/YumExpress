@@ -25,12 +25,12 @@ fun userOrNull(navController: NavController) {
         if (isLoggedIn) {
             // User is logged in, navigate to the main screen
             navController.navigate("HomeScreen") {
-                popUpTo("SplashScreen") { inclusive = true }
+                popUpTo("userOrNull") { inclusive = true }
             }
         } else {
             // User is not logged in, navigate to the login screen
             navController.navigate("LogoPage") {
-                popUpTo("SplashScreen") { inclusive = true }
+                popUpTo("userOrNull") { inclusive = true }
             }
         }
     }

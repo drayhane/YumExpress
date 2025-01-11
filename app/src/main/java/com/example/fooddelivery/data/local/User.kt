@@ -10,8 +10,8 @@ data class User1(
     val email: String,
     val password: String,
     val profile_picture: String?,
-    val num_tel: String,
-    val adress: String,
+    val num_tel: String?,
+    val adress: String?,
     val location: String?,
     val name: String,
     val id_card: String?
