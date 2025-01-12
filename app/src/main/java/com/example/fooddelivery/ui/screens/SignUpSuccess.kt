@@ -52,6 +52,6 @@ fun SignUpSuccess (navController: NavController){
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            ButtonComponent("Continue",navController,"HomeScreen") // should go to the acceuil
+            ButtonComponent("Continue",navController,"Welcome1") // should go to the acceuil
         }}
 }
