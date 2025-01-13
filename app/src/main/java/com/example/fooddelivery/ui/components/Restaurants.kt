@@ -80,7 +80,6 @@ fun RestaurantList(
         try {
             val currentUser = supabaseClient.auth.currentUserOrNull()
             val userId = currentUser?.id ?: throw Exception("User not authenticated")
-            println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh ${userId}")
             isLoading.value = true
             val fetchedRestaurants = repository.getResto()
             restaurants.clear()
