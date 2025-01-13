@@ -143,7 +143,11 @@ fun AddressScreen(context: Context, navController: NavController) {
                     imageVector = Icons.Sharp.KeyboardArrowLeft,
                     contentDescription = "Call",
                     tint = Black1F,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable  {
+                        navController.popBackStack()
+                    }
                 )
             }
             Spacer(modifier = Modifier.width(6.dp))
@@ -216,6 +220,7 @@ fun AddressScreen(context: Context, navController: NavController) {
                     .clickable {
                         query = suggestion.display_name
                         selectedSuggestion = suggestion
+
                     }
                     .padding(vertical = 8.dp, horizontal = 4.dp)
             ) {
@@ -251,7 +256,7 @@ fun AddressScreen(context: Context, navController: NavController) {
                             currentLocation = getCurrentLocation(context)
                             // After getting the location, navigate to tracking screen
                             currentLocation?.let {
-                                navController.navigate("tracking_screen?lat=${it.first}&lon=${it.second}")
+                                navController.navigate("panier?adress=${""}&lat=${""}&long=${""}")
                             }
                         }
                     }
@@ -275,10 +280,6 @@ fun AddressScreen(context: Context, navController: NavController) {
             )
         }
 
-        // Display current location for testing
-        currentLocation?.let {
-            Text("Current location: ${it.first}, ${it.second}", fontSize = 14.sp, color = Color.Gray)
-        }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -290,7 +291,7 @@ fun AddressScreen(context: Context, navController: NavController) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(onClick = {
-                    navController.navigate("tracking_screen?lat=${selectedSuggestion!!.lat}&lon=${selectedSuggestion!!.lon}")
+                    navController.navigate("panier?adress=${selectedSuggestion}&lat=${selectedSuggestion!!.lat}&long=${selectedSuggestion!!.lon}")
                 },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Black1F),

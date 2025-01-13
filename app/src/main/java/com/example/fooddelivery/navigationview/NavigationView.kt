@@ -15,28 +15,27 @@ import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ReviewRespositoryImpl
 import com.example.fooddelivery.domain.usecase.GetReviewUseCase
-import com.example.fooddelivery.ui.screens.CartsScreen
+import com.example.fooddelivery.ui.screens.AddressScreen
+import com.example.fooddelivery.ui.screens.DeliverySuccessScreen
 import com.example.fooddelivery.ui.screens.DisplayEdit
 import com.example.fooddelivery.ui.screens.DisplayPanier
 import com.example.fooddelivery.ui.screens.DisplayProfil
 import com.example.fooddelivery.ui.screens.Displaymeal
-import com.example.fooddelivery.ui.screens.FavoritesScreen
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPassword1
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPassword2
 import com.example.fooddelivery.ui.screens.ForgotPassword.ForgotPasswordOTP
 import com.example.fooddelivery.ui.screens.HomeScreen
-import com.example.fooddelivery.ui.screens.OrdersScreen
-import com.example.fooddelivery.ui.screens.ProfileScreen
 import com.example.fooddelivery.ui.screens.RestaurantScreen
 import com.example.fooddelivery.ui.screens.SignUp1
 import com.example.fooddelivery.ui.screens.SignUp2
 import com.example.fooddelivery.ui.screens.SignUp3OTP
 import com.example.fooddelivery.ui.screens.SignUp4Photo
 import com.example.fooddelivery.ui.screens.SignUpSuccess
+import com.example.fooddelivery.ui.screens.Test
+import com.example.fooddelivery.ui.screens.TrackingScreen
 import com.example.fooddelivery.ui.screens.WelcomePages.LogoPage
 import com.example.fooddelivery.ui.screens.WelcomePages.Welcome1
 import com.example.fooddelivery.ui.screens.WelcomePages.userOrNull
-import com.example.fooddelivery.ui.screens.Test
 import com.google.gson.Gson
 import reviewRespositoryImpl
 
@@ -53,7 +52,30 @@ fun NavigationView() {
 
         composable(Destination.Home.route) { HomeScreen(navController = navController) }
         composable(Destination.Orders.route) { DisplayOrders(navController) }
-        composable(Destination.Carts.route) {  DisplayPanier(navController) }
+        composable("panier?adress={adress}&lat={lat}&long={lon}",
+            arguments = listOf(
+                navArgument("adress"){type=NavType.StringType},
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lon") { type = NavType.StringType })
+        )
+        { backStackEntry ->
+            val adress = backStackEntry.arguments?.getString("adress") ?: ""
+            val latString = backStackEntry.arguments?.getString("lat") ?: "0.0"
+            val lonString = backStackEntry.arguments?.getString("lon") ?: "0.0"
+            val lat = if (latString.isNotEmpty()) {
+                latString.toDouble()
+            } else {
+                0.0 // or a default value if needed
+            }
+
+            val lon = if (lonString.isNotEmpty()) {
+                lonString.toDouble()
+            } else {
+                0.0 // or a default value if needed
+            }
+            DisplayPanier(navController,adress,lat,lon)
+        }
+
         composable(Destination.Favorites.route) { DisplayFavorits(navController) }
         composable(Destination.Profile.route) {  DisplayProfil(navController) }
 
@@ -144,7 +166,76 @@ fun NavigationView() {
             Displaydetail(navController, order, products, totalPrice)
         }
         composable("favorits")  {DisplayFavorits(navController)}
-        composable("panier")    { DisplayPanier(navController) }
+
+
+        composable("DeliverySuccessScreen?id_res={id_res}",
+            arguments = listOf(
+                navArgument("id_res") { type = NavType.StringType }))
+        { backStackEntry ->
+            val id_res = backStackEntry.arguments?.getString("id_res") ?: "1"
+
+            DeliverySuccessScreen(
+                navController = navController,
+                id_res=id_res
+            )
+        }
+
+        /////////////////////////////////////////////////////////////
+
+            composable(
+                route = "tracking_screen?lat={lat}&lon={lon}&lat2={lat2}&lon2={lon2}&name={name}&num={num}&res={res}&id_res={id_res}&id_order={id_order}",
+                arguments = listOf(
+                    navArgument("lat") { type = NavType.StringType },
+                    navArgument("lon") { type = NavType.StringType },
+                    navArgument("lat2") { type = NavType.StringType },
+                    navArgument("lon2") { type = NavType.StringType },
+                    navArgument("name") { type = NavType.StringType },
+                    navArgument("num") { type = NavType.StringType },
+                    navArgument("res") { type = NavType.StringType },
+                    navArgument("id_res") { type = NavType.StringType },
+
+
+                )
+            ) { backStackEntry ->
+                val latString = backStackEntry.arguments?.getString("lat") ?: "0.0"
+                val lonString = backStackEntry.arguments?.getString("lon") ?: "0.0"
+                val latString2 = backStackEntry.arguments?.getString("lat2") ?: "0.0"
+                val lonString2 = backStackEntry.arguments?.getString("lon2") ?: "0.0"
+                val name = backStackEntry.arguments?.getString("name") ?: "Unknow"
+                val num = backStackEntry.arguments?.getString("num")?: "Unknow"
+                val res = backStackEntry.arguments?.getString("res") ?: "Unknow"
+                val id_res = backStackEntry.arguments?.getString("id_res")?: "Unknow"
+                val id_order = backStackEntry.arguments?.getString("id_order")?: "Unknow"
+
+
+
+                // Convert String to Double
+                val lat = latString.toDouble()
+                val lon = lonString.toDouble()
+                val lat2= latString2.toDouble()
+                val lon2 = lonString2.toDouble()
+
+
+
+                TrackingScreen(
+                    navController = navController,
+                    endPointLat = lat,
+                    endPointLon = lon,
+                    startPointLat = lat2,
+                    startPointLon = lon2,
+                    name=name,
+                    num=num,
+                    res=res,
+                    id_res = id_res,
+                    id_order = id_order,
+                )
+            }
+            composable("address_screen") {
+                AddressScreen(
+                    context = LocalContext.current,
+                    navController = navController
+                )
+            }
 
 
 

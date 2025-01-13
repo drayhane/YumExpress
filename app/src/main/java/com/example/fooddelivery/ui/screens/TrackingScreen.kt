@@ -1,13 +1,14 @@
 package com.example.fooddelivery.ui.screens
 
-import android.content.Context
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -17,9 +18,11 @@ import com.example.fooddelivery.ui.components.BackToOrderCard
 import com.example.fooddelivery.ui.components.OpenStreetMapComposable
 import com.example.fooddelivery.ui.components.TrackCard
 import org.osmdroid.util.GeoPoint
+
 @Composable
-fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLon: Double) {
+fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLon: Double,startPointLat: Double, startPointLon: Double,name: String, num:String,id_res:String,res:String,id_order: String) {
     val endPoint = GeoPoint(endPointLat, endPointLon)
+    val startPoint = GeoPoint(startPointLat, startPointLon)
     val context= LocalContext.current
     LaunchedEffect(Unit) {
         println("Received Lat: $endPointLat, Lon: $endPointLon")
@@ -35,7 +38,7 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
             // OpenStreetMap as the background layer
             OpenStreetMapComposable(
                 context = LocalContext.current,
-                startPoint = GeoPoint(36.7059919,3.172007267242316),
+                startPoint = startPoint,
                 endPoint = endPoint,
                 modifier = Modifier.fillMaxSize()
             )
@@ -60,12 +63,14 @@ fun TrackingScreen(navController: NavController, endPointLat: Double, endPointLo
         ) {
             TrackCard(
                  "12:30",
-                "Derbal Zakaria",
-                "0686544587",
+                name,
+                num,
                  "",
-                "ESI",
-                 context,
-                navController
+                res,
+                id_res,
+                context,
+                navController,
+                id_order
             )
         }
     }

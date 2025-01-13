@@ -21,7 +21,9 @@ import androidx.navigation.NavController
 fun BackToOrderCard(navController: NavController,    modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = { navController.navigateUp() },
+        onClick = {
+            navController.popBackStack()
+        },
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Black1F), // Button background color
         modifier = Modifier

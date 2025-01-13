@@ -600,5 +600,18 @@ suspend fun addtofavorit(idUser: String, idRestaurant: String) {
     }
 }
 
+suspend fun orderdeliv(idorde:String){
+    val response = supabaseClient.from("order1").update(
+        {
+            set("status" , "Delivered")
+        }
+    ) {
+        select()
+        filter {
+
+            eq("id_order", idorde)
+        }
+    }
+}
 
 val authentification = supabaseClient.auth

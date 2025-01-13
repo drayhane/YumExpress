@@ -2,8 +2,10 @@
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -45,6 +51,7 @@ import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
 import com.example.fooddelivery.domain.respository.ItemRespository
 import com.example.fooddelivery.domain.respository.ItemRespositoryImpl
+import com.example.fooddelivery.ui.theme.Black1F
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -78,13 +85,25 @@ fun Displaydetail(navController: NavHostController, order: order1, products: Lis
         ) {
             // Top Bar
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF8F8F8)),
+                    contentAlignment = Alignment.Center
+                ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ret_btn),
-                        contentDescription = "Back Button",
-                        tint = Color.Black
+                        imageVector = Icons.Sharp.KeyboardArrowLeft,
+                        contentDescription = "Call",
+                        tint = Black1F,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable  {
+                                navController.popBackStack()
+                            }
                     )
                 }
+
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Order Details",

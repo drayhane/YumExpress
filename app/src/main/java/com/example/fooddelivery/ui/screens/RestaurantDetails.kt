@@ -182,7 +182,9 @@ fun RestaurantScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             IconButton(
-                                onClick = { /* Action for back icon */ },
+                                onClick = {
+                                    navController.popBackStack()
+                                },
                                 modifier = Modifier.padding(8.dp)
                             ) {
                                 Image(
