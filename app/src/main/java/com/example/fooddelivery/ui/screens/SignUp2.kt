@@ -236,7 +236,7 @@ fun SignUp2 (navController: NavController){
                                         }
 
                                         withContext(Dispatchers.Main) {
-                                            navController.navigate("SignUp3OTP?email=${email}")
+                                            navController.navigate("SignUp3OTP?email=${email}&password=${password}")
                                         }
                                     } catch (e: Exception) {
                                         withContext(Dispatchers.Main) {
@@ -289,7 +289,7 @@ fun SignUp2 (navController: NavController){
 
             OrSeparator()
 
-            GoogleLoginIn{}
+            GoogleButton(navController)
 
 
             Spacer(modifier = Modifier.height(15.dp))

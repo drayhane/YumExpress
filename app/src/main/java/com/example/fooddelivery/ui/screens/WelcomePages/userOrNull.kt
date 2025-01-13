@@ -24,13 +24,13 @@ fun userOrNull(navController: NavController) {
     LaunchedEffect(Unit) {
         if (isLoggedIn) {
             // User is logged in, navigate to the main screen
-            navController.navigate("Test") {
-                popUpTo("SplashScreen") { inclusive = true }
+            navController.navigate("HomeScreen") {
+                popUpTo("userOrNull") { inclusive = true }
             }
         } else {
             // User is not logged in, navigate to the login screen
-            navController.navigate("LogIn") {
-                popUpTo("SplashScreen") { inclusive = true }
+            navController.navigate("LogoPage") {
+                popUpTo("userOrNull") { inclusive = true }
             }
         }
     }

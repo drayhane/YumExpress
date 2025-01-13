@@ -249,7 +249,7 @@ fun SignUp4Photo(navController: NavController) {
                     // to add the cart
                     val uniqueCardId = UUID.randomUUID().toString()
 
-                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0", Id_rest = null, is_active= false)
+                    val cart = Cart(id_card = uniqueCardId, total_price = 0.0,food_note="0", Id_rest = null, is_active= true)
                     supabaseClient.from("cart").insert(cart)
 
                     // Prepare data for insertion

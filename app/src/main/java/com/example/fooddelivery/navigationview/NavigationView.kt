@@ -103,7 +103,9 @@ fun NavigationView() {
             arguments = listOf(navArgument("email") { type = NavType.StringType })
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            SignUp3OTP(navController, email)
+            val password = backStackEntry.arguments?.getString("email") ?: ""
+            SignUp3OTP(
+                navController, email, password)
         }
 
 

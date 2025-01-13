@@ -38,7 +38,6 @@ fun SignUpSuccess (navController: NavController){
             horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
             //verticalArrangement = Arrangement.Center // Center vertically
         ) {
-            BackArrowButton(navController)
             Spacer(modifier = Modifier.height(20.dp))
 
             TitleTexte("Your account was succefully created !")
@@ -53,6 +52,6 @@ fun SignUpSuccess (navController: NavController){
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            ButtonComponent("Continue",navController,"HomeScreen") // should go to the acceuil
+            ButtonComponent("Continue",navController,"Welcome1") // should go to the acceuil
         }}
 }

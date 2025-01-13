@@ -65,7 +65,7 @@ fun Welcome1(navController: NavController) {
 
             Spacer(modifier = Modifier.height(15.dp))
            // ButtonComponentWhite("Skip", navController, "LogIn")
-            ControllerText("Skip",navController,"LogIn")// take to home page
+            ControllerText("Skip",navController,"HomeScreen")// take to home page
         }
     }
 }
@@ -120,9 +120,9 @@ fun SlideContent(page: Int) {
                 )
 
 
-                TitleTexteCenter("Discover new tastes")
+                TitleTexteCenter("Fast and Fresh Delivery")
                 Spacer(modifier = Modifier.height(5.dp))
-                NormaleTexteGreyCenter("Explore a world of flavors at your fingertips. \n Craving something delicious? We've got it covered!")
+                NormaleTexteGreyCenter("Get your favorite meals delivered fresh, fast, and hot right to your doorstep!")
 
             }
 
@@ -199,7 +199,7 @@ fun NextButton(text: String, pagerState: PagerState,navController: NavController
                 }
                 else {
                     // Navigate to the login page if on the last page
-                    navController.navigate("LogIn") // Adjust the destination as per your route
+                    navController.navigate("HomeScreen") // Adjust the destination as per your route
                 }
             }
         },

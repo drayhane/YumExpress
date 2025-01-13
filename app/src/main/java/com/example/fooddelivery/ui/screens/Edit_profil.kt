@@ -1,6 +1,12 @@
 package com.example.fooddelivery.ui.screens
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,10 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.domain.respository.UserRepository
@@ -60,6 +71,7 @@ fun DisplayEdit(navController: NavHostController) {
     var password by remember { mutableStateOf(user.password) }
     var address by remember { mutableStateOf(user.adress) }
     var phone by remember { mutableStateOf(user.num_tel) }
+    var profilePicture by remember { mutableStateOf(user.profile_picture) }
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var showSnackbar by remember { mutableStateOf(false) }
@@ -85,7 +97,7 @@ fun DisplayEdit(navController: NavHostController) {
         Spacer(modifier = Modifier.height(8.dp))
 
         // Profile image
-        Image(
+        /*Image(
             painter = painterResource(id = R.drawable.profil),
             contentDescription = "Profile Picture",
             modifier = Modifier
@@ -93,7 +105,141 @@ fun DisplayEdit(navController: NavHostController) {
                 .clip(CircleShape)
                 .background(Color.Gray),
             contentScale = ContentScale.Crop
-        )
+        )*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        val context = LocalContext.current
+        val currentUser = supabaseClient.auth.currentUserOrNull()
+        val userId = currentUser?.id ?: throw Exception("User not authenticated")
+        val userRepository: UserRepository = UserRepositoryImpl()
+
+        val userImageUri=user.profile_picture
+
+
+        // State to track the selected image
+        val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
+
+        // Launchers for selecting images
+        val launcherGallery = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+            if (uri != null) {
+                selectedImageUri.value = uri
+            }
+        }
+
+        val launcherCamera = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicturePreview()
+        ) { bitmap ->
+            if (bitmap != null) {
+                val tempUri = saveBitmapToUri(context, bitmap)
+                selectedImageUri.value = tempUri
+            }
+        }
+
+        // Circular profile picture display
+        Box(
+            modifier = Modifier
+                .size(110.dp)
+                .clip(CircleShape)
+                .clickable {
+                    showPictureOptions(context, launcherGallery, launcherCamera)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            if (selectedImageUri.value != null) {
+                // Show the selected image
+                Image(
+                    painter = rememberAsyncImagePainter(selectedImageUri.value),
+                    contentDescription = "Selected Profile Picture",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop
+                )
+            } else if (userImageUri != null) {
+                if (userImageUri.isNotEmpty()) {
+                    // Show the existing profile picture from Supabase
+                    Image(
+                        painter = rememberAsyncImagePainter(model = user.profile_picture),
+                        contentDescription = "Existing Profile Picture",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(Color.Gray),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Placeholder Icon
+                    Icon(
+                        imageVector = Icons.Default.AddAPhoto,
+                        contentDescription = "Add Profile Picture",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(30.dp)
+                    )
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -135,7 +281,7 @@ fun DisplayEdit(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = address,
+            value = address ?: "",
             onValueChange = { address = it },
             label = { Text("Address") },
             singleLine = true,
@@ -145,7 +291,7 @@ fun DisplayEdit(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = phone,
+            value = phone ?: "",
             onValueChange = { phone = it },
             label = { Text("Phone number") },
             singleLine = true,
@@ -169,7 +315,16 @@ fun DisplayEdit(navController: NavHostController) {
                 LaunchedEffect(Unit) {
                     try {
                         val userRepository: UserRepository = UserRepositoryImpl()
-                        userRepository.updateUser(user.id_user,  user.copy(name = name, email = email, password = password, adress = address, num_tel = phone))
+
+                        println("Selected Imagee URI: ${selectedImageUri.value.toString()}")
+
+                        userRepository.updateUser(user.id_user,  user.copy(name = name, email = email, password = password, adress = address, num_tel = phone ,profile_picture = selectedImageUri.value.toString()))
+
+
+                        navController.navigate("Profil") {
+                            popUpTo("Profil")
+                        }
+
                         showSnackbar = true
                     } catch (e: Exception) {
                         // Log error or gérer un état d'erreur ici

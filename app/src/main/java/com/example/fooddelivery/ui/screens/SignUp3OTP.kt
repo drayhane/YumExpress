@@ -48,7 +48,7 @@ import supabaseClient
 
 
 @Composable
-fun SignUp3OTP (navController: NavController, email: String) {
+fun SignUp3OTP (navController: NavController, email: String,password: String) {
 
 
     var otp = remember { mutableStateOf(MutableList(6) { "" }) }
@@ -62,13 +62,14 @@ fun SignUp3OTP (navController: NavController, email: String) {
         composableScope.launch(Dispatchers.IO) {
             try {
                 //val result = supabaseClient.auth.signUpWith(Google)
-                val result = supabaseClient.auth.signUpWith(Email) {
-                    this.email= email  // Pass the value, not the state
+                val signUpResult = supabaseClient.auth.signUpWith(Email) {
+                    this.email = email
+                    this.password = password
                 }
 
                 // Switch to Main thread for navigation
                 withContext(Dispatchers.Main) {
-                    navController.navigate("SignUp3OTP?email=${email}")
+                    navController.navigate("SignUp3OTP?email=${email}&password=${password}")
                 }
 
             } catch (e: Exception) {
