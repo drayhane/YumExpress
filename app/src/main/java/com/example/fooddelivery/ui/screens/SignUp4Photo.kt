@@ -86,12 +86,6 @@ fun showPictureOptions(
         .show()
 }
 
-
-/*
-The ActivityResultContracts.TakePicturePreview() launcher provides a Bitmap when the user
-takes a picture. However, rememberAsyncImagePainter() needs a Uri to display the image,
-not a Bitmap. So, the Bitmap had to be converted to a Uri for it to work properly in the
-Image composable.*/
 fun saveBitmapToUri(context: Context, bitmap: Bitmap): Uri? {
     val contentResolver = context.contentResolver
     val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -106,7 +100,7 @@ fun saveBitmapToUri(context: Context, bitmap: Bitmap): Uri? {
             "profile_picture_${System.currentTimeMillis()}.jpg"
         )
         put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/") // Or specify another folder
+        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/")
     }
 
     val imageUri = contentResolver.insert(imageCollection, imageDetails)
@@ -123,18 +117,14 @@ fun saveBitmapToUri(context: Context, bitmap: Bitmap): Uri? {
     } catch (e: IOException) {
         e.printStackTrace()
     }
-
     return null
 }
-
 
 @Composable
 fun SignUp4Photo(navController: NavController) {
 
-
     // to access users informations
     val userViewModel: UserViewModel = viewModel()
-
 
     val users = remember { mutableStateListOf<User1>() }
     var newUser by remember { mutableStateOf("") }
@@ -200,7 +190,6 @@ fun SignUp4Photo(navController: NavController) {
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Placeholder Icon
                 Icon(
                     imageVector = Icons.Default.AddAPhoto,
                     contentDescription = "Add Profile Picture",
@@ -220,8 +209,8 @@ fun SignUp4Photo(navController: NavController) {
             fontWeight = FontWeight.Bold,
             color = Color.Black,
         )
-        Spacer(modifier = Modifier.height(20.dp))
 
+        Spacer(modifier = Modifier.height(20.dp))
 
         MyTextField("Name", value = name.value, onValueChange = { name.value = it })
         MyTextField(
@@ -233,8 +222,8 @@ fun SignUp4Photo(navController: NavController) {
             value = userAddress.value,
             onValueChange = { userAddress.value = it })
 
-
         Spacer(modifier = Modifier.weight(1f))
+
         Button(
             onClick = {
                 composableScope.launch(Dispatchers.IO) {
@@ -244,7 +233,6 @@ fun SignUp4Photo(navController: NavController) {
                     val userId = currentUser?.id ?: throw Exception("User not authenticated")
                     val email = currentUser.email
                     val password = "no need"
-
 
                     // to add the cart
                     val uniqueCardId = UUID.randomUUID().toString()

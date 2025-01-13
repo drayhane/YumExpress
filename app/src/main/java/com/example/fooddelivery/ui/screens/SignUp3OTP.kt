@@ -50,12 +50,9 @@ import supabaseClient
 @Composable
 fun SignUp3OTP (navController: NavController, email: String,password: String) {
 
-
     var otp = remember { mutableStateOf(MutableList(6) { "" }) }
     val errorMessage = remember { mutableStateOf("") }
     val composableScope = rememberCoroutineScope()
-
-
 
     fun resendOtp() {
 
@@ -81,33 +78,30 @@ fun SignUp3OTP (navController: NavController, email: String,password: String) {
 
     }
 
-
-
     Surface(
         color = Color.White,
         modifier = Modifier.fillMaxSize()// to vocer the whole screen
 
     ) {
-
         Column(
 
             modifier = Modifier
-                .fillMaxSize() // Makes the Column fill the entire screen
+                .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
-            verticalArrangement = Arrangement.Center, // Center vertically
-            //verticalArrangement = Arrangement.Center // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
             BackArrowButton(navController)
+
             Spacer(modifier = Modifier.height(20.dp))
 
-
             TitleTexte("Sign Up")
+
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = "Please check your email",
-                modifier = Modifier.fillMaxWidth(), // to  align it to the left
+                modifier = Modifier.fillMaxWidth(),
                 style = TextStyle(
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Medium,
@@ -119,7 +113,6 @@ fun SignUp3OTP (navController: NavController, email: String,password: String) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Appelle la fonction de champ OTP et passe la liste et la fonction de mise à jour
             OtpTextField(
                 otp = otp.value,
                 onOtpChange = { index, newValue ->
@@ -160,7 +153,6 @@ fun SignUp3OTP (navController: NavController, email: String,password: String) {
             } ,modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(56.dp),
-
                 contentPadding = PaddingValues(),
                 colors = ButtonDefaults.buttonColors(Color.Black),
                 shape = RoundedCornerShape(8.dp)
@@ -181,18 +173,13 @@ fun SignUp3OTP (navController: NavController, email: String,password: String) {
                     )
                 }
             }
-
-
             if (errorMessage.value.isNotEmpty()) {
                 Text(errorMessage.value, color = Color.Red)
             }
 
-
             Spacer(modifier = Modifier.height(10.dp))
 
             HaveAccount(navController)
-
-
         }
     }
 }

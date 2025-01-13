@@ -44,6 +44,7 @@ import reviewRespositoryImpl
 import com.example.fooddelivery.navigationview.NavigationView
 import com.example.fooddelivery.ui.screens.HomeScreen
 import com.example.fooddelivery.ui.screens.WelcomePages.LogoPage
+import com.example.fooddelivery.ui.screens.WelcomePages.Welcome1
 import com.example.fooddelivery.ui.screens.WelcomePages.userOrNull
 
 
@@ -145,6 +146,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("LogoPage"){ LogoPage(navController) }
+                        composable("Welcome1"){ Welcome1(navController) }
 
                         composable("userOrNull"){ userOrNull(navController) }
 

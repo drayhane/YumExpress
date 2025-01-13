@@ -86,25 +86,24 @@ fun SignUp1 (navController: NavController){
 
     Surface(
         color = Color.White,
-        modifier = Modifier.fillMaxSize()// to vocer the whole screen
+        modifier = Modifier.fillMaxSize()
 
     ){
 
         Column (
             modifier = Modifier
-                .fillMaxSize() // Makes the Column fill the entire screen
+                .fillMaxSize()
                 .padding(16.dp),
 
-            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
-            //verticalArrangement = Arrangement.Center // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally,
         ){
             Spacer(modifier = Modifier.height(32.dp))
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo background", // A description for accessibility
+                contentDescription = "Logo background",
                 modifier = Modifier
-                    .width(290.dp)  // Set width
-                    .height(100.dp) // Set height
+                    .width(290.dp)
+                    .height(100.dp)
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -130,7 +129,6 @@ fun SignUp1 (navController: NavController){
 
             Button(onClick = {
 
-                // Handle input validation
                 if (email.value.isBlank() || password.value.isBlank()) {
                     errorMessage.value = "All fields are required"
                     return@Button
@@ -151,7 +149,7 @@ fun SignUp1 (navController: NavController){
 
                         // Switch to the Main thread to handle navigation
                         withContext(Dispatchers.Main) {
-                            navController.navigate("HomeScreen") // Navigate to the Home screen or appropriate pag
+                            navController.navigate("HomeScreen") // Navigate to the Home screen or appropriate page
                         }
 
                     } catch (e: Exception) {
@@ -182,19 +180,14 @@ fun SignUp1 (navController: NavController){
                 }
             }
 
-
             Spacer(modifier = Modifier.weight(1f))
+
             OrSeparator()
-
-            //GoogleLoginIn{(println("Google login clicked!"))}
-
-            //InsertButton()
             GoogleButton(navController)
 
             Spacer(modifier = Modifier.height(15.dp))
+
             DontHaveAccount(navController)
-
-
         }
     }
 

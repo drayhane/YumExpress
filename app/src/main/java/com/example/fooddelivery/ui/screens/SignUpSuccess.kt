@@ -25,18 +25,16 @@ import com.example.fooddelivery.components.TitleTexte
 fun SignUpSuccess (navController: NavController){
     Surface(
         color = Color.White,
-        modifier = Modifier.fillMaxSize()// to vocer the whole screen
+        modifier = Modifier.fillMaxSize()
 
     ){
 
         Column (
 
             modifier = Modifier
-                .fillMaxSize() // Makes the Column fill the entire screen
+                .fillMaxSize()
                 .padding(16.dp),
-
-            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
-            //verticalArrangement = Arrangement.Center // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -47,11 +45,11 @@ fun SignUpSuccess (navController: NavController){
 
             Image(
                 painter = painterResource(id = R.drawable.man),
-                contentDescription = "Logo background", // A description for accessibility
+                contentDescription = "Logo background",
                 modifier = Modifier.size(290.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            ButtonComponent("Continue",navController,"Welcome1") // should go to the acceuil
+            ButtonComponent("Continue",navController,"HomeScreen") // should go to the acceuil
         }}
 }

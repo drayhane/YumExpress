@@ -199,7 +199,7 @@ fun NextButton(text: String, pagerState: PagerState,navController: NavController
                 }
                 else {
                     // Navigate to the login page if on the last page
-                    navController.navigate("HomeScreen") // Adjust the destination as per your route
+                    navController.navigate("LogIn") // Adjust the destination as per your route
                 }
             }
         },

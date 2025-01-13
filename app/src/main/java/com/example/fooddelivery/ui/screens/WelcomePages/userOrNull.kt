@@ -16,26 +16,38 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun userOrNull(navController: NavController) {
     val context = LocalContext.current
-    // Retrieve the saved login status from SharedPreferences
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch", true)
     val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
-    // Use LaunchedEffect to navigate once the check is complete
+    // Use LaunchedEffect to navigate once the checks are complete
     LaunchedEffect(Unit) {
-        if (isLoggedIn) {
-            // User is logged in, navigate to the main screen
-            navController.navigate("HomeScreen") {
-                popUpTo("userOrNull") { inclusive = true }
+        when {
+            isFirstLaunch -> {
+                // Mark first launch as false for future app starts
+                sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
+
+                // Navigate to the onboarding screen
+                navController.navigate("Welcome1") {
+                    popUpTo("userOrNull") { inclusive = true }
+                }
             }
-        } else {
-            // User is not logged in, navigate to the login screen
-            navController.navigate("LogoPage") {
-                popUpTo("userOrNull") { inclusive = true }
+            isLoggedIn -> {
+                // User is logged in, navigate to the main screen
+                navController.navigate("HomeScreen") {
+                    popUpTo("userOrNull") { inclusive = true }
+                }
+            }
+            else -> {
+                // User is not logged in, navigate to the login screen
+                navController.navigate("LogoPage") {
+                    popUpTo("userOrNull") { inclusive = true }
+                }
             }
         }
     }
 
-    // Show a loading indicator while checking the login status
+    // Show a loading indicator while checking the statuses
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
