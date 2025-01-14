@@ -80,7 +80,7 @@ fun ForgotPassword2(navController: NavController, email: String) {
 
                         // Navigate back or show success message
                         withContext(Dispatchers.Main) {
-                            navController.navigate("SignUpSuccess") // or any other page after success.
+                            navController.navigate("LogIn") // or any other page after success.
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {

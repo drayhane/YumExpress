@@ -3,6 +3,8 @@ package com.example.fooddelivery.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,8 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -76,14 +76,13 @@ fun RestaurantList(
     val favorisRes:FavorisRepository=FavorisRepositoryImpl()
 
 
-   LaunchedEffect(Unit){
-   val currentUser = supabaseClient.auth.currentUserOrNull()
-    val userId = currentUser?.id ?: throw Exception("User not authenticated")
-        val favoris = favorisRes.getFavRestaurants(userId) // Retourne une liste d'objets Restaurant
-        favoriteRestaurants.clear()
-        if (favoris != null) {
-            favoriteRestaurants.addAll(favoris)
-        }
+    var currentUser by remember { mutableStateOf(supabaseClient.auth.currentUserOrNull()) }
+    var userLoading by remember { mutableStateOf(true) }
+
+    // Fetch the user on component load
+    LaunchedEffect(Unit) {
+        currentUser = supabaseClient.auth.currentUserOrNull()
+        userLoading = false // Update loading state
     }
 
 
@@ -106,6 +105,32 @@ fun RestaurantList(
             isLoading.value = false
         }
     }
+
+
+    if (userLoading) {
+       // CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        return
+    }
+
+    if (currentUser == null) {
+        Text(
+            text = "User not authenticated.",
+            color = Color.Red,
+           // modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        return
+    }
+
+    LaunchedEffect(currentUser?.id) {
+        try {
+            val favoris = favorisRes.getFavRestaurants(currentUser?.id!!)
+            favoriteRestaurants.clear()
+            favoriteRestaurants.addAll(favoris ?: emptyList())
+        } catch (e: Exception) {
+            errorMessage.value = "Failed to load favorites: ${e.message}"
+        }
+    }
+
 
     Column(
         modifier = Modifier

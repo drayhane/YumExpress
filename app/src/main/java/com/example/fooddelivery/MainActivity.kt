@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
             startApp()
         } else {
             // If location is denied, show a message and close the app
-            showPermissionDeniedDialog()
+           /* showPermissionDeniedDialog()*/
         }
     }
     private fun startApp() {

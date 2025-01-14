@@ -73,7 +73,7 @@ fun TrackCard(
      val  OrderRepository:OrderRespository= OrderRespositoryImpl()
     LaunchedEffect(Unit) {
         while (activeIconIndex < 7) {
-            delay(10_000)  // Delay for 2.5 minutes before incrementing
+            delay(7_000)  // Delay for 2.5 minutes before incrementing
             activeIconIndex++
 
             // Send notification based on the active index
