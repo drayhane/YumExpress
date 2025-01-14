@@ -1,6 +1,7 @@
 package com.example.fooddelivery.ui.screens
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,6 +56,8 @@ import com.example.fooddelivery.data.local.User1
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
+import com.google.gson.Gson
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Google
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +67,7 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 import java.util.UUID
@@ -82,25 +86,24 @@ fun SignUp1 (navController: NavController){
 
     Surface(
         color = Color.White,
-        modifier = Modifier.fillMaxSize()// to vocer the whole screen
+        modifier = Modifier.fillMaxSize()
 
     ){
 
         Column (
             modifier = Modifier
-                .fillMaxSize() // Makes the Column fill the entire screen
+                .fillMaxSize()
                 .padding(16.dp),
 
-            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
-            //verticalArrangement = Arrangement.Center // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally,
         ){
             Spacer(modifier = Modifier.height(32.dp))
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo background", // A description for accessibility
+                contentDescription = "Logo background",
                 modifier = Modifier
-                    .width(290.dp)  // Set width
-                    .height(100.dp) // Set height
+                    .width(290.dp)
+                    .height(100.dp)
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -126,7 +129,6 @@ fun SignUp1 (navController: NavController){
 
             Button(onClick = {
 
-                // Handle input validation
                 if (email.value.isBlank() || password.value.isBlank()) {
                     errorMessage.value = "All fields are required"
                     return@Button
@@ -147,7 +149,7 @@ fun SignUp1 (navController: NavController){
 
                         // Switch to the Main thread to handle navigation
                         withContext(Dispatchers.Main) {
-                            navController.navigate("HomeScreen") // Navigate to the Home screen or appropriate pag
+                            navController.navigate("HomeScreen") // Navigate to the Home screen or appropriate page
                         }
 
                     } catch (e: Exception) {
@@ -178,19 +180,14 @@ fun SignUp1 (navController: NavController){
                 }
             }
 
-
             Spacer(modifier = Modifier.weight(1f))
+
             OrSeparator()
-
-            //GoogleLoginIn{(println("Google login clicked!"))}
-
-            //InsertButton()
             GoogleButton(navController)
 
             Spacer(modifier = Modifier.height(15.dp))
+
             DontHaveAccount(navController)
-
-
         }
     }
 
@@ -198,6 +195,185 @@ fun SignUp1 (navController: NavController){
 
 
 
+
+@Composable
+fun GoogleButton(navController: NavController) {
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+    val emailExists = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val users = remember { mutableStateListOf<User1>() }
+    var newUser by remember { mutableStateOf("") }
+    val onClick: () -> Unit = {
+        val credentialManager = CredentialManager.create(context)
+
+        // Generate a nonce and hash it with sha-256
+        // Providing a nonce is optional but recommended
+        val rawNonce = UUID.randomUUID().toString() // Generate a random String. UUID should be sufficient, but can also be any other random string.
+        val bytes = rawNonce.toString().toByteArray()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) } // Hashed nonce to be passed to Google sign-in
+
+
+
+
+        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId("892291624682-oltjcnjapqak09e86nv142t8auivcbjo.apps.googleusercontent.com")
+            .setNonce(hashedNonce) // Provide the nonce if you have one
+            .build()
+
+        val request: GetCredentialRequest = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        coroutineScope.launch {
+            try {
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = context,
+                )
+
+                val googleIdTokenCredential = GoogleIdTokenCredential
+                    .createFrom(result.credential.data)
+
+                val googleIdToken = googleIdTokenCredential.idToken
+
+                supabaseClient.auth.signInWith(IDToken) {
+                    idToken = googleIdToken
+                    provider = Google
+                    nonce = rawNonce
+                }
+
+
+                val currentUser = supabaseClient.auth.currentUserOrNull()
+
+                if (currentUser != null) {
+
+
+                    // to check if user is already registered or no
+                    // Fetch users from Supabase
+                    val fetchedUsers = supabaseClient
+                        .from("user1")
+                        .select(columns = Columns.list("email")) // Fetch only the email column
+
+                    if (fetchedUsers.data is String) {
+                        // Parse the JSON string into a list of maps
+                        val gson = Gson()
+                        val userListType = object : TypeToken<List<Map<String, String>>>() {}.type
+                        val users: List<Map<String, String>> =
+                            gson.fromJson(fetchedUsers.data, userListType)
+
+                        // Now check if any email matches the entered email
+                        val emails = users.mapNotNull { user ->
+                            val userEmail =
+                                user["email"]?.trim()?.lowercase() // Extract and normalize email
+                            Log.d(
+                                "ExtractedEmail",
+                                "Extracted email: ${currentUser.email}"
+                            ) // Log extracted email
+                            userEmail // Return the email or null if not found
+                        }
+
+                        Log.d("FetchedEmails", "Emails: $emails")
+
+                        // Now check for existence
+                        emailExists.value = emails.any { it == currentUser.email?.lowercase() }
+
+                    }
+
+                    // if the user already exsist just log in , no need to register him again
+                    if (!emailExists.value) {
+                    val uniqueCardId = UUID.randomUUID().toString()
+
+                    val cart = Cart(
+                        id_card = uniqueCardId,
+                        total_price = 0.0,
+                        food_note = "0",
+                        Id_rest = null,
+                        is_active = true
+                    )
+                    supabaseClient.from("cart").insert(cart)
+
+                    // Prepare data for insertion
+                    val dataToInsert = mapOf(
+                        "id_user" to currentUser.id,
+                        "email" to currentUser.email,
+                        "password" to "no need", // Assuming you don't need password
+                        "profile_picture" to null, // Assuming profile picture is not available here
+                        "num_tel" to "", // Assuming no phone number is available here
+                        "adress" to "", // Assuming no address is available here
+                        "location" to "null",
+                        "name" to googleIdTokenCredential.displayName,
+                        "id_card" to uniqueCardId
+                    )
+                    // Insert into user1 table
+                    val user = supabaseClient.from("user1").insert(dataToInsert) {
+                        select()
+                        single()
+                    }.decodeAs<User1>()
+                    users.add(user)
+                    newUser = ""
+                }
+            }
+                sharedPreferences.edit().putBoolean("is_logged_in", true).apply()
+                navController.navigate("HomeScreen") {
+                    popUpTo("LogIn") { inclusive = true }
+                }
+
+                // Handle successful sign-in
+            } catch (e: GetCredentialException) {
+                Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+            } catch (e: GoogleIdTokenParsingException) {
+                Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+            } catch (e: RestException) {
+                Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Button Style
+    Spacer(modifier = Modifier.height(12.dp))
+
+    // Row layout for the button
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(8.dp)) // Rounded corners
+            .background(Color.White) // White background
+            .clickable(onClick = onClick) // Handle click
+            .border(1.dp, Color.LightGray, RoundedCornerShape(32.dp)), // Light gray border
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        // Google logo
+        Image(
+            painter = painterResource(id = R.drawable.googlelogo),
+            contentDescription = "Google Logo",
+            modifier = Modifier
+                .height(24.dp)
+                .padding(end = 8.dp) // Space between logo and text
+        )
+
+        // Text
+        Text(
+            text = "Continue with Google",
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal
+        )
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+}
+
+
+/*
 @Composable
 fun GoogleButton(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
@@ -330,7 +506,7 @@ fun GoogleButton(navController: NavController) {
 
     Spacer(modifier = Modifier.height(12.dp))
 }
-
+*/
 
 
 

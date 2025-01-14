@@ -56,7 +56,6 @@ fun SignUp2 (navController: NavController){
     // to acces the infos whenver i'm
     val userViewModel: UserViewModel = viewModel()
 
-
     // State variables for input fields
     var email = remember { mutableStateOf("") }
     var password = remember { mutableStateOf("") }
@@ -66,100 +65,34 @@ fun SignUp2 (navController: NavController){
 
     Surface(
         color = Color.White,
-        modifier = Modifier.fillMaxSize()// to vocer the whole screen
+        modifier = Modifier.fillMaxSize()
 
     ){
-
         Column (
-
             modifier = Modifier
-                .fillMaxSize() // Makes the Column fill the entire screen
+                .fillMaxSize()
                 .padding(16.dp),
-
-            horizontalAlignment = Alignment.CenterHorizontally, // Center horizontally
-            //verticalArrangement = Arrangement.Center // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally,
         ){
             BackArrowButton(navController)
-            Spacer(modifier = Modifier.height(20.dp))
 
+            Spacer(modifier = Modifier.height(20.dp))
 
             TitleTexte("Sign Up")
             Spacer(modifier = Modifier.height(20.dp))
-
             MyTextField("Email address", value = email.value, onValueChange = { email.value = it })
             passwordTextField("Password", value = password.value, onValueChange = { password.value = it })
-            Spacer(modifier = Modifier.height(12.dp))
-            passwordTextField("Confirm password", value = confirmPassword.value, onValueChange = { confirmPassword.value = it })
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            passwordTextField("Confirm password", value = confirmPassword.value, onValueChange = { confirmPassword.value = it })
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Display error message if any
             if (errorMessage.value.isNotEmpty()) {
                 Text(errorMessage.value, color = Color.Red, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
             }
-
-
-         /*   Button(onClick = {
-                // Collect email and password from the input fields
-                val email = email.value
-                val password = password.value
-                val confirmPassword = confirmPassword.value
-
-                // Validate fields
-                if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                    errorMessage.value = "All fields are required"
-                    return@Button
-                }
-
-                // Check if the passwords match
-                if (password != confirmPassword) {
-                    errorMessage.value = "Passwords do not match"
-                    return@Button
-                }
-
-                // Check if the email already exists before proceeding with sign up
-                composableScope.launch(Dispatchers.IO) {
-                    try {
-                        // Check if the email exists in Supabase (by attempting to sign in)
-                        val existingUser = supabaseClient.auth.signInWith(Email)  {
-                            this.email = email
-                        }
-
-                        // If the user exists, show an error message
-                        withContext(Dispatchers.Main) {
-                            errorMessage.value = "This email is already registered."
-                        }
-
-                    } catch (e: Exception) {
-                        // If signInWithEmail fails (email doesn't exist), proceed to sign up
-                        try {
-                            // Proceed with the sign-up logic
-                            val result = supabaseClient.auth.signUpWith(Email) {
-                                this.email = email
-                                this.password = password
-                            }
-
-                            // After successful sign-up, navigate to OTP page
-                            withContext(Dispatchers.Main) {
-                                navController.navigate("SignUp3OTP?email=${email}")
-                            }
-
-                        } catch (e: Exception) {
-                            // Handle other errors (e.g., sign-up failure)
-                            withContext(Dispatchers.Main) {
-                                errorMessage.value = e.message ?: "Sign-up failed"
-                            }
-                        }
-                    }
-                }
-
-            }, modifier = Modifier.fillMaxWidth().heightIn(56.dp), contentPadding = PaddingValues(), colors = ButtonDefaults.buttonColors(Color.Black), shape = RoundedCornerShape(8.dp)) {
-                Box(modifier = Modifier.fillMaxWidth().heightIn(48.dp).background(color = MainBlack), contentAlignment = Alignment.Center) {
-                    Text("Next", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            }*/
 
             val isLoading = remember { mutableStateOf(false) }
             val emailExists = remember { mutableStateOf(false) }
@@ -184,8 +117,6 @@ fun SignUp2 (navController: NavController){
                     composableScope.launch(Dispatchers.IO) {
                         try {
                             isLoading.value = true  // Active l'état de chargement
-
-
 
                             // Fetch users from Supabase
                             val fetchedUsers = supabaseClient
@@ -226,7 +157,7 @@ fun SignUp2 (navController: NavController){
                             withContext(Dispatchers.Main) {
                                 if (emailExists.value) {
                                     errorMessage.value =
- "This email is already registered."
+                                      "This email is already registered."
                                 } else {
                                     // Procédez à l'inscription
                                     try {
@@ -236,7 +167,7 @@ fun SignUp2 (navController: NavController){
                                         }
 
                                         withContext(Dispatchers.Main) {
-                                            navController.navigate("SignUp3OTP?email=${email}")
+                                            navController.navigate("SignUp3OTP?email=${email}&password=${password}")
                                         }
                                     } catch (e: Exception) {
                                         withContext(Dispatchers.Main) {
@@ -281,21 +212,12 @@ fun SignUp2 (navController: NavController){
             if (isLoading.value) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             }
-
-
-
-
-
-
             OrSeparator()
-
-            GoogleLoginIn{}
-
+            GoogleButton(navController)
 
             Spacer(modifier = Modifier.height(15.dp))
+
             HaveAccount(navController)
-
-
         }
     }
 }

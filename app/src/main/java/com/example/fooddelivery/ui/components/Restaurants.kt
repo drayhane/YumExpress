@@ -75,9 +75,10 @@ fun RestaurantList(
     val favoriteRestaurants = remember { mutableStateListOf<Restaurant>() }
     val favorisRes:FavorisRepository=FavorisRepositoryImpl()
 
-    val currentUser = supabaseClient.auth.currentUserOrNull()
+
+   LaunchedEffect(Unit){
+   val currentUser = supabaseClient.auth.currentUserOrNull()
     val userId = currentUser?.id ?: throw Exception("User not authenticated")
-    LaunchedEffect(Unit){
         val favoris = favorisRes.getFavRestaurants(userId) // Retourne une liste d'objets Restaurant
         favoriteRestaurants.clear()
         if (favoris != null) {

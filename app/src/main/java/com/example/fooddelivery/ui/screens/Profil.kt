@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.R
+import com.example.fooddelivery.components.LogoutButton
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
@@ -161,14 +162,17 @@ fun DisplayProfil(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Address
-            CustomTextField(label = "Address", value = user.adress)
+            CustomTextField(label = "Address", value = user.adress ?: "",)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Phone number
-            CustomTextField(label = "Phone number", value = user.num_tel)
+            CustomTextField(label = "Phone number", value = user.num_tel?: "")
 
             Spacer(modifier = Modifier.weight(1f))
+
+            LogoutButton(navController)
+
         }
     }
         },

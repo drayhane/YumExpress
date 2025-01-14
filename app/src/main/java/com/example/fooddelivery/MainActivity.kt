@@ -38,6 +38,9 @@ import com.example.fooddelivery.ui.screens.Displaymeal
 import com.example.fooddelivery.ui.screens.HomeScreen
 import com.example.fooddelivery.ui.screens.RestaurantScreen
 import com.example.fooddelivery.ui.screens.TrackingScreen
+import com.example.fooddelivery.ui.screens.WelcomePages.LogoPage
+import com.example.fooddelivery.ui.screens.WelcomePages.Welcome1
+import com.example.fooddelivery.ui.screens.WelcomePages.userOrNull
 import com.example.fooddelivery.ui.theme.FoodDeliveryTheme
 import com.google.gson.Gson
 import restoRepositoryImpl
@@ -119,7 +122,7 @@ class MainActivity : ComponentActivity() {
                     // Navigation logic directly embedded
                     NavHost(
                         navController = navController,
-                        startDestination = "Login"
+                        startDestination = "userOrNull"
                     ) {
                         composable(
                             route = "tracking_screen?lat={lat}&lon={lon}&lat2={lat2}&lon2={lon2}&name={name}&num={num}&res={res}&id_res={id_res}&id_order={id_order}",
@@ -169,6 +172,16 @@ class MainActivity : ComponentActivity() {
                                 id_order = id_order,
                             )
                         }
+
+                        composable("LogoPage"){ LogoPage(navController) }
+                        composable("Welcome1"){ Welcome1(navController) }
+
+                        composable("userOrNull"){ userOrNull(navController) }
+
+                        composable ("Profil") {
+                            DisplayProfil(navController)
+                        }
+
                         composable("address_screen") {
                             AddressScreen(
                                 context = this@MainActivity,

@@ -343,13 +343,13 @@ fun RestaurantScreen(
                                 .height(65.dp)
                                 .border(1.dp, Color(0xFF1F1F1F), RoundedCornerShape(8.dp))
                                 .background(Color(0xFFFFFFFF), RoundedCornerShape(8.dp))
-                                .padding(12.dp), // Padding inside the Box
-                            contentAlignment = Alignment.Center // Ensures the content (Row) is centered
+                                .padding(12.dp),
+                            contentAlignment = Alignment.Center
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.SpaceEvenly, // Space elements evenly
-                                verticalAlignment = Alignment.CenterVertically, // Align Row content vertically
-                                modifier = Modifier.fillMaxWidth() // Make Row span the full width of the Box
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 // First Column
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -434,7 +434,7 @@ fun RestaurantScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(400.dp) // Set a fixed height for the independent scrollable list
+                                .height(400.dp)
                         ){
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 items(filteredMenuItems) { menuItem ->
