@@ -25,33 +25,6 @@ import com.example.fooddelivery.ui.components.SearchBar
 import com.example.fooddelivery.ui.components.OfferFood
 import com.example.fooddelivery.ui.components.CategoryList
 import com.example.fooddelivery.ui.components.RestaurantList
-
-/*@Composable
-fun HomeScreen() {
-    val repo = restoRepositoryImpl()
-    val getrestoUseCase = GetRestoUsecase(repo)
-
-    val categoryrepository = CategoryRepositoryImpl()
-    val getcategoryUseCase = GetCategoriesUseCase(categoryrepository)
-
-    var searchText by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        LocationInfo()
-        SearchBar() // Pass the search text handler
-        OfferFood()
-        CategoryList(getCategoriesUseCase = getcategoryUseCase)
-        RestaurantList(getrestoUseCase = getrestoUseCase) // Filtered list based on searchText
-    }
-}
-*/
-
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val repo = restoRepositoryImpl()
@@ -63,7 +36,7 @@ fun HomeScreen(navController: NavHostController) {
     val getcategoryUseCase = GetCategoriesUseCase(categoryrepository)
 
     var searchText by remember { mutableStateOf("") }
-    val resetCategory = remember { mutableStateOf(false) } // Flag to reset the category when "Most Popular" is clicked
+    val resetCategory = remember { mutableStateOf(false) }
 
     Scaffold(
 
@@ -71,19 +44,19 @@ fun HomeScreen(navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues) // Respect padding from the Scaffold
-                    .padding(8.dp) // Additional padding
-                    .verticalScroll(rememberScrollState()), // Enable vertical scrolling
+                    .padding(paddingValues)
+                    .padding(8.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 LocationInfo()
-                SearchBar(onSearchTextChanged = { searchText = it }) // Pass the search text handler
+                SearchBar(onSearchTextChanged = { searchText = it })
                 OfferFood()
 
                 CategoryList(
                     getCategoriesUseCase = getcategoryUseCase,
                     onCategorySelected = { categoryName ->
-                        selectedCategory.value = categoryName // Filter restaurants based on selected category
+                        selectedCategory.value = categoryName
                     },
                     selectedCategory = selectedCategory.value,
                 )
@@ -94,7 +67,7 @@ fun HomeScreen(navController: NavHostController) {
                     selectedCategory = selectedCategory.value,
                     onCategorySelected = { categoryName ->
                         selectedCategory.value = categoryName
-                        resetCategory.value = true // Set the flag to reset the category
+                        resetCategory.value = true
                     },
                     navController = navController
                 )
