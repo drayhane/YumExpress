@@ -1,4 +1,5 @@
 
+
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,7 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.data.model.compose
 import com.example.fooddelivery.data.model.order1
@@ -48,8 +47,8 @@ import com.example.fooddelivery.domain.respository.ComposeRepository
 import com.example.fooddelivery.domain.respository.ComposeRepositoryImpl
 import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
+import com.example.fooddelivery.navigationview.BottomNavigationBar
 import com.example.fooddelivery.ui.theme.Black1F
-
 import com.google.gson.Gson
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -78,102 +77,116 @@ fun DisplayOrders(navController: NavHostController) {
     val ordersWithDetails = remember { mutableStateOf<List<OrderWithDetails>>(emptyList()) }
     val isLoading = remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            try {
-                val fetchedOrders = orderRepository.Getorders(userid)
-                val ordersDetails = fetchedOrders.map { order ->
-                    val delivery= order.Id_rest?.let { restaurantRepository.getdeliveryprice(it) }
-                    val cartResponse = order.id_card?.let { cartRepository.GetCart(it) }
-                    val products = cartResponse?.id_card?.let { idCard ->
-                        composeRepository.getproducts(idCard)
-                    } ?: emptyList()
-                    val productCount = products.size
-                     totalPrice = cartResponse?.total_price ?: 0.0 + (delivery?.toDouble() ?: 0.0) +100// 100 c'est le plus de platfor TODO essaie de le metre comme global var
-                    OrderWithDetails(order, totalPrice, products, productCount)
-                }
-                ordersWithDetails.value = ordersDetails
-            } catch (e: Exception) {
-                println("Error fetching orders: ${e.message}")
-            } finally {
-                isLoading.value = false
-            }
-        }
-    }
+    Scaffold(
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        // Barre supérieure
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF8F8F8)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Sharp.KeyboardArrowLeft,
-                    contentDescription = "Call",
-                    tint = Black1F,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable  {
-                            navController.popBackStack()
+        content = { paddingValues ->
+
+            LaunchedEffect(Unit) {
+                coroutineScope.launch {
+                    try {
+                        val fetchedOrders = orderRepository.Getorders(userid)
+                        val ordersDetails = fetchedOrders.map { order ->
+                            val delivery =
+                                order.Id_rest?.let { restaurantRepository.getdeliveryprice(it) }
+                            val cartResponse = order.id_card?.let { cartRepository.GetCart(it) }
+                            val products = cartResponse?.id_card?.let { idCard ->
+                                composeRepository.getproducts(idCard)
+                            } ?: emptyList()
+                            val productCount = products.size
+                            totalPrice = cartResponse?.total_price ?: 0.0 + (delivery?.toDouble()
+                                ?: 0.0) + 100// 100 c'est le plus de platfor TODO essaie de le metre comme global var
+                            OrderWithDetails(order, totalPrice, products, productCount)
                         }
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Orders",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Gestion de l'affichage
-        when {
-            isLoading.value -> {
-                // Cercle de chargement
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    color = Color.Black
-                )
-            }
-
-            ordersWithDetails.value.isNotEmpty() -> {
-                // Liste des commandes
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(ordersWithDetails.value) { orderWithDetails ->
-                        OrderItem(orderWithDetails, navController, restaurantRepository)
-                        Divider(
-                            color = Color.LightGray,
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                        ordersWithDetails.value = ordersDetails
+                    } catch (e: Exception) {
+                        println("Error fetching orders: ${e.message}")
+                    } finally {
+                        isLoading.value = false
                     }
                 }
             }
 
-            else -> {
-                // Message si aucune commande n'est trouvée
-                Text(
-                    text = "You don't have any orders yet.",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                // Barre supérieure
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFF8F8F8)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Sharp.KeyboardArrowLeft,
+                            contentDescription = "Call",
+                            tint = Black1F,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    navController.popBackStack()
+                                }
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Orders",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Gestion de l'affichage
+                when {
+                    isLoading.value -> {
+                        // Cercle de chargement
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            color = Color.Black
+                        )
+                    }
+
+                    ordersWithDetails.value.isNotEmpty() -> {
+                        // Liste des commandes
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(ordersWithDetails.value) { orderWithDetails ->
+                                OrderItem(orderWithDetails, navController, restaurantRepository)
+                                Divider(
+                                    color = Color.LightGray,
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {
+                        // Message si aucune commande n'est trouvée
+                        Text(
+                            text = "You don't have any orders yet.",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Gray,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
             }
-        }
-    }
+        },
+
+        bottomBar = {
+            BottomNavigationBar(navController)
+        },
+    )
+
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")

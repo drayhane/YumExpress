@@ -1,6 +1,7 @@
 package com.example.fooddelivery.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,10 +13,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -35,10 +39,13 @@ import com.example.fooddelivery.R
 import com.example.fooddelivery.data.model.User1
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
+import com.example.fooddelivery.navigationview.BottomNavigationBar
+import com.example.fooddelivery.ui.theme.Black1F
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import supabaseClient
+
 
 @Composable
 
@@ -50,17 +57,38 @@ fun DisplayProfil(navController: NavHostController) {
     val user: User1 = runBlocking(Dispatchers.IO) {
         userRepository.getUserById(userId)!!
     }
+
+    Scaffold(
+
+        content = { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
-        IconButton(onClick = { navController.navigateUp() }) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFF8F8F8))
+                .clickable  {
+                    navController.popBackStack()
+                },
+            contentAlignment = Alignment.Center
+
+        ) {
             Icon(
-                painter = painterResource(id = R.drawable.ret_btn),
-                contentDescription = "Back Button",
-                tint = Color.Black
+                imageVector = Icons.Sharp.KeyboardArrowLeft,
+                contentDescription = "Call",
+                tint = Black1F,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable  {
+                        navController.popBackStack()
+
+                    }
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
@@ -143,6 +171,11 @@ fun DisplayProfil(navController: NavHostController) {
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+        },
+        bottomBar = {
+            BottomNavigationBar(navController)
+        }
+    )
 }
 
 

@@ -318,6 +318,7 @@ suspend fun EndPanier(cartid: String){
 
 suspend fun addtopanier(item: compose) {
     try {
+        Log.d("hhhhhhhhhhhhhhhhhhh","compose=$item")
         // Récupérer l'élément existant avec la même clé primaire
         val response = supabaseClient.from("compose")
             .select(columns = Columns.list("*")) {
@@ -331,10 +332,20 @@ suspend fun addtopanier(item: compose) {
         val existingItem = response.decodeSingleOrNull<compose>()
 
         if (existingItem == null) {
-            // Insérer un nouvel élément
+            val dataToInsert = mapOf(
+                "id_item" to item.id_item,
+                "id_card" to item.id_card,
+                "quantity" to item.quantity,
+                "sauce" to item.sauce,
+                "size" to item.size,
+                "note" to item.note
+            )
+
             val insertResponse = supabaseClient
                 .from("compose")
-                .insert(item)
+                .insert(dataToInsert)
+
+
 
         } else {
             // L'élément existe, mettre à jour la quantité

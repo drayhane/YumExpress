@@ -25,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +49,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.domain.respository.FavorisRepository
 import com.example.fooddelivery.domain.respository.FavorisRepositoryImpl
+import com.example.fooddelivery.navigationview.BottomNavigationBar
 import com.example.fooddelivery.ui.theme.Black1F
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -60,6 +62,7 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val favorisRepository: FavorisRepository = FavorisRepositoryImpl()
+
 
     LaunchedEffect(userId) {
         try {
@@ -75,10 +78,13 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
             isLoading = false
         }
     }
+    Scaffold(
 
+        content = { paddingValues ->
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -86,8 +92,12 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF8F8F8)),
+                    .background(Color(0xFFF8F8F8))
+                    .clickable  {
+                        navcontrolle.popBackStack()
+                    },
                 contentAlignment = Alignment.Center
+
             ) {
                 Icon(
                     imageVector = Icons.Sharp.KeyboardArrowLeft,
@@ -96,6 +106,8 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
                     modifier = Modifier
                         .size(24.dp)
                         .clickable  {
+                            navcontrolle.popBackStack()
+
 
                         }
                 )
@@ -132,7 +144,13 @@ fun DisplayFavorits(navcontrolle: NavHostController) {
                 }
             }
         }
-    }
+    }},
+
+        bottomBar = {
+            BottomNavigationBar(navcontrolle)
+        }
+    )
+
 }
 @SuppressLint("CoroutineCreationDuringComposition*")
 @Composable
@@ -144,7 +162,8 @@ fun FavoriteItem(restaurant: Restaurant, userid: String, favorisRepository: Favo
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .padding(vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(color = Color.White),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column {
@@ -203,8 +222,6 @@ fun FavoriteItem(restaurant: Restaurant, userid: String, favorisRepository: Favo
                             modifier = Modifier
                                 .size(20.dp)
                                 .clickable {
-
-                                    // Use coroutine scope to launch the async task instead of LaunchedEffect
                                     coroutineScope.launch {
                                         favorisRepository.removeFromFav(userid, restaurant.id_restaurant)
                                         onRemoveFavorite(restaurant)

@@ -36,6 +36,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +72,7 @@ import com.example.fooddelivery.domain.respository.OrderRespository
 import com.example.fooddelivery.domain.respository.OrderRespositoryImpl
 import com.example.fooddelivery.domain.respository.UserRepository
 import com.example.fooddelivery.domain.respository.UserRepositoryImpl
+import com.example.fooddelivery.navigationview.BottomNavigationBar
 import com.example.fooddelivery.ui.theme.Black1F
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -233,12 +235,15 @@ fun DisplayPanier(navController: NavHostController, adress:String, lat: Double,l
             Log.e("Error", "Error loading products: ${e.message}")
         }
     }
+    Scaffold(
 
+        content = { paddingValues ->
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
         // Header
@@ -490,6 +495,11 @@ fun DisplayPanier(navController: NavHostController, adress:String, lat: Double,l
 
         }
     }}
+            },
+        bottomBar = {
+            BottomNavigationBar(navController)
+        }
+    )
     if (resultMessage.isNotEmpty()) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(resultMessage, color = if (resultMessage.startsWith("Votre commande")) Color.Green else Color.Red)

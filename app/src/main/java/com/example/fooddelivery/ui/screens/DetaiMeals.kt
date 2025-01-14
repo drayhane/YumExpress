@@ -29,10 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -111,7 +109,9 @@ fun Displaymeal(navController: NavHostController, ItemId: String) {
                 )
 
                 IconButton(
-                    onClick = { /* Action for back icon */ },
+                    onClick = {
+                        navController.popBackStack()
+                    },
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Image(
@@ -337,9 +337,9 @@ fun Displaymeal(navController: NavHostController, ItemId: String) {
                                                             id_item = ItemId,
                                                             id_card = it1, // Utilisation de it.id_card si newCartId n'est pas nul
                                                             quantity = quantity.toString(),
-                                                            supp = notes.text,
                                                             sauce = selectedSauces.joinToString(", "),
-                                                            size = selectedSize
+                                                            size = selectedSize,
+                                                            note = notes.text
                                                         )
                                                     }
                                                 }
@@ -365,9 +365,10 @@ fun Displaymeal(navController: NavHostController, ItemId: String) {
                                                             id_item = ItemId,
                                                             id_card = it,
                                                             quantity = quantity.toString(),
-                                                            supp = notes.text,
                                                             sauce = selectedSauces.joinToString(", "),
-                                                            size = selectedSize
+                                                            size = selectedSize,
+                                                            note = notes.text
+
                                                         )
                                                     }
                                                     if (cmp != null) {
@@ -391,9 +392,10 @@ fun Displaymeal(navController: NavHostController, ItemId: String) {
                                                     id_item = ItemId,
                                                     id_card = it,
                                                     quantity = quantity.toString(),
-                                                    supp = notes.text,
                                                     sauce = selectedSauces.joinToString(", "),
-                                                    size = selectedSize
+                                                    size = selectedSize,
+                                                    note = notes.text
+
                                                 )
                                             }
                                             if (cmp != null) {
@@ -462,9 +464,10 @@ fun Displaymeal(navController: NavHostController, ItemId: String) {
                                 id_item = ItemId,
                                 id_card = newCartId ?: "0",
                                 quantity = quantity.toString(),
-                                supp = notes.text,
                                 sauce = selectedSauces.joinToString(", "),
-                                size = selectedSize
+                                size = selectedSize,
+                                note = notes.text
+
                             )
                             composerepository.additemtocart(cmp, item.price)
                             mealAdded = true
