@@ -50,13 +50,12 @@ fun NavigationView() {
 
 
     NavHost(navController= navController, startDestination = "Login"){// normalement Welcome1   SignUp3OTP
-
+        //Navigation for BottomNavigation
         composable(Destination.Home.route) { HomeScreen(navController = navController) }
         composable(Destination.Orders.route) { DisplayOrders(navController) }
         composable(Destination.Carts.route) {  DisplayPanier(navController) }
         composable(Destination.Favorites.route) { DisplayFavorits(navController) }
         composable(Destination.Profile.route) {  DisplayProfil(navController) }
-
         /////////////////////////////////////////////////////////////
         composable("LogIn"){ SignUp1(navController) }
         composable("SignUp2"){ SignUp2(navController) }
@@ -123,12 +122,7 @@ fun NavigationView() {
             ForgotPassword2(navController, email)
         }
 
-        composable ("Profil") {
-            DisplayProfil(navController)
-        }
-
         composable("EditProfil"){ DisplayEdit(navController) }
-        composable("Orders")    {DisplayOrders(navController)}
         composable(
             "details/{order}/{products}/{totalPrice}",
             arguments = listOf(
@@ -145,12 +139,6 @@ fun NavigationView() {
             val totalPrice = Gson().fromJson(totalPriceJson, Double::class.java)
             Displaydetail(navController, order, products, totalPrice)
         }
-        composable("favorits")  {DisplayFavorits(navController)}
-        composable("panier")    { DisplayPanier(navController) }
-
-
-
-
 
     }
 }
